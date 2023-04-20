@@ -2,27 +2,40 @@ const Sequelize         =      require("sequelize");
 const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
 const Model             =      require("../models");
-const ThisModel         =      Model.MasterActivity
+const ThisModel         =      Model.Group
 
 const create = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['Group']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["title"], 
+        "required": ["title","participants"], 
         "properties": { 
+          "title": { 
+            "type": "string",
+          },
+          "participants": { 
+            "type": "array",
+            "description":"Multiple users like [1,2,3]"
+          },
           "title": { 
             "type": "string",
           },
           "icon": { 
             "type": "object",
+            "description":"S3 bucket object"
+          },
+          "description": { 
+            "type": "string",
           }
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
+  req.body['user_id'] = req.user.id
+  req.body['participants'] = req.body['participants'].push(req.user.id)
   return await ThisModel.create(req.body).then(async(doc) => {
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
@@ -31,16 +44,23 @@ const create = async (req, res) => {
 }
 
 const list = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['Group']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
-  
+  //  #swagger.parameters['created_by_user_id'] = {in: 'query',type:'number','description':"Invited By me"}
+  //  #swagger.parameters['participant_user_id'] = {in: 'query',type:'number','description':"Invited For me"}
 
   try{
       let pageSize = 0;
       let skip = 0;
       let query={}
       query['where'] = {}
+      if(req.query.created_by_user_id){
+        query['where']['user_id'] = req.query.created_by_user_id
+      }
+      if(req.query.participant_user_id){
+        query['where']['participants'] = {[Sequelize.Op.in]: req.query.participant_user_id}
+      }
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -58,7 +78,7 @@ const list = async (req, res) => {
 }
 
 const view = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['Group']
   let query={}
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
@@ -68,7 +88,7 @@ const view = async (req, res) => {
 }
 
 const update = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['Group']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
@@ -77,8 +97,19 @@ const update = async (req, res) => {
           "title": { 
             "type": "string",
           },
+          "participants": { 
+            "type": "array",
+            "description":"Multiple users like [1,2,3]"
+          },
+          "title": { 
+            "type": "string",
+          },
           "icon": { 
             "type": "object",
+            "description":"S3 bucket object"
+          },
+          "description": { 
+            "type": "string",
           }
         } 
       } 
@@ -93,7 +124,7 @@ const update = async (req, res) => {
 }
 
 const remove = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['Group']
   try{
     let record = await ThisModel.destroy({where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
@@ -103,8 +134,8 @@ const remove = async (req, res) => {
 }
 
 const bulkremove = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
-  //  #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
+  // #swagger.tags = ['Group']
+  // #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
     let theArray = req.params.ids 
     if(!Array.isArray(theArray)){theArray = theArray.split(",");}
     for (let index = 0; index < theArray.length; ++index) {

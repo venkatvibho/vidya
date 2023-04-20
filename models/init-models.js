@@ -116,6 +116,8 @@ function initModels(sequelize) {
   UserFollowing.hasMany(MasterBeatQuestion, { foreignKey: "user_following_id"});
   SlambookBeat.belongsTo(UserFollowing, { foreignKey: "user_following_id"});
   UserFollowing.hasMany(SlambookBeat, { foreignKey: "user_following_id"});
+  Activity.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(Activity, { foreignKey: "user_id"});
   ActivityUser.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(ActivityUser, { foreignKey: "user_id"});
   ChatRoom.belongsTo(User, { foreignKey: "user_id"});

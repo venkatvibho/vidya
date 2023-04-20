@@ -61,12 +61,14 @@ const list = async (req, res) => {
   // #swagger.tags = ['User']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
-  //  #swagger.parameters['keyword'] = {in: 'query',type:'string'}
+  
 
   try{
       let pageSize = 0;
       let skip = 0;
       let query={}
+      query['where'] = {}
+      // query['include'] = [{model:Model.MasterInterest}]
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -75,6 +77,7 @@ const list = async (req, res) => {
         query['offset'] = skip
         query['limit'] = pageSize
       }
+      query['order'] =[ ['id', 'DESC']]
       const noOfRecord = await ThisModel.findAndCountAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)
   } catch (err) {
@@ -84,7 +87,14 @@ const list = async (req, res) => {
 
 const view = async (req, res) => {
   // #swagger.tags = ['User']
-  let records = await ThisModel.findByPk(req.params.id);
+  let query ={}
+  query['include'] =[ 
+    {
+      model:Model.UserInterest,
+      required:false
+    }
+  ]
+  let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
   }
@@ -157,7 +167,7 @@ const update = async (req, res) => {
           },
           "about_us": { 
             "type": "string"
-          },
+          }
         } 
       } 
     }

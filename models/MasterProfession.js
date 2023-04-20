@@ -14,15 +14,16 @@ class MasterProfession extends Sequelize.Model {
     },
     title: {
       type: DataTypes.STRING(250),
-      allowNull: false
+      allowNull: false,
+      unique: "master_professions_industry_id_title_f1ac32e5_uniq"
     },
     icon: {
-      type: DataTypes.TEXT,
+      type: DataTypes.JSONB,
       allowNull: true
     },
     is_active: {
       type: DataTypes.BOOLEAN,
-      allowNull: false
+      defaultValue: true
     },
     industry_id: {
       type: DataTypes.BIGINT,
@@ -30,7 +31,8 @@ class MasterProfession extends Sequelize.Model {
       references: {
         model: 'master_industries',
         key: 'id'
-      }
+      },
+      unique: "master_professions_industry_id_title_f1ac32e5_uniq"
     }
   }, {
     sequelize,
@@ -42,6 +44,14 @@ class MasterProfession extends Sequelize.Model {
         name: "master_professions_industry_id_e933a1d9",
         fields: [
           { name: "industry_id" },
+        ]
+      },
+      {
+        name: "master_professions_industry_id_title_f1ac32e5_uniq",
+        unique: true,
+        fields: [
+          { name: "industry_id" },
+          { name: "title" },
         ]
       },
       {

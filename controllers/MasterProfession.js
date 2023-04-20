@@ -2,23 +2,27 @@ const Sequelize         =      require("sequelize");
 const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
 const Model             =      require("../models");
-const ThisModel         =      Model.MasterActivity
+const ThisModel         =      Model.MasterProfession
 
 const create = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['MasterProfession']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["title"], 
+        "required": ["title","industry_id"], 
         "properties": { 
           "title": { 
             "type": "string",
           },
           "icon": { 
             "type": "object",
-          }
-        } 
+          },
+          "industry_id": { 
+            "type": "number",
+            "description": "Select id From MatserIndustry",
+          },
+        }
       } 
     }
   */
@@ -31,7 +35,7 @@ const create = async (req, res) => {
 }
 
 const list = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['MasterProfession']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   
@@ -41,6 +45,10 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['include'] = {
+        model:Model.MasterIndustry,
+        required:false
+      }
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -58,8 +66,12 @@ const list = async (req, res) => {
 }
 
 const view = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['MasterProfession']
   let query={}
+  query['include'] = {
+    model:Model.MasterIndustry,
+    required:false
+  }
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
@@ -68,7 +80,7 @@ const view = async (req, res) => {
 }
 
 const update = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['MasterProfession']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
@@ -79,8 +91,12 @@ const update = async (req, res) => {
           },
           "icon": { 
             "type": "object",
-          }
-        } 
+          },
+          "industry_id": { 
+            "type": "number",
+            "description": "Select id From MatserIndustry",
+          },
+        }
       } 
     }
   */
@@ -93,7 +109,7 @@ const update = async (req, res) => {
 }
 
 const remove = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['MasterProfession']
   try{
     let record = await ThisModel.destroy({where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
@@ -103,8 +119,8 @@ const remove = async (req, res) => {
 }
 
 const bulkremove = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
-  //  #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
+  // #swagger.tags = ['MasterProfession']
+  // #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
     let theArray = req.params.ids 
     if(!Array.isArray(theArray)){theArray = theArray.split(",");}
     for (let index = 0; index < theArray.length; ++index) {

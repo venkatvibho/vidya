@@ -157,7 +157,11 @@ const ErrorValidation = async (req,res,err,errtype) => {
                     messages.push(message)
                 });
             }else{
-                messages.push('Try again')
+                let DefMesg = "'Try again'"
+                if(err.name=="SequelizeForeignKeyConstraintError"){
+                    DefMesg = err['parent']['detail']
+                }
+                messages.push(DefMesg)
             }
             if(messages.length>0){
                 msg = messages[0]
