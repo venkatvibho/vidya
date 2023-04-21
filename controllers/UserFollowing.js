@@ -10,16 +10,20 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["first_name","phonenumber"], 
+        "required": ["user_to_id"], 
         "properties": { 
-          "first_name": { 
-            "type": "string",
+          "user_to_id": { 
+            "type": "number",
+            "description":"Take from User"
           }
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
+  req.body['is_slambook_skip'] = false
+  req.body['user_from_id'] = req.user.id
+  req.body['status'] = 'Sent'
   return await ThisModel.create(req.body).then(async(doc) => {
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
@@ -31,13 +35,32 @@ const list = async (req, res) => {
   // #swagger.tags = ['UserFollowing']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
-  
+  //  #swagger.parameters['followed_by_me'] = {in: 'query',type:'number',"description":"Select id From Users"}
+  //  #swagger.parameters['followed_to_me'] = {in: 'query',type:'number',"description":"Select id From Users"}
 
   try{
       let pageSize = 0;
       let skip = 0;
       let query={}
       query['where'] = {}
+      if(req.query.followed_by_me){
+        query['where']['user_from_id'] = req.query.followed_by_me
+      }
+      if(req.query.followed_to_me){
+        query['where']['user_to_id'] = req.query.followed_to_me
+      }
+      query['include'] =[
+        {
+          model:Model.User,
+          as: "FollowingFrom",
+          required:true
+        },
+        {
+          model:Model.User,
+          foreignKey: 'user_to_id',
+          required:true
+        }
+      ]
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -57,6 +80,18 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['UserFollowing']
   let query={}
+  query['include'] =[
+    {
+      model:Model.User,
+      as: "FollowingFrom",
+      required:true
+    },
+    {
+      model:Model.User,
+      foreignKey: 'user_to_id',
+      required:true
+    }
+  ]
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null

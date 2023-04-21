@@ -25,7 +25,7 @@ class User extends Sequelize.Model {
       allowNull: true
     },
     phonenumber: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.BIGINT,
       allowNull: false,
       unique: "users_phonenumber_key"
     },

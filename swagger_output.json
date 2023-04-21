@@ -63,6 +63,11 @@
         "description": "",
         "parameters": [
           {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
             "name": "page_size",
             "in": "query",
             "type": "number"
@@ -73,7 +78,11 @@
             "type": "number"
           }
         ],
-        "responses": {}
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
       }
     },
     "/User/view/{id}": {
@@ -973,6 +982,162 @@
       "delete": {
         "tags": [
           "ActivityUser"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "path",
+            "required": true,
+            "type": "array",
+            "description": "Enter multiple ids"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserFollowing/create": {
+      "post": {
+        "tags": [
+          "UserFollowing"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "user_to_id"
+              ],
+              "properties": {
+                "user_to_id": {
+                  "type": "number",
+                  "description": "Take from User"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserFollowing/list": {
+      "get": {
+        "tags": [
+          "UserFollowing"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "followed_by_me",
+            "in": "query",
+            "type": "number",
+            "description": "Select id From Users"
+          },
+          {
+            "name": "followed_to_me",
+            "in": "query",
+            "type": "number",
+            "description": "Select id From Users"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserFollowing/view/{id}": {
+      "get": {
+        "tags": [
+          "UserFollowing"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserFollowing/delete/{id}": {
+      "delete": {
+        "tags": [
+          "UserFollowing"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserFollowing/bulkdelete/{ids}": {
+      "delete": {
+        "tags": [
+          "UserFollowing"
         ],
         "description": "",
         "parameters": [

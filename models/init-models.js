@@ -138,8 +138,8 @@ function initModels(sequelize) {
   User.hasMany(PostUser, { foreignKey: "user_id"});
   Post.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(Post, { foreignKey: "user_id"});
-  UserFollowing.belongsTo(User, { foreignKey: "user_from_id"});
-  User.hasMany(UserFollowing, { foreignKey: "user_from_id"});
+  UserFollowing.belongsTo(User, { as:"FollowingFrom",foreignKey: "user_from_id"});
+  User.hasMany(UserFollowing, { as:"UserFollowing",foreignKey: "user_from_id"});
   UserFollowing.belongsTo(User, { foreignKey: "user_to_id"});
   User.hasMany(UserFollowing, { foreignKey: "user_to_id"});
   UserInterest.belongsTo(User, { foreignKey: "user_id"});
