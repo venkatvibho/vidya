@@ -2,27 +2,28 @@ const Sequelize         =      require("sequelize");
 const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
 const Model             =      require("../models");
-const ThisModel         =      Model.MasterActivity
+const ThisModel         =      Model.UserFollowing
 
 const create = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['UserFollowing']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["title"], 
+        "required": ["user_to_id"], 
         "properties": { 
-          "title": { 
-            "type": "string",
-          },
-          "icon": { 
-            "type": "object",
+          "user_to_id": { 
+            "type": "number",
+            "description":"Take from User"
           }
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
+  req.body['is_slambook_skip'] = false
+  req.body['user_from_id'] = req.user.id
+  req.body['status'] = 'Sent'
   return await ThisModel.create(req.body).then(async(doc) => {
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
@@ -31,16 +32,35 @@ const create = async (req, res) => {
 }
 
 const list = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['UserFollowing']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
-  
+  //  #swagger.parameters['followed_by_me'] = {in: 'query',type:'number',"description":"Select id From Users"}
+  //  #swagger.parameters['followed_to_me'] = {in: 'query',type:'number',"description":"Select id From Users"}
 
   try{
       let pageSize = 0;
       let skip = 0;
       let query={}
       query['where'] = {}
+      if(req.query.followed_by_me){
+        query['where']['user_from_id'] = req.query.followed_by_me
+      }
+      if(req.query.followed_to_me){
+        query['where']['user_to_id'] = req.query.followed_to_me
+      }
+      query['include'] =[
+        {
+          model:Model.User,
+          as: "FollowingFrom",
+          required:true
+        },
+        {
+          model:Model.User,
+          foreignKey: 'user_to_id',
+          required:true
+        }
+      ]
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -58,8 +78,20 @@ const list = async (req, res) => {
 }
 
 const view = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['UserFollowing']
   let query={}
+  query['include'] =[
+    {
+      model:Model.User,
+      as: "FollowingFrom",
+      required:true
+    },
+    {
+      model:Model.User,
+      foreignKey: 'user_to_id',
+      required:true
+    }
+  ]
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
@@ -68,19 +100,16 @@ const view = async (req, res) => {
 }
 
 const update = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['UserFollowing']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "title": { 
+          "first_name": { 
             "type": "string",
           },
-          "icon": { 
-            "type": "object",
-          }
-        } 
+        }
       } 
     }
   */
@@ -93,7 +122,7 @@ const update = async (req, res) => {
 }
 
 const remove = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['UserFollowing']
   try{
     let record = await ThisModel.destroy({where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
@@ -103,8 +132,8 @@ const remove = async (req, res) => {
 }
 
 const bulkremove = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
-  //  #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
+  // #swagger.tags = ['UserFollowing']
+  // #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
     let theArray = req.params.ids 
     if(!Array.isArray(theArray)){theArray = theArray.split(",");}
     for (let index = 0; index < theArray.length; ++index) {

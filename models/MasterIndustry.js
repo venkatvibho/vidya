@@ -14,10 +14,11 @@ class MasterIndustry extends Sequelize.Model {
     },
     title: {
       type: DataTypes.STRING(250),
-      allowNull: false
+      allowNull: false,
+      unique: "master_industries_title_5c8c57c8_uniq"
     },
     icon: {
-      type: DataTypes.TEXT,
+      type: DataTypes.JSONB,
       allowNull: true
     },
     is_active: {
@@ -35,6 +36,19 @@ class MasterIndustry extends Sequelize.Model {
         unique: true,
         fields: [
           { name: "id" },
+        ]
+      },
+      {
+        name: "master_industries_title_5c8c57c8_like",
+        fields: [
+          { name: "title" },
+        ]
+      },
+      {
+        name: "master_industries_title_5c8c57c8_uniq",
+        unique: true,
+        fields: [
+          { name: "title" },
         ]
       },
     ]

@@ -16,7 +16,7 @@ class ChatRoomHistory extends Sequelize.Model {
       type: DataTypes.BOOLEAN,
       allowNull: false
     },
-    replied_chat_room_id: {
+    replied_chat_room_history_id: {
       type: DataTypes.INTEGER,
       allowNull: true
     },

@@ -2,21 +2,18 @@ const Sequelize         =      require("sequelize");
 const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
 const Model             =      require("../models");
-const ThisModel         =      Model.MasterActivity
+const ThisModel         =      Model.SlambookBeat
 
 const create = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['SlambookBeat']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["title"], 
+        "required": ["first_name","phonenumber"], 
         "properties": { 
-          "title": { 
+          "first_name": { 
             "type": "string",
-          },
-          "icon": { 
-            "type": "object",
           }
         } 
       } 
@@ -31,7 +28,7 @@ const create = async (req, res) => {
 }
 
 const list = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['SlambookBeat']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   
@@ -58,7 +55,7 @@ const list = async (req, res) => {
 }
 
 const view = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['SlambookBeat']
   let query={}
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
@@ -68,19 +65,16 @@ const view = async (req, res) => {
 }
 
 const update = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['SlambookBeat']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "title": { 
+          "first_name": { 
             "type": "string",
           },
-          "icon": { 
-            "type": "object",
-          }
-        } 
+        }
       } 
     }
   */
@@ -93,7 +87,7 @@ const update = async (req, res) => {
 }
 
 const remove = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['SlambookBeat']
   try{
     let record = await ThisModel.destroy({where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
@@ -103,8 +97,8 @@ const remove = async (req, res) => {
 }
 
 const bulkremove = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
-  //  #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
+  // #swagger.tags = ['SlambookBeat']
+  // #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
     let theArray = req.params.ids 
     if(!Array.isArray(theArray)){theArray = theArray.split(",");}
     for (let index = 0; index < theArray.length; ++index) {

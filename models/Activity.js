@@ -67,6 +67,14 @@ class Activity extends Sequelize.Model {
         model: 'groups',
         key: 'id'
       }
+    },
+    user_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id'
+      }
     }
   }, {
     sequelize,
@@ -91,6 +99,12 @@ class Activity extends Sequelize.Model {
         unique: true,
         fields: [
           { name: "id" },
+        ]
+      },
+      {
+        name: "activities_user_id_8e415daf",
+        fields: [
+          { name: "user_id" },
         ]
       },
     ]

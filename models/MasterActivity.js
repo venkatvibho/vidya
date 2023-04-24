@@ -14,10 +14,11 @@ class MasterActivity extends Sequelize.Model {
     },
     title: {
       type: DataTypes.STRING(250),
-      allowNull: false
+      allowNull: false,
+      unique: "master_activities_title_345b8563_uniq"
     },
     icon: {
-      type: DataTypes.TEXT,
+      type: DataTypes.JSONB,
       allowNull: true
     },
     is_active: {
@@ -35,6 +36,19 @@ class MasterActivity extends Sequelize.Model {
         unique: true,
         fields: [
           { name: "id" },
+        ]
+      },
+      {
+        name: "master_activities_title_345b8563_like",
+        fields: [
+          { name: "title" },
+        ]
+      },
+      {
+        name: "master_activities_title_345b8563_uniq",
+        unique: true,
+        fields: [
+          { name: "title" },
         ]
       },
     ]

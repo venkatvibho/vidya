@@ -18,7 +18,8 @@ class UserInterest extends Sequelize.Model {
       references: {
         model: 'master_interests',
         key: 'id'
-      }
+      },
+      unique: "user_interests_user_id_interest_id_49d97228_uniq"
     },
     user_id: {
       type: DataTypes.BIGINT,
@@ -26,7 +27,8 @@ class UserInterest extends Sequelize.Model {
       references: {
         model: 'users',
         key: 'id'
-      }
+      },
+      unique: "user_interests_user_id_interest_id_49d97228_uniq"
     }
   }, {
     sequelize,
@@ -51,6 +53,14 @@ class UserInterest extends Sequelize.Model {
         name: "user_interests_user_id_62782381",
         fields: [
           { name: "user_id" },
+        ]
+      },
+      {
+        name: "user_interests_user_id_interest_id_49d97228_uniq",
+        unique: true,
+        fields: [
+          { name: "user_id" },
+          { name: "interest_id" },
         ]
       },
     ]

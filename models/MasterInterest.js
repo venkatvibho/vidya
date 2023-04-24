@@ -14,10 +14,11 @@ class MasterInterest extends Sequelize.Model {
     },
     title: {
       type: DataTypes.STRING(250),
-      allowNull: false
+      allowNull: false,
+      unique: "master_interests_title_6ad481b7_uniq"
     },
     icon: {
-      type: DataTypes.TEXT,
+      type: DataTypes.JSONB,
       allowNull: true
     },
     is_active: {
@@ -35,6 +36,19 @@ class MasterInterest extends Sequelize.Model {
         unique: true,
         fields: [
           { name: "id" },
+        ]
+      },
+      {
+        name: "master_interests_title_6ad481b7_like",
+        fields: [
+          { name: "title" },
+        ]
+      },
+      {
+        name: "master_interests_title_6ad481b7_uniq",
+        unique: true,
+        fields: [
+          { name: "title" },
         ]
       },
     ]
