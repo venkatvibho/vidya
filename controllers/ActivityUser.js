@@ -31,13 +31,32 @@ const list = async (req, res) => {
   // #swagger.tags = ['ActivityUser']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
-  
+  //  #swagger.parameters['is_notification_screen'] = {in: 'query',type:'boolean'}
 
   try{
       let pageSize = 0;
       let skip = 0;
       let query={}
       query['where'] = {}
+      if(req.query.is_notification_screen){
+        query['where']['status'] = {[Sequelize.Op.notIn]:['Rejected']}
+      }
+      query['include'] =[
+        {
+          model:Model.User,
+          attributes:["id","first_name","user_id"],
+          required:true
+        },
+        {
+          model:Model.Activity,
+          include:{
+            model:Model.MasterActivity,
+            attributes:["id","title","icon","is_active"],
+            required:true
+          },
+          required:true
+        }
+      ]
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -57,6 +76,22 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['ActivityUser']
   let query={}
+  query['include'] =[
+    {
+      model:Model.User,
+      attributes:["id","first_name","user_id"],
+      required:true
+    },
+    {
+      model:Model.Activity,
+      include:{
+        model:Model.MasterActivity,
+        attributes:["id","title","icon","is_active"],
+        required:true
+      },
+      required:true
+    }
+  ]
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
@@ -71,13 +106,21 @@ const update = async (req, res) => {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "first_name": { 
+          "status": { 
             "type": "string",
+            "enum":["Sent","Accepted","Rejected"],
+            "default":"Sent"
           },
         }
       } 
     }
   */
+  if(req.query.status=="Accepted"){
+    req.body["acceptedAt"] = await Helper.CurrentDate()
+  }
+  if(req.query.status=="Rejected"){
+    req.body["rejectedAt"] = await Helper.CurrentDate()
+  }
   return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
     records = await ThisModel.findByPk(req.params.id);
     await Helper.SuccessValidation(req,res,records,'Updated successfully')

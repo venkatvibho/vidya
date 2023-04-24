@@ -76,6 +76,53 @@
             "name": "page",
             "in": "query",
             "type": "number"
+          },
+          {
+            "name": "badge_type",
+            "in": "query",
+            "type": "string",
+            "enum": [
+              "General",
+              "Honour"
+            ]
+          },
+          {
+            "name": "profession_id",
+            "in": "query",
+            "type": "number",
+            "description": "Take id from MasterProfession"
+          },
+          {
+            "name": "qualification_id",
+            "in": "query",
+            "type": "number",
+            "description": "Take id from MasterIndustry"
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "age_from",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "age_to",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "interests",
+            "in": "query",
+            "type": "array",
+            "description": "Take ids from MasterInterest"
           }
         ],
         "responses": {
@@ -162,6 +209,9 @@
                   "description": "S3 bucket object"
                 },
                 "location": {
+                  "type": "string"
+                },
+                "city": {
                   "type": "string"
                 },
                 "latitude": {
@@ -314,6 +364,202 @@
           }
         ],
         "responses": {}
+      }
+    },
+    "/UserReport/create": {
+      "post": {
+        "tags": [
+          "UserReport"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "title",
+                "description",
+                "from_user_id"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "from_user_id": {
+                  "type": "number",
+                  "description": "Take from User"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserReport/list": {
+      "get": {
+        "tags": [
+          "UserReport"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserReport/view/{id}": {
+      "get": {
+        "tags": [
+          "UserReport"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserReport/update/{id}": {
+      "patch": {
+        "tags": [
+          "UserReport"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "from_user_id": {
+                  "type": "number",
+                  "description": "Take from User"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserReport/delete/{id}": {
+      "delete": {
+        "tags": [
+          "UserReport"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserReport/bulkdelete/{ids}": {
+      "delete": {
+        "tags": [
+          "UserReport"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "path",
+            "required": true,
+            "type": "array",
+            "description": "Enter multiple ids"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
       }
     },
     "/UserInterest/create": {
@@ -763,6 +1009,10 @@
                 "group_id": {
                   "type": "number",
                   "description": "Take id from Group"
+                },
+                "user_ids": {
+                  "type": "array",
+                  "description": "Take id from User"
                 }
               }
             }
@@ -834,6 +1084,97 @@
             "name": "authorization",
             "in": "header",
             "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/Activity/update/{id}": {
+      "patch": {
+        "tags": [
+          "Activity"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "type_of_badges": {
+                  "type": "string",
+                  "enum": [
+                    "General",
+                    "Honour"
+                  ],
+                  "default": "General"
+                },
+                "type_of_activity": {
+                  "type": "string",
+                  "enum": [
+                    "Private",
+                    "Public",
+                    "Self"
+                  ],
+                  "default": "Private"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "latitude": {
+                  "type": "string"
+                },
+                "longitude": {
+                  "type": "string"
+                },
+                "start_date": {
+                  "type": "string",
+                  "description": "Accepts YY-MM-DD Only"
+                },
+                "start_time": {
+                  "type": "string",
+                  "description": "Accepts HH:MM:SS Only"
+                },
+                "end_date": {
+                  "type": "string",
+                  "description": "Accepts YY-MM-DD Only"
+                },
+                "end_time": {
+                  "type": "string",
+                  "description": "Accepts HH:MM:SS Only"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "activity_id": {
+                  "type": "number",
+                  "description": "Take id from MasterActivity"
+                },
+                "group_id": {
+                  "type": "number",
+                  "description": "Take id from Group"
+                },
+                "user_ids": {
+                  "type": "array",
+                  "description": "Take id from User And Send type_of_activity"
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -917,6 +1258,11 @@
             "name": "page",
             "in": "query",
             "type": "number"
+          },
+          {
+            "name": "is_notification_screen",
+            "in": "query",
+            "type": "boolean"
           }
         ],
         "responses": {
@@ -943,6 +1289,97 @@
             "name": "authorization",
             "in": "header",
             "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/ActivityUser/update/{id}": {
+      "patch": {
+        "tags": [
+          "Activity"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "type_of_badges": {
+                  "type": "string",
+                  "enum": [
+                    "General",
+                    "Honour"
+                  ],
+                  "default": "General"
+                },
+                "type_of_activity": {
+                  "type": "string",
+                  "enum": [
+                    "Private",
+                    "Public",
+                    "Self"
+                  ],
+                  "default": "Private"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "latitude": {
+                  "type": "string"
+                },
+                "longitude": {
+                  "type": "string"
+                },
+                "start_date": {
+                  "type": "string",
+                  "description": "Accepts YY-MM-DD Only"
+                },
+                "start_time": {
+                  "type": "string",
+                  "description": "Accepts HH:MM:SS Only"
+                },
+                "end_date": {
+                  "type": "string",
+                  "description": "Accepts YY-MM-DD Only"
+                },
+                "end_time": {
+                  "type": "string",
+                  "description": "Accepts HH:MM:SS Only"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "activity_id": {
+                  "type": "number",
+                  "description": "Take id from MasterActivity"
+                },
+                "group_id": {
+                  "type": "number",
+                  "description": "Take id from Group"
+                },
+                "user_ids": {
+                  "type": "array",
+                  "description": "Take id from User And Send type_of_activity"
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -1053,6 +1490,11 @@
             "type": "string"
           },
           {
+            "name": "is_notification_screen",
+            "in": "query",
+            "type": "boolean"
+          },
+          {
             "name": "page_size",
             "in": "query",
             "type": "number"
@@ -1073,6 +1515,15 @@
             "in": "query",
             "type": "number",
             "description": "Select id From Users"
+          },
+          {
+            "name": "is_sort_by",
+            "in": "query",
+            "type": "string",
+            "enum": [
+              "ASC",
+              "DESC"
+            ]
           }
         ],
         "responses": {
@@ -1098,6 +1549,60 @@
           {
             "name": "authorization",
             "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserFollowing/update/{id}": {
+      "patch": {
+        "tags": [
+          "UserFollowing"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "Sent",
+                    "Accepted",
+                    "Rejected"
+                  ],
+                  "default": "Sent"
+                },
+                "is_muted": {
+                  "type": "boolean"
+                },
+                "is_blocked": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
             "type": "string"
           }
         ],

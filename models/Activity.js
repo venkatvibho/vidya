@@ -80,7 +80,7 @@ class Activity extends Sequelize.Model {
     sequelize,
     tableName: 'activities',
     schema: 'public',
-    timestamps: false,
+    timestamps: true,
     indexes: [
       {
         name: "activities_activity_id_e7b2d538",

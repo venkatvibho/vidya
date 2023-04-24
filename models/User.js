@@ -101,6 +101,10 @@ class User extends Sequelize.Model {
     refreshToken: {
       type: DataTypes.TEXT,
       allowNull: true
+    },
+    city: {
+      type: DataTypes.STRING(250),
+      allowNull: true
     }
   }, {
     sequelize,

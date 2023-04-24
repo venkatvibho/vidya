@@ -29,6 +29,7 @@ const _Post = require("./Post");
 const _SlambookBeat = require("./SlambookBeat");
 const _UserFollowing = require("./UserFollowing");
 const _UserInterest = require("./UserInterest");
+const _UserReport = require("./UserReport");
 const _User = require("./User");
 
 function initModels(sequelize) {
@@ -62,6 +63,7 @@ function initModels(sequelize) {
   const SlambookBeat = _SlambookBeat(sequelize, DataTypes);
   const UserFollowing = _UserFollowing(sequelize, DataTypes);
   const UserInterest = _UserInterest(sequelize, DataTypes);
+  const UserReport = _UserReport(sequelize, DataTypes);
   const User = _User(sequelize, DataTypes);
 
   ActivityUser.belongsTo(Activity, { foreignKey: "activity_id"});
@@ -144,6 +146,10 @@ function initModels(sequelize) {
   User.hasMany(UserFollowing, { foreignKey: "user_to_id"});
   UserInterest.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(UserInterest, { foreignKey: "user_id"});
+  UserReport.belongsTo(User, { as:"ReportFrom",foreignKey: "from_user_id"});
+  User.hasMany(UserReport, { as:"UserReportFrom",foreignKey: "from_user_id"});
+  UserReport.belongsTo(User, { foreignKey: "to_user_id"});
+  User.hasMany(UserReport, { foreignKey: "to_user_id"});
 
   return {
     Activity,
@@ -176,6 +182,7 @@ function initModels(sequelize) {
     SlambookBeat,
     UserFollowing,
     UserInterest,
+    UserReport,
     User,
   };
 }

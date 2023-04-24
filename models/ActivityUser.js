@@ -22,7 +22,8 @@ class ActivityUser extends Sequelize.Model {
       references: {
         model: 'activities',
         key: 'id'
-      }
+      },
+      unique: "activity_users_activity_id_user_id_7338c471_uniq"
     },
     user_id: {
       type: DataTypes.BIGINT,
@@ -30,7 +31,16 @@ class ActivityUser extends Sequelize.Model {
       references: {
         model: 'users',
         key: 'id'
-      }
+      },
+      unique: "activity_users_activity_id_user_id_7338c471_uniq"
+    },
+    acceptedAt: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    rejectedAt: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
   }, {
     sequelize,
@@ -42,6 +52,14 @@ class ActivityUser extends Sequelize.Model {
         name: "activity_users_activity_id_d0f28e88",
         fields: [
           { name: "activity_id" },
+        ]
+      },
+      {
+        name: "activity_users_activity_id_user_id_7338c471_uniq",
+        unique: true,
+        fields: [
+          { name: "activity_id" },
+          { name: "user_id" },
         ]
       },
       {

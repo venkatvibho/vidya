@@ -58,21 +58,56 @@ const create = async (req, res) => {
             "type": "number",
             "description":"Take id from Group"
           },
+          "user_ids": { 
+            "type": "array",
+            "description":"Take id from User"
+          }
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
   return await ThisModel.create(req.body).then(async(doc) => {
-    let GroupUsers = await Model.Group.findByPk(req.body['group_id'])
-    if(GroupUsers.participants){
-      let participants = GroupUsers.participants
-      participants.splice(participants.indexOf(req.user.id),1);
-      let ActivityUser = []
-      for (let i = 0; i < participants.length; i++) {
-        ActivityUser.push({activity_id : doc.id,user_id:participants[i],status:'Sent'})
+    if(req.body.type_of_activity == "Private"){
+      if(req.body.group_id){
+        let GroupUsers = await Model.Group.findByPk(req.body['group_id'])
+        if(GroupUsers.participants){
+          let participants = GroupUsers.participants
+          participants.splice(participants.indexOf(req.user.id),1);
+          let ActivityUser = []
+          for (let i = 0; i < participants.length; i++) {
+            // ActivityUser.push(GroupUserData)
+            try{
+              let cntGroupCheck = await Model.ActivityUser.count({activity_id : doc.id,user_id:participants[i]})
+              if(cntGroupCheck == 0){ 
+                let GroupUserData = {activity_id : doc.id,user_id:participants[i],status:'Sent'}
+                await Model.ActivityUser.create(GroupUserData)
+              }
+            } catch (err){
+              console.log(err);
+            }
+          }
+        }
       }
-      await Model.ActivityUser.bulkCreate(ActivityUser)
+      if(req.body.user_ids){
+        let SelectedUsers = req.body.user_ids
+        if(SelectedUsers){
+          SelectedUsers.splice(SelectedUsers.indexOf(req.user.id),1);
+          let ActivityUser = []
+          for (let i = 0; i < SelectedUsers.length; i++) {
+            // ActivityUser.push(SingUsersData)
+            try{
+              let cntSingUserCheck = await Model.ActivityUser.count({activity_id : doc.id,user_id:SelectedUsers[i]})
+              if(cntSingUserCheck == 0){ 
+                let SingUsersData = {activity_id : doc.id,user_id:SelectedUsers[i],status:'Sent'}
+                await Model.ActivityUser.create(SingUsersData)
+              }
+            } catch (err){
+              console.log(err);
+            }
+          }
+        }
+      }
     }
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
@@ -224,10 +259,58 @@ const update = async (req, res) => {
             "type": "number",
             "description":"Take id from Group"
           },
-        }
+          "user_ids": { 
+            "type": "array",
+            "description":"Take id from User And Send type_of_activity"
+          }
+        } 
       } 
     }
   */
+  if(req.body.type_of_activity){
+    if(req.body.type_of_activity == "Private"){
+      await Model.ActivityUser.count({activity_id : doc.id})
+      if(req.body.group_id){
+        let GroupUsers = await Model.Group.findByPk(req.body['group_id'])
+        if(GroupUsers.participants){
+          let participants = GroupUsers.participants
+          participants.splice(participants.indexOf(req.user.id),1);
+          let ActivityUser = []
+          for (let i = 0; i < participants.length; i++) {
+            // ActivityUser.push(GroupUserData)
+            try{
+              let cntGroupCheck = await Model.ActivityUser.count({activity_id : doc.id,user_id:participants[i]})
+              if(cntGroupCheck == 0){ 
+                let GroupUserData = {activity_id : doc.id,user_id:participants[i],status:'Sent'}
+                await Model.ActivityUser.create(GroupUserData)
+              }
+            } catch (err){
+              console.log(err);
+            }
+          }
+        }
+      }
+      if(req.body.user_ids){
+        let SelectedUsers = req.body.user_ids
+        if(SelectedUsers){
+          SelectedUsers.splice(SelectedUsers.indexOf(req.user.id),1);
+          let ActivityUser = []
+          for (let i = 0; i < SelectedUsers.length; i++) {
+            // ActivityUser.push(SingUsersData)
+            try{
+              let cntSingUserCheck = await Model.ActivityUser.count({activity_id : doc.id,user_id:SelectedUsers[i]})
+              if(cntSingUserCheck == 0){ 
+                let SingUsersData = {activity_id : doc.id,user_id:SelectedUsers[i],status:'Sent'}
+                await Model.ActivityUser.create(SingUsersData)
+              }
+            } catch (err){
+              console.log(err);
+            }
+          }
+        }
+      }
+    }
+  }
   return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
     records = await ThisModel.findByPk(req.params.id);
     await Helper.SuccessValidation(req,res,records,'Updated successfully')

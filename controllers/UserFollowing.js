@@ -32,11 +32,13 @@ const create = async (req, res) => {
 }
 
 const list = async (req, res) => {
-  // #swagger.tags = ['UserFollowing']
+  //  #swagger.tags = ['UserFollowing']
+  //  #swagger.parameters['is_notification_screen'] = {in: 'query',type:'boolean'}
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   //  #swagger.parameters['followed_by_me'] = {in: 'query',type:'number',"description":"Select id From Users"}
   //  #swagger.parameters['followed_to_me'] = {in: 'query',type:'number',"description":"Select id From Users"}
+  //  #swagger.parameters['is_sort_by'] = {in: 'query',type:'string','enum':["ASC","DESC"]}
 
   try{
       let pageSize = 0;
@@ -49,18 +51,24 @@ const list = async (req, res) => {
       if(req.query.followed_to_me){
         query['where']['user_to_id'] = req.query.followed_to_me
       }
+      if(req.query.is_notification_screen){
+        query['where']['status'] = {[Sequelize.Op.notIn]:['Rejected']}
+      }
       query['include'] =[
         {
           model:Model.User,
           as: "FollowingFrom",
+          attributes:["id","first_name","user_id"],
           required:true
         },
         {
           model:Model.User,
           foreignKey: 'user_to_id',
+          attributes:["id","first_name","user_id"],
           required:true
         }
       ]
+      console.log(query)
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -69,7 +77,12 @@ const list = async (req, res) => {
         query['offset'] = skip
         query['limit'] = pageSize
       }
-      query['order'] =[ ['id', 'DESC']]
+      if(req.query.is_sort_by){
+        query['order'] =  [[{model: Model.User},'first_name',req.query.is_sort_by]]
+      }else{
+        query['order'] =[ ['id', 'ASC']]
+      }
+      console.log(query)
       const noOfRecord = await ThisModel.findAndCountAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)
   } catch (err) {
@@ -106,13 +119,27 @@ const update = async (req, res) => {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "first_name": { 
+          "status": { 
             "type": "string",
+            "enum":["Sent","Accepted","Rejected"],
+            "default":"Sent"
+          },
+          "is_muted": { 
+            "type": "boolean"
+          },
+          "is_blocked": { 
+            "type": "boolean",
           },
         }
       } 
     }
   */
+  if(req.query.status=="Accepted"){
+    req.body["acceptedAt"] = await Helper.CurrentDate()
+  }
+  if(req.query.status=="Rejected"){
+    req.body["rejectedAt"] = await Helper.CurrentDate()
+  }
   return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
     records = await ThisModel.findByPk(req.params.id);
     await Helper.SuccessValidation(req,res,records,'Updated successfully')
