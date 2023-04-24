@@ -18,7 +18,7 @@ class MasterBeatQuestion extends Sequelize.Model {
     },
     is_active: {
       type: DataTypes.BOOLEAN,
-      allowNull: false
+      defaultValue: true
     },
     user_following_id: {
       type: DataTypes.BIGINT,

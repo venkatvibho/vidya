@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return PostUser.init(sequelize, DataTypes);
+  return UserReport.init(sequelize, DataTypes);
 }
 
-class PostUser extends Sequelize.Model {
+class UserReport extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   return super.init({
     id: {
@@ -12,35 +12,23 @@ class PostUser extends Sequelize.Model {
       allowNull: false,
       primaryKey: true
     },
-    status: {
-      type: DataTypes.STRING(10),
+    title: {
+      type: DataTypes.STRING(250),
       allowNull: false
     },
-    is_hide: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: false
     },
-    is_save: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true
-    },
-    is_viewed: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true
-    },
-    is_liked: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true
-    },
-    post_id: {
+    from_user_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       references: {
-        model: 'posts',
+        model: 'users',
         key: 'id'
       }
     },
-    user_id: {
+    to_user_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       references: {
@@ -50,27 +38,27 @@ class PostUser extends Sequelize.Model {
     }
   }, {
     sequelize,
-    tableName: 'post_users',
+    tableName: 'user_reports',
     schema: 'public',
     timestamps: true,
     indexes: [
       {
-        name: "post_users_pkey",
+        name: "user_reports_from_user_id_id_ffb56456",
+        fields: [
+          { name: "from_user_id" },
+        ]
+      },
+      {
+        name: "user_reports_pkey",
         unique: true,
         fields: [
           { name: "id" },
         ]
       },
       {
-        name: "post_users_post_id_1a1aecfa",
+        name: "user_reports_to_user_id_id_c82af22f",
         fields: [
-          { name: "post_id" },
-        ]
-      },
-      {
-        name: "post_users_user_id_420265b6",
-        fields: [
-          { name: "user_id" },
+          { name: "to_user_id" },
         ]
       },
     ]

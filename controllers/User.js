@@ -62,13 +62,21 @@ const list = async (req, res) => {
   // #swagger.tags = ['User']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
+  //  #swagger.parameters['badge_type'] = {in: 'query',type:'string',enum:["General","Honour"]}
+  //  #swagger.parameters['profession_id'] = {in: 'query',type:'number','description':'Take id from MasterProfession'}
+  //  #swagger.parameters['qualification_id'] = {in: 'query',type:'number','description':'Take id from MasterIndustry'}
+  //  #swagger.parameters['location'] = {in: 'query',type:'string'}
+  //  #swagger.parameters['age_from'] = {in: 'query',type:'number'}
+  //  #swagger.parameters['age_to'] = {in: 'query',type:'number'}
+  //  #swagger.parameters['language'] = {in: 'query',type:'string'}
+  //  #swagger.parameters['interests'] = {in: 'query',type:'array','description':'Take ids from MasterInterest'}
   
   try{
       let pageSize = 0;
       let skip = 0;
       let query={}
-      let FollowWhere = {}
-      FollowWhere.user_from_id = req.user.id
+      // let FollowWhere = {}
+      // FollowWhere.user_from_id = req.user.id
       query['where'] = {}
       query['include'] =[
         {
@@ -78,11 +86,6 @@ const list = async (req, res) => {
             required:false
           },
           required:false
-        },
-        {
-          model     : Model.UserFollowing,
-          where     : FollowWhere,
-          required  : false
         }
       ]
       console.log(query)
@@ -104,9 +107,23 @@ const list = async (req, res) => {
 
 const view = async (req, res) => {
   // #swagger.tags = ['User']
+  let user_id = req.user.id
   let query ={}
   let FollowWhere = {}
-  FollowWhere.user_from_id = req.user.id
+  FollowWhere.user_from_id = user_id
+  query['attributes']= {}
+  query['attributes']['include'] = [
+    [
+        Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_from_id=${user_id})`),'followings'
+    ],
+    [
+      Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_to_id=${user_id})`),'followers'
+    ],
+    [
+      Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_to_id=${user_id})`),'gifts'
+    ],
+
+  ]
   query['include'] =[
     {
       model:Model.UserInterest,
@@ -117,11 +134,14 @@ const view = async (req, res) => {
       required:false
     },
     {
-      model     : Model.UserFollowing,
-      where     : FollowWhere,
-      required  : false
+      model:Model.UserFollowing,
+      // as: "UserFollowing",
+      attributes:["id","status"],
+      where : {user_from_id:user_id},
+      required:false
     }
   ]
+  console.log(query)
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
@@ -166,6 +186,9 @@ const update = async (req, res) => {
           "location": { 
             "type": "string",
           },
+          "city": { 
+            "type": "string"
+          },
           "latitude": { 
             "type": "string",
           },
@@ -200,12 +223,24 @@ const update = async (req, res) => {
       } 
     }
   */
-  return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
-    records = await ThisModel.findByPk(req.params.id);
-    await Helper.SuccessValidation(req,res,records,'Updated successfully')
-  }).catch( async (err) => {
-    return await Helper.ErrorValidation(req,res,err,'cache')
-  })
+  let citystatus = true
+  let citymsg  = null
+  if(req.body.location){
+    if(!req.body.city || !req.body.latitude || !req.body.longitude){
+      citystatus = false
+      citymsg    = (!req.body.city) ?'City is required': ((!req.body.latitude) ? 'Latitude is required':'Longitude is required')
+    }
+  }
+  if(citystatus){
+    return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
+      records = await ThisModel.findByPk(req.params.id);
+      await Helper.SuccessValidation(req,res,records,'Updated successfully')
+    }).catch( async (err) => {
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    })
+  }else{
+    return await Helper.ErrorValidation(req,res,{message:citymsg},'cache')
+  }
 }
 
 const remove = async (req, res) => {

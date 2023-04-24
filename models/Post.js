@@ -18,7 +18,7 @@ class Post extends Sequelize.Model {
     },
     is_deleted: {
       type: DataTypes.BOOLEAN,
-      allowNull: false
+      defaultValue: true
     },
     activity_id: {
       type: DataTypes.BIGINT,
