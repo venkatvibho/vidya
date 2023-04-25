@@ -22,7 +22,7 @@ class Poll extends Sequelize.Model {
     },
     is_deleted: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true
+      allowNull: false
     },
     group_id: {
       type: DataTypes.BIGINT,

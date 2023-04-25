@@ -10,34 +10,60 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["first_name","phonenumber"], 
+        "required": ["user_following_id","beatquestions"], 
         "properties": { 
-          "first_name": { 
-            "type": "string",
+          "user_following_id": { 
+            "type": "number",
+            "description":"Take id from UserFollowing"
+          },
+          "beatquestions": { 
+            "type": "array",
+            "description": "[Question1,Question2,Question3,Question4,Question5]",
           }
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  return await ThisModel.create(req.body).then(async(doc) => {
-    await Helper.SuccessValidation(req,res,doc,'Added successfully')
-  }).catch( async (err) => {
-    return await Helper.ErrorValidation(req,res,err,'cache')
-  })
+  if(req.beatquestions.lenght<6){
+    let beatquestions = req.body['beatquestions']
+    delete req.body['beatquestions']
+    req.body['status'] = 'Sent'
+    return await ThisModel.create(createBody).then(async(doc) => {
+      try{
+        for (let i = 0; i < beatquestions.length; i++) {
+          await Model.SlambookBeatQuestion.create({title:beatquestions[i],is_active:true,user_following_id:doc.id})
+        }
+      } catch (err){
+        await ThisModel.destroy({id:doc.id})
+      }
+      await Helper.SuccessValidation(req,res,doc,'Added successfully')
+    }).catch( async (err) => {
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    })
+  }else{
+    return await Helper.ErrorValidation(req,res,{message:"Minimum 5  questions allowed only"},'cache')
+  }
 }
 
 const list = async (req, res) => {
   // #swagger.tags = ['SlambookBeat']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
-  
+  //  #swagger.parameters['followed_by_me'] = {in: 'query',type:'number',"description":"Select id From Users"}
+  //  #swagger.parameters['followed_to_me'] = {in: 'query',type:'number',"description":"Select id From Users"}
 
   try{
       let pageSize = 0;
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['include'] =[
+        {
+          model:Model.SlambookBeatQuestion,
+          required:false
+        }
+      ]
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -57,6 +83,12 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['SlambookBeat']
   let query={}
+  query['include'] =[
+    {
+      model:Model.SlambookBeatQuestion,
+      required:false
+    }
+  ]
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
@@ -71,19 +103,61 @@ const update = async (req, res) => {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "first_name": { 
+          "status": { 
+            "type": "string",
+            "enum":["Sent","Accepted","Rejected"],
+          },
+          "happiest_moments":{
+            "type": "array",
+            "description":"Ex:[Moment1,Moment2,Moment3,Moment4]",
+          },
+          "description":{
             "type": "string",
           },
+          "upload_pics": { 
+            "type": "array",
+            "description":"Ex:[{s3bucketobject},{s3bucketobject}]",
+          },
+          "upload_pics": { 
+            "type": "array",
+            "description":"Ex:[{s3bucketobject},{s3bucketobject}]",
+          },
+          "beatquestions": { 
+            "type": "array",
+            "description": "[{qid:1,answer:enter answer},{qid:2,answer:enter answer}]",
+          }
         }
       } 
     }
   */
-  return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
-    records = await ThisModel.findByPk(req.params.id);
-    await Helper.SuccessValidation(req,res,records,'Updated successfully')
-  }).catch( async (err) => {
-    return await Helper.ErrorValidation(req,res,err,'cache')
-  })
+  let momentLimit = true
+  if(req.body.happiest_moments.lenght<5){
+    momentLimit = false
+  }
+  let beatquestions = null
+  if(req.body.beatquestions){
+    beatquestions = req.body['beatquestions']
+    delete req.body['beatquestions']
+  }
+  if(momentLimit){
+    return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
+      if(req.body.beatquestions){
+        for (let i = 0; i < beatquestions.length; i++) {
+          try{
+            await Model.SlambookBeatQuestion.update({answer:beatquestions[i].answer},{where:{id:beatquestions[i].qid}})
+          } catch (err){
+            console.log(err);
+          }
+        }
+      }
+      records = await ThisModel.findByPk(req.params.id);
+      await Helper.SuccessValidation(req,res,records,'Updated successfully')
+    }).catch( async (err) => {
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    })
+  }else{
+    return await Helper.ErrorValidation(req,res,{message:"Minimum 4 moments allowed only"},'cache')
+  }
 }
 
 const remove = async (req, res) => {

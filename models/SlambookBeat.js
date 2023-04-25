@@ -12,10 +12,6 @@ class SlambookBeat extends Sequelize.Model {
       allowNull: false,
       primaryKey: true
     },
-    beatquestions: {
-      type: DataTypes.ARRAY(DataTypes.INTEGER),
-      allowNull: false
-    },
     status: {
       type: DataTypes.STRING(10),
       allowNull: false
@@ -30,7 +26,7 @@ class SlambookBeat extends Sequelize.Model {
     },
     description: {
       type: DataTypes.TEXT,
-      allowNull: false
+      allowNull: true
     },
     user_following_id: {
       type: DataTypes.BIGINT,
@@ -38,7 +34,8 @@ class SlambookBeat extends Sequelize.Model {
       references: {
         model: 'user_followings',
         key: 'id'
-      }
+      },
+      unique: "slambook_beats_user_following_id_cb1b33af_uniq"
     }
   }, {
     sequelize,
@@ -54,7 +51,8 @@ class SlambookBeat extends Sequelize.Model {
         ]
       },
       {
-        name: "slambook_beats_user_following_id_cb1b33af",
+        name: "slambook_beats_user_following_id_cb1b33af_uniq",
+        unique: true,
         fields: [
           { name: "user_following_id" },
         ]

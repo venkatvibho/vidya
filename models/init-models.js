@@ -26,6 +26,7 @@ const _PostUserReportReply = require("./PostUserReportReply");
 const _PostUserReport = require("./PostUserReport");
 const _PostUser = require("./PostUser");
 const _Post = require("./Post");
+const _SlambookBeatQuestion = require("./SlambookBeatQuestion");
 const _SlambookBeat = require("./SlambookBeat");
 const _UserFollowing = require("./UserFollowing");
 const _UserInterest = require("./UserInterest");
@@ -60,6 +61,7 @@ function initModels(sequelize) {
   const PostUserReport = _PostUserReport(sequelize, DataTypes);
   const PostUser = _PostUser(sequelize, DataTypes);
   const Post = _Post(sequelize, DataTypes);
+  const SlambookBeatQuestion = _SlambookBeatQuestion(sequelize, DataTypes);
   const SlambookBeat = _SlambookBeat(sequelize, DataTypes);
   const UserFollowing = _UserFollowing(sequelize, DataTypes);
   const UserInterest = _UserInterest(sequelize, DataTypes);
@@ -68,6 +70,7 @@ function initModels(sequelize) {
 
   ActivityUser.belongsTo(Activity, { foreignKey: "activity_id"});
   Activity.hasMany(ActivityUser, { foreignKey: "activity_id"});
+  Activity.hasMany(ActivityUser, { as:"PrivateUser",foreignKey: "activity_id"});
   Post.belongsTo(Activity, { foreignKey: "activity_id"});
   Activity.hasMany(Post, { foreignKey: "activity_id"});
   ChatRoomHistory.belongsTo(ChatRoom, { foreignKey: "chatroom_id"});
@@ -114,10 +117,10 @@ function initModels(sequelize) {
   PostUser.hasMany(PostUserReport, { foreignKey: "postuser_id"});
   PostUser.belongsTo(Post, { foreignKey: "post_id"});
   Post.hasMany(PostUser, { foreignKey: "post_id"});
-  MasterBeatQuestion.belongsTo(UserFollowing, { foreignKey: "user_following_id"});
-  UserFollowing.hasMany(MasterBeatQuestion, { foreignKey: "user_following_id"});
+  SlambookBeatQuestion.belongsTo(SlambookBeat, { foreignKey: "user_following_id"});
+  SlambookBeat.hasMany(SlambookBeatQuestion, { foreignKey: "user_following_id"});
   SlambookBeat.belongsTo(UserFollowing, { foreignKey: "user_following_id"});
-  UserFollowing.hasMany(SlambookBeat, { foreignKey: "user_following_id"});
+  UserFollowing.hasOne(SlambookBeat, { foreignKey: "user_following_id"});
   Activity.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(Activity, { foreignKey: "user_id"});
   ActivityUser.belongsTo(User, { foreignKey: "user_id"});
@@ -179,6 +182,7 @@ function initModels(sequelize) {
     PostUserReport,
     PostUser,
     Post,
+    SlambookBeatQuestion,
     SlambookBeat,
     UserFollowing,
     UserInterest,

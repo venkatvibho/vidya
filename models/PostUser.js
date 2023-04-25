@@ -18,19 +18,19 @@ class PostUser extends Sequelize.Model {
     },
     is_hide: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true
+      allowNull: false
     },
     is_save: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true
+      allowNull: false
     },
     is_viewed: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true
+      allowNull: false
     },
     is_liked: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true
+      allowNull: false
     },
     post_id: {
       type: DataTypes.BIGINT,

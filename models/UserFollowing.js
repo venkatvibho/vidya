@@ -18,7 +18,7 @@ class UserFollowing extends Sequelize.Model {
     },
     is_slambook_skip: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true
+      allowNull: false
     },
     slam_book_skip_date: {
       type: DataTypes.DATE,
@@ -44,11 +44,11 @@ class UserFollowing extends Sequelize.Model {
     },
     is_blocked: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true
+      allowNull: false
     },
     is_muted: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true
+      allowNull: false
     },
     acceptedAt: {
       type: DataTypes.DATE,

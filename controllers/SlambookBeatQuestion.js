@@ -2,76 +2,25 @@ const Sequelize         =      require("sequelize");
 const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
 const Model             =      require("../models");
-const ThisModel         =      Model.Post
+const ThisModel         =      Model.SlambookBeatQuestion
 
 const create = async (req, res) => {
-  // #swagger.tags = ['Post']
+  // #swagger.tags = ['SlambookBeatQuestion']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["type_of_activity","activity_id","images","description"], 
+        "required": ["title"], 
         "properties": { 
-          "activity_id": { 
-            "type": "number",
-            "description":"Take id from Activity"
-          },
-          "type_of_activity": { 
+          "title": { 
             "type": "string",
-            "enum":["Private","Public","Self"]
-          },
-          "type_of_activity": { 
-            "type": "string",
-            "enum":[]
           }
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  req.body['user_id'] = req.user.id
   return await ThisModel.create(req.body).then(async(doc) => {
-    if(req.body.type_of_activity == "Private"){
-      if(req.body.group_id){
-        let GroupUsers = await Model.PostUser.findByPk(req.body['group_id'])
-        if(GroupUsers.participants){
-          let participants = GroupUsers.participants
-          participants.splice(participants.indexOf(req.user.id),1);
-          let ActivityUser = []
-          for (let i = 0; i < participants.length; i++) {
-            // ActivityUser.push(GroupUserData)
-            try{
-              let cntGroupCheck = await Model.PostUser.count({post_id : doc.id,user_id:participants[i]})
-              if(cntGroupCheck == 0){ 
-                let GroupUserData = {post_id : doc.id,user_id:participants[i],status:'Sent'}
-                await Model.PostUser.create(GroupUserData)
-              }
-            } catch (err){
-              console.log(err);
-            }
-          }
-        }
-      }
-      if(req.body.user_ids){
-        let SelectedUsers = req.body.user_ids
-        if(SelectedUsers){
-          SelectedUsers.splice(SelectedUsers.indexOf(req.user.id),1);
-          let ActivityUser = []
-          for (let i = 0; i < SelectedUsers.length; i++) {
-            // ActivityUser.push(SingUsersData)
-            try{
-              let cntSingUserCheck = await Model.PostUser.count({post_id : doc.id,user_id:SelectedUsers[i]})
-              if(cntSingUserCheck == 0){ 
-                let SingUsersData = {post_id : doc.id,user_id:SelectedUsers[i],status:'Sent'}
-                await Model.PostUser.create(SingUsersData)
-              }
-            } catch (err){
-              console.log(err);
-            }
-          }
-        }
-      }
-    }
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
     return await Helper.ErrorValidation(req,res,err,'cache')
@@ -79,7 +28,7 @@ const create = async (req, res) => {
 }
 
 const list = async (req, res) => {
-  // #swagger.tags = ['Post']
+  // #swagger.tags = ['SlambookBeatQuestion']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   
@@ -106,7 +55,7 @@ const list = async (req, res) => {
 }
 
 const view = async (req, res) => {
-  // #swagger.tags = ['Post']
+  // #swagger.tags = ['SlambookBeatQuestion']
   let query={}
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
@@ -116,16 +65,16 @@ const view = async (req, res) => {
 }
 
 const update = async (req, res) => {
-  // #swagger.tags = ['Post']
+  // #swagger.tags = ['SlambookBeatQuestion']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "first_name": { 
+          "answer": { 
             "type": "string",
-          },
-        }
+          }
+        } 
       } 
     }
   */
@@ -138,7 +87,7 @@ const update = async (req, res) => {
 }
 
 const remove = async (req, res) => {
-  // #swagger.tags = ['Post']
+  // #swagger.tags = ['SlambookBeatQuestion']
   try{
     let record = await ThisModel.destroy({where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
@@ -148,8 +97,8 @@ const remove = async (req, res) => {
 }
 
 const bulkremove = async (req, res) => {
-  // #swagger.tags = ['Post']
-  // #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
+  // #swagger.tags = ['SlambookBeatQuestion']
+  //  #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
     let theArray = req.params.ids 
     if(!Array.isArray(theArray)){theArray = theArray.split(",");}
     for (let index = 0; index < theArray.length; ++index) {
