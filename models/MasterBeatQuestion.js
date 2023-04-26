@@ -18,15 +18,7 @@ class MasterBeatQuestion extends Sequelize.Model {
     },
     is_active: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true
-    },
-    user_following_id: {
-      type: DataTypes.BIGINT,
-      allowNull: true,
-      references: {
-        model: 'user_followings',
-        key: 'id'
-      }
+      allowNull: false
     }
   }, {
     sequelize,
@@ -35,16 +27,10 @@ class MasterBeatQuestion extends Sequelize.Model {
     timestamps: true,
     indexes: [
       {
-        name: "master_beat_questions_pkey",
+        name: "master_beat_questions_pkey1",
         unique: true,
         fields: [
           { name: "id" },
-        ]
-      },
-      {
-        name: "master_beat_questions_user_following_id_c6ad34f0",
-        fields: [
-          { name: "user_following_id" },
         ]
       },
     ]

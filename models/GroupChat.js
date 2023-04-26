@@ -14,7 +14,7 @@ class GroupChat extends Sequelize.Model {
     },
     is_share_or_forwared: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true
+      allowNull: false
     },
     replied_chat_room_id: {
       type: DataTypes.INTEGER,
@@ -26,7 +26,7 @@ class GroupChat extends Sequelize.Model {
     },
     is_deleted: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true
+      allowNull: false
     },
     group_id: {
       type: DataTypes.BIGINT,

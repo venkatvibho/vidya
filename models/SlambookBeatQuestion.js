@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return MasterIndustry.init(sequelize, DataTypes);
+  return SlambookBeatQuestion.init(sequelize, DataTypes);
 }
 
-class MasterIndustry extends Sequelize.Model {
+class SlambookBeatQuestion extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   return super.init({
     id: {
@@ -13,42 +13,42 @@ class MasterIndustry extends Sequelize.Model {
       primaryKey: true
     },
     title: {
-      type: DataTypes.STRING(250),
-      allowNull: false,
-      unique: "master_industries_title_5c8c57c8_uniq"
+      type: DataTypes.TEXT,
+      allowNull: false
     },
-    icon: {
-      type: DataTypes.JSONB,
+    answer: {
+      type: DataTypes.TEXT,
       allowNull: true
     },
     is_active: {
       type: DataTypes.BOOLEAN,
       allowNull: false
+    },
+    user_following_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: 'slambook_beats',
+        key: 'id'
+      }
     }
   }, {
     sequelize,
-    tableName: 'master_industries',
+    tableName: 'slambook_beat_questions',
     schema: 'public',
     timestamps: true,
     indexes: [
       {
-        name: "master_industries_pkey",
+        name: "slambook_beat_questions_pkey",
         unique: true,
         fields: [
           { name: "id" },
         ]
       },
       {
-        name: "master_industries_title_5c8c57c8_like",
+        name: "slambook_beat_questions_user_following_id_f844904d",
         fields: [
-          { name: "title" },
-        ]
-      },
-      {
-        name: "master_industries_title_5c8c57c8_uniq",
-        unique: true,
-        fields: [
-          { name: "title" },
+          { name: "user_following_id" },
         ]
       },
     ]

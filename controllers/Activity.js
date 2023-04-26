@@ -119,6 +119,9 @@ const list = async (req, res) => {
   // #swagger.tags = ['Activity']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
+  //  #swagger.parameters['date'] = {in: 'query',type:'string','description':"YY-MM-DD"}
+  //  #swagger.parameters['type_of_badges'] = {in: 'query',type:'string','enum':['General','Honour']}
+  //  #swagger.parameters['type_of_activity'] = {in: 'query',type:'string','enum':['Private','Public','Self']}
   //  #swagger.parameters['created_by_user_id'] = {in: 'query',type:'number','description':"Invited By me"}
   //  #swagger.parameters['participant_user_id'] = {in: 'query',type:'number','description':"Invited For me"}
 
@@ -126,39 +129,47 @@ const list = async (req, res) => {
       let pageSize = 0;
       let skip = 0;
       let query={}
+      query['attributes']= {}
+      query['attributes']['include'] = [
+        [
+            Sequelize.literal(`(SELECT COUNT(id) FROM public.activity_users WHERE status='Accepted' AND activity_id="Activity"."id")`),'acceptedCount'
+        ],
+        [
+            Sequelize.literal(`(SELECT COUNT(id) FROM public.activity_users WHERE status='Rejetced' AND activity_id="Activity"."id")`),'rejectedCount'
+        ],
+        [
+            Sequelize.literal(`(SELECT COUNT(id) FROM public.activity_users WHERE activity_id ="Activity"."id")`),'totalPrivateCount'
+        ],
+        [
+            Sequelize.literal(`(SELECT COUNT(id) FROM public.users WHERE id!=${req.user.id})`),'totalPublicCount'
+        ],
+      ]
       query['where'] = {}
       let is_Required = false
       if(req.query.created_by_user_id){
         query['where']['user_id'] = req.query.created_by_user_id
       }
+      if(req.query.type_of_badges){
+        query['where']['type_of_badges'] = req.query.type_of_badges
+      }
+      if(req.query.type_of_activity){
+        query['where']['type_of_activity'] = req.query.type_of_activity
+      }
+      if(req.query.date){
+        let date  = require('date-and-time');
+        let current_date = await Helper.CurrentDate()
+        let today =  date.format(current_date, 'YYYY-MM-DD');
+        query['where']['start_date'] = today
+      }
+      let ActivityUserWhere = {}
+      let ActivityUserRequired = false
       if(req.query.participant_user_id){
-        let Mine =  [
-          ( await Model.ActivityUser.findAll({
-            where: {user_id:req.query.participant_user_id},
-            attributes: ['id'],
-            raw : true
-          })),
-        ].map(account => account.activity_id)
-        console.log(Mine)
-        // let Public =  [
-        //   ( await Model.Activity.findAll({
-        //     where: {status:'Public'},
-        //     attributes: ['id'],
-        //     raw : true
-        //   })),
-        // ].map(account => account.id)
-        // var pluck = require('arr-pluck');
-        // let Public = await Model.Activity.findAll({
-        //   where: {status:'Public'},
-        //   attributes: ['id'],
-        //   raw : true
-        // })
-        // .then(function(accounts) {
-        //   return pluck(accounts, 'id');
-        // })
-        // console.log("###",Public)
-        // // let ActIds = Mine.concat(Public);
-        // // query['where']['id'] = {[Sequelize.Op.in]:ActIds}
+        if(req.query.type_of_activity){
+          if(req.query.type_of_activity=="Private"){
+            ActivityUserRequired['user_id'] = req.query.participant_user_id
+            ActivityUserRequired = true
+          }
+        }
       }
       query['include'] = [
         {
@@ -168,6 +179,12 @@ const list = async (req, res) => {
         {
           model:Model.MasterActivity,
           required:false
+        },
+        {
+          model:Model.ActivityUser,
+          as:"PrivateUser",
+          where:ActivityUserWhere,
+          required:ActivityUserRequired
         }
       ]
       if(req.query.page && req.query.page_size){

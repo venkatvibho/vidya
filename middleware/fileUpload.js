@@ -11,10 +11,10 @@ var storage = multer.diskStorage({
       cb(null, 'uploads')
     },
     filename: function (req, file, cb) {
-      cb(null, file.fieldname + '-' + Date.now()+'.'+file.mimetype.split("/")[1])
+      cb(null, file.originalname + '-' + Date.now()+'.'+file.mimetype.split("/")[1])
     }
   })
    
   let upload = multer({ storage , fileFilter });
-  upload = multer()
+  // upload = multer()
   module.exports = upload;

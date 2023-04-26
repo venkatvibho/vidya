@@ -10,9 +10,9 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["first_name","phonenumber"], 
+        "required": ["title"], 
         "properties": { 
-          "first_name": { 
+          "title": { 
             "type": "string",
           }
         } 
@@ -71,10 +71,13 @@ const update = async (req, res) => {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "first_name": { 
+          "title": { 
             "type": "string",
           },
-        }
+          "status": { 
+            "type": "boolean",
+          }
+        } 
       } 
     }
   */

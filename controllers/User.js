@@ -122,7 +122,6 @@ const view = async (req, res) => {
     [
       Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_to_id=${user_id})`),'gifts'
     ],
-
   ]
   query['include'] =[
     {

@@ -10,16 +10,28 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["first_name","phonenumber"], 
+        "required": ["activity_id","status"], 
         "properties": { 
-          "first_name": { 
-            "type": "string",
+          "activity_id": { 
+            "type": "number",
+            "description":"Take id from Activitiy"
+          },
+          "status": { 
+            "type": "status",
+            "enum":["Sent","Accepted","Rejected"]
           }
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
+  req.body['user_id'] = req.body.id
+  if(req.body.status=="Accepted"){
+    req.body["acceptedAt"] = await Helper.CurrentDate()
+  }
+  if(req.body.status=="Rejected"){
+    req.body["rejectedAt"] = await Helper.CurrentDate()
+  }
   return await ThisModel.create(req.body).then(async(doc) => {
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {

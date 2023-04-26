@@ -26,6 +26,36 @@
     "application/json"
   ],
   "paths": {
+    "/Common/Upload": {
+      "post": {
+        "tags": [
+          "Common"
+        ],
+        "description": "",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "singleFile",
+            "in": "formData",
+            "type": "file",
+            "required": true,
+            "description": "Upload file..."
+          },
+          {
+            "name": "host",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/User/create": {
       "post": {
         "tags": [
@@ -1048,6 +1078,31 @@
             "type": "number"
           },
           {
+            "name": "date",
+            "in": "query",
+            "type": "string",
+            "description": "YY-MM-DD"
+          },
+          {
+            "name": "type_of_badges",
+            "in": "query",
+            "type": "string",
+            "enum": [
+              "General",
+              "Honour"
+            ]
+          },
+          {
+            "name": "type_of_activity",
+            "in": "query",
+            "type": "string",
+            "enum": [
+              "Private",
+              "Public",
+              "Self"
+            ]
+          },
+          {
             "name": "created_by_user_id",
             "in": "query",
             "type": "number",
@@ -1228,6 +1283,50 @@
             "name": "authorization",
             "in": "header",
             "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/ActivityUser/publicActivityAccess": {
+      "post": {
+        "tags": [
+          "ActivityUser"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "activity_id",
+                "status"
+              ],
+              "properties": {
+                "activity_id": {
+                  "type": "number",
+                  "description": "Take id from Activitiy"
+                },
+                "status": {
+                  "type": "status",
+                  "enum": [
+                    "Sent",
+                    "Accepted",
+                    "Rejected"
+                  ]
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -1490,9 +1589,16 @@
             "type": "string"
           },
           {
-            "name": "is_notification_screen",
+            "name": "is_screen_for",
             "in": "query",
-            "type": "boolean"
+            "type": "string",
+            "enum": [
+              "notifications",
+              "slambook",
+              "following",
+              "followers",
+              "--"
+            ]
           },
           {
             "name": "page_size",
@@ -1643,6 +1749,224 @@
       "delete": {
         "tags": [
           "UserFollowing"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "path",
+            "required": true,
+            "type": "array",
+            "description": "Enter multiple ids"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/SlambookBeat/create": {
+      "post": {
+        "tags": [
+          "SlambookBeat"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "user_following_id",
+                "beatquestions"
+              ],
+              "properties": {
+                "user_following_id": {
+                  "type": "number",
+                  "description": "Take id from UserFollowing"
+                },
+                "beatquestions": {
+                  "type": "array",
+                  "description": "[Question1,Question2,Question3,Question4,Question5]"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/SlambookBeat/list": {
+      "get": {
+        "tags": [
+          "SlambookBeat"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "followed_by_me",
+            "in": "query",
+            "type": "number",
+            "description": "Select id From Users"
+          },
+          {
+            "name": "followed_to_me",
+            "in": "query",
+            "type": "number",
+            "description": "Select id From Users"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/SlambookBeat/view/{id}": {
+      "get": {
+        "tags": [
+          "SlambookBeat"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/SlambookBeat/update/{id}": {
+      "patch": {
+        "tags": [
+          "SlambookBeat"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "Sent",
+                    "Accepted",
+                    "Rejected"
+                  ]
+                },
+                "happiest_moments": {
+                  "type": "array",
+                  "description": "Ex:[Moment1,Moment2,Moment3,Moment4]"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "upload_pics": {
+                  "type": "array",
+                  "description": "Ex:[{s3bucketobject},{s3bucketobject}]"
+                },
+                "beatquestions": {
+                  "type": "array",
+                  "description": "[{qid:1,answer:enter answer},{qid:2,answer:enter answer}]"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/SlambookBeat/delete/{id}": {
+      "delete": {
+        "tags": [
+          "SlambookBeat"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/SlambookBeat/bulkdelete/{ids}": {
+      "delete": {
+        "tags": [
+          "SlambookBeat"
         ],
         "description": "",
         "parameters": [
@@ -2396,6 +2720,189 @@
       "delete": {
         "tags": [
           "MasterProfession"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "path",
+            "required": true,
+            "type": "array",
+            "description": "Enter multiple ids"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterBeatQuestion/create": {
+      "post": {
+        "tags": [
+          "MasterBeatQuestion"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "title"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterBeatQuestion/list": {
+      "get": {
+        "tags": [
+          "MasterBeatQuestion"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterBeatQuestion/view/{id}": {
+      "get": {
+        "tags": [
+          "MasterBeatQuestion"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterBeatQuestion/update/{id}": {
+      "patch": {
+        "tags": [
+          "MasterBeatQuestion"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterBeatQuestion/delete/{id}": {
+      "delete": {
+        "tags": [
+          "MasterBeatQuestion"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterBeatQuestion/bulkdelete/{ids}": {
+      "delete": {
+        "tags": [
+          "MasterBeatQuestion"
         ],
         "description": "",
         "parameters": [

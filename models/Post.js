@@ -18,7 +18,7 @@ class Post extends Sequelize.Model {
     },
     is_deleted: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true
+      allowNull: false
     },
     activity_id: {
       type: DataTypes.BIGINT,
@@ -43,6 +43,14 @@ class Post extends Sequelize.Model {
         model: 'users',
         key: 'id'
       }
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    images: {
+      type: DataTypes.ARRAY(DataTypes.TEXT),
+      allowNull: false
     }
   }, {
     sequelize,

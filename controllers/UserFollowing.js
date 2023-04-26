@@ -33,7 +33,7 @@ const create = async (req, res) => {
 
 const list = async (req, res) => {
   //  #swagger.tags = ['UserFollowing']
-  //  #swagger.parameters['is_notification_screen'] = {in: 'query',type:'boolean'}
+  //  #swagger.parameters['is_screen_for'] = {in: 'query',type:'string','enum':["notifications","slambook","following","followers","--"]}
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   //  #swagger.parameters['followed_by_me'] = {in: 'query',type:'number',"description":"Select id From Users"}
@@ -51,8 +51,19 @@ const list = async (req, res) => {
       if(req.query.followed_to_me){
         query['where']['user_to_id'] = req.query.followed_to_me
       }
-      if(req.query.is_notification_screen){
-        query['where']['status'] = {[Sequelize.Op.notIn]:['Rejected']}
+      if(req.query.is_screen_for){
+        if(req.query.is_screen_for=="notifications"){
+          query['where']['status'] = {[Op.notIn]:['Rejected']}
+        }else if(req.query.is_screen_for=="slambook"){
+          let date  = require('date-and-time');
+          let current_date = await Helper.CurrentDate()
+          let today =  date.format(current_date, 'YYYY-MM-DD');
+          query['where']['status'] = 'Accepted'
+          query['where']['acceptedAt'] = {[Op.gte]: Sequelize.literal(`'${today}'`)}
+          console.log("Where",query)
+        }else{
+          console.log("Test")
+        }
       }
       query['include'] =[
         {
