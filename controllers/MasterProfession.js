@@ -34,6 +34,15 @@ const create = async (req, res) => {
   })
 }
 
+const commonGet = async (req,res,whereInclude) => {
+  return [
+    {
+      model:Model.MasterIndustry,
+      required:false
+    }
+  ]
+}
+
 const list = async (req, res) => {
   // #swagger.tags = ['MasterProfession']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
@@ -45,10 +54,7 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
-      query['include'] = {
-        model:Model.MasterIndustry,
-        required:false
-      }
+      query['include'] = await commonGet(req, res,{})
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -68,10 +74,7 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['MasterProfession']
   let query={}
-  query['include'] = {
-    model:Model.MasterIndustry,
-    required:false
-  }
+  query['include'] = await commonGet(req, res,{})
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null

@@ -10,21 +10,65 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["first_name","phonenumber"], 
+        "required": ["title","description","postuser_id","is_post"], 
         "properties": { 
-          "first_name": { 
+          "title": { 
             "type": "string",
+          },
+          "description": { 
+            "type": "string",
+          },
+          "postuser_id": { 
+            "type": "number",
+            "description":"IF is_post is true means it is public POST so share id off the POST Object here ELSE share id of the PostUser Object",
+          },
+          "is_post": { 
+            "type": "boolean",
+            "default":false
           }
-        } 
+        }  
       } 
     }
   */
+  if(req.body.is_post==true){
+    let checkPost = await Model.Post.count({id:req.body.postuser_id})
+    if(checkPost>0){
+      try{
+        let NewPostUser = await Model.PostUser.create({post_id:req.body.postuser_id,user_id:req.user.id,status:'Sent'})
+        req.body['postuser_id'] = NewPostUser.id
+      }catch(error){
+        console.log(error)
+      }
+    }
+  }
+  delete req.body['is_post']
   // const opts = { runValidators: false , upsert: true };
   return await ThisModel.create(req.body).then(async(doc) => {
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
     return await Helper.ErrorValidation(req,res,err,'cache')
   })
+}
+
+const commonGet = async (req,res,whereInclude) => {
+  return [
+    {
+      model:Model.PostUser,
+      include:{
+        model:Model.User,
+        attributes:["id","user_id","first_name","phonenumber"],
+        required:false
+      },
+      include:{
+        model:Model.Post,
+        required:false
+      },
+      required:false
+    },{
+      model:Model.PostUserReportReply,
+      required:false
+    },
+  ]
 }
 
 const list = async (req, res) => {
@@ -38,6 +82,7 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['include'] = await commonGet(req, res,{})
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -57,6 +102,7 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['PostUserReport']
   let query={}
+  query['include'] = await commonGet(req, res,{})
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
@@ -71,9 +117,16 @@ const update = async (req, res) => {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "first_name": { 
+          "title": { 
             "type": "string",
           },
+          "description": { 
+            "type": "string",
+          },
+          "postuser_id": { 
+            "type": "number",
+            "description":"Take id from PostUser"
+          }
         }
       } 
     }

@@ -10,7 +10,7 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["type_of_activity","activity_id","images","description"], 
+        "required": ["type_of_activity","user_ids"], 
         "properties": { 
           "activity_id": { 
             "type": "number",
@@ -20,30 +20,38 @@ const create = async (req, res) => {
             "type": "string",
             "enum":["Private","Public","Self"]
           },
-          "type_of_activity": { 
+          "description": { 
             "type": "string",
-            "enum":[]
-          }
+          },
+          "images":{
+            "type": "array",
+            "description":"[s3bucketobj1,s3bucketobj2]"
+          },
+          "user_ids": { 
+            "type": "array",
+            "description":"Take id From User Ex:[1,2,3]"
+          },
+          "group_id": { 
+            "type": "number",
+            "description":"Take id From Group"
+          },
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
   req.body['user_id'] = req.user.id
+  req.body['is_deleted'] = false
   return await ThisModel.create(req.body).then(async(doc) => {
     if(req.body.type_of_activity == "Private"){
       if(req.body.group_id){
-        let GroupUsers = await Model.PostUser.findByPk(req.body['group_id'])
-        if(GroupUsers.participants){
-          let participants = GroupUsers.participants
-          participants.splice(participants.indexOf(req.user.id),1);
-          let ActivityUser = []
-          for (let i = 0; i < participants.length; i++) {
-            // ActivityUser.push(GroupUserData)
+        let participants = await Model.GroupsParticipant.findAll({where:{group_id:req.body.group_id}})
+        if(participants){
+          for(let i = 0; i < participants.length; i++){
             try{
-              let cntGroupCheck = await Model.PostUser.count({post_id : doc.id,user_id:participants[i]})
+              let cntGroupCheck = await Model.PostUser.count({where:{post_id:doc.id,user_id:participants[i].user_id}})
               if(cntGroupCheck == 0){ 
-                let GroupUserData = {post_id : doc.id,user_id:participants[i],status:'Sent'}
+                let GroupUserData = {post_id : doc.id,user_id:participants[i].user_id,status:'Sent'}
                 await Model.PostUser.create(GroupUserData)
               }
             } catch (err){
@@ -55,14 +63,11 @@ const create = async (req, res) => {
       if(req.body.user_ids){
         let SelectedUsers = req.body.user_ids
         if(SelectedUsers){
-          SelectedUsers.splice(SelectedUsers.indexOf(req.user.id),1);
-          let ActivityUser = []
           for (let i = 0; i < SelectedUsers.length; i++) {
-            // ActivityUser.push(SingUsersData)
             try{
-              let cntSingUserCheck = await Model.PostUser.count({post_id : doc.id,user_id:SelectedUsers[i]})
+              let cntSingUserCheck = await Model.PostUser.count({where:{post_id:doc.id,user_id:SelectedUsers[i]}})
               if(cntSingUserCheck == 0){ 
-                let SingUsersData = {post_id : doc.id,user_id:SelectedUsers[i],status:'Sent'}
+                let SingUsersData = {post_id:doc.id,user_id:SelectedUsers[i],status:'Sent'}
                 await Model.PostUser.create(SingUsersData)
               }
             } catch (err){
@@ -78,17 +83,42 @@ const create = async (req, res) => {
   })
 }
 
+const commonGet = async (req,res,whereInclude) => {
+  return [
+    {
+      model:Model.Activity,
+      required:false
+    },{
+      model:Model.Group,
+      required:false
+    },{
+      model:Model.PostUser,
+      include:{
+        model:Model.User,
+        attributes:["id","user_id","first_name","phonenumber"],
+        required:false
+      },
+      required:false
+    },{
+      model:Model.User,
+      attributes:["id","user_id","first_name","phonenumber"],
+      required:false
+    },
+  ]
+}
+
 const list = async (req, res) => {
   // #swagger.tags = ['Post']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
-  
+  //  #swagger.parameters['is_screen_for'] = {in: 'query',type:'string','enum':["dashboard","profile"]}
 
   try{
       let pageSize = 0;
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['include'] = await commonGet(req, res,{})
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -108,6 +138,7 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['Post']
   let query={}
+  query['include'] = await commonGet(req, res,{})
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null

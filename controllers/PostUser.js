@@ -10,21 +10,61 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["first_name","phonenumber"], 
+        "required": ["post_id","user_id"], 
         "properties": { 
-          "first_name": { 
-            "type": "string",
-          }
+          "post_id": { 
+            "type": "number",
+            "description":"Take id from Post"
+          },
+          "user_id": { 
+            "type": "number",
+            "description":"Take id from User"
+          },
+          "is_hide": { 
+            "type": "boolean",
+          },
+          "is_viewed": { 
+            "type": "boolean",
+          },
+          "is_save": { 
+            "type": "boolean",
+          },
+          "is_liked": { 
+            "type": "boolean",
+          },
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
+  req.body['status']  = 'Sent'
   return await ThisModel.create(req.body).then(async(doc) => {
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
     return await Helper.ErrorValidation(req,res,err,'cache')
   })
+}
+
+const commonGet = async (req,res,whereInclude) => {
+  return [
+    {
+      model:Model.Post,
+      required:false
+    },
+    {
+      model:Model.PostUserReport,
+      required:false
+    },
+    {
+      model:Model.PostComment,
+      required:false
+    },
+    {
+      model:Model.User,
+      attributes:["id","user_id","first_name","phonenumber"],
+      required:false
+    }
+  ]
 }
 
 const list = async (req, res) => {
@@ -38,6 +78,7 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['include'] = await commonGet(req, res,{})
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -57,6 +98,7 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['PostUser']
   let query={}
+  query['include'] = await commonGet(req, res,{})
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
@@ -71,8 +113,17 @@ const update = async (req, res) => {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "first_name": { 
-            "type": "string",
+          "is_hide": { 
+            "type": "boolean",
+          },
+          "is_viewed": { 
+            "type": "boolean",
+          },
+          "is_save": { 
+            "type": "boolean",
+          },
+          "is_liked": { 
+            "type": "boolean",
           },
         }
       } 

@@ -60,27 +60,34 @@ const create = async (req, res) => {
           },
           "user_ids": { 
             "type": "array",
-            "description":"Take id from User"
+            "description":"Take id from User Ex:[1,2.3]"
           }
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
+  req.body['user_id'] = req.user.id
+  let Groupdata = null
+  if(req.body.group_id){
+    Groupdata = req.body.group_id
+    delete req.body['group_id']
+  }
   return await ThisModel.create(req.body).then(async(doc) => {
     if(req.body.type_of_activity == "Private"){
-      if(req.body.group_id){
-        let GroupUsers = await Model.Group.findByPk(req.body['group_id'])
-        if(GroupUsers.participants){
-          let participants = GroupUsers.participants
-          participants.splice(participants.indexOf(req.user.id),1);
-          let ActivityUser = []
+      if(Groupdata){
+        let participants = await Model.GroupsParticipant.findAll({where:{group_id:Groupdata}})
+        try{
+          await Model.ActivityGroup.create({group_id:Groupdata,activity_id:doc.id})
+        } catch (err){
+          console.log(err);
+        }
+        if(participants){
           for (let i = 0; i < participants.length; i++) {
-            // ActivityUser.push(GroupUserData)
             try{
-              let cntGroupCheck = await Model.ActivityUser.count({activity_id : doc.id,user_id:participants[i]})
+              let cntGroupCheck = await Model.ActivityUser.count({where:{activity_id:doc.id,user_id:participants[i].user_id}})
               if(cntGroupCheck == 0){ 
-                let GroupUserData = {activity_id : doc.id,user_id:participants[i],status:'Sent'}
+                let GroupUserData = {activity_id:doc.id,user_id:participants[i].user_id,status:'Sent',group_id:Groupdata}
                 await Model.ActivityUser.create(GroupUserData)
               }
             } catch (err){
@@ -93,11 +100,9 @@ const create = async (req, res) => {
         let SelectedUsers = req.body.user_ids
         if(SelectedUsers){
           SelectedUsers.splice(SelectedUsers.indexOf(req.user.id),1);
-          let ActivityUser = []
           for (let i = 0; i < SelectedUsers.length; i++) {
-            // ActivityUser.push(SingUsersData)
             try{
-              let cntSingUserCheck = await Model.ActivityUser.count({activity_id : doc.id,user_id:SelectedUsers[i]})
+              let cntSingUserCheck = await Model.ActivityUser.count({where:{activity_id:doc.id,user_id:SelectedUsers[i]}})
               if(cntSingUserCheck == 0){ 
                 let SingUsersData = {activity_id : doc.id,user_id:SelectedUsers[i],status:'Sent'}
                 await Model.ActivityUser.create(SingUsersData)
@@ -113,6 +118,25 @@ const create = async (req, res) => {
   }).catch( async (err) => {
     return await Helper.ErrorValidation(req,res,err,'cache')
   })
+}
+
+const commonGet = async (req,res,whereInclude) => {
+  return [
+    {
+      model:Model.ActivityGroup,
+      required:false
+    },
+    {
+      model:Model.MasterActivity,
+      required:false
+    },
+    {
+      model:Model.ActivityUser,
+      as:"PrivateUser",
+      where:whereInclude.ActivityUserWhere,
+      required:whereInclude.ActivityUserRequired
+    }
+  ]
 }
 
 const list = async (req, res) => {
@@ -171,22 +195,7 @@ const list = async (req, res) => {
           }
         }
       }
-      query['include'] = [
-        {
-          model:Model.Group,
-          required:false
-        },
-        {
-          model:Model.MasterActivity,
-          required:false
-        },
-        {
-          model:Model.ActivityUser,
-          as:"PrivateUser",
-          where:ActivityUserWhere,
-          required:ActivityUserRequired
-        }
-      ]
+      query['include'] = await commonGet(req, res,{ActivityUserRequired:ActivityUserRequired,ActivityUserWhere:ActivityUserWhere})
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -206,16 +215,7 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['Activity']
   let query={}
-  query['include'] = [
-    {
-      model:Model.Group,
-      required:false
-    },
-    {
-      model:Model.MasterActivity,
-      required:false
-    }
-  ]
+  query['include'] = query['include'] = await commonGet(req, res,{ActivityUserRequired:false,ActivityUserWhere:{}})
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
@@ -284,21 +284,27 @@ const update = async (req, res) => {
       } 
     }
   */
+  let Groupdata = null
+  if(req.body.group_id){
+    Groupdata = req.body.group_id
+    delete req.body['group_id']
+  }
   if(req.body.type_of_activity){
     if(req.body.type_of_activity == "Private"){
-      await Model.ActivityUser.count({activity_id : doc.id})
-      if(req.body.group_id){
-        let GroupUsers = await Model.Group.findByPk(req.body['group_id'])
-        if(GroupUsers.participants){
-          let participants = GroupUsers.participants
-          participants.splice(participants.indexOf(req.user.id),1);
-          let ActivityUser = []
+      if(Groupdata){
+        await Model.ActivityUser.destroy({activity_id:doc.id,group_id:Groupdata})
+        try{
+          await Model.ActivityGroup.create({group_id:Groupdata,activity_id:doc.id})
+        } catch (err){
+          console.log(err);
+        }
+        let participants = await Model.GroupsParticipant.findAll({where:{group_id:Groupdata}})
+        if(participants){
           for (let i = 0; i < participants.length; i++) {
-            // ActivityUser.push(GroupUserData)
             try{
-              let cntGroupCheck = await Model.ActivityUser.count({activity_id : doc.id,user_id:participants[i]})
+              let cntGroupCheck = await Model.ActivityUser.count({where:{activity_id:doc.id,user_id:participants[i].user_id}})
               if(cntGroupCheck == 0){ 
-                let GroupUserData = {activity_id : doc.id,user_id:participants[i],status:'Sent'}
+                let GroupUserData = {activity_id:doc.id,user_id:participants[i].user_id,status:'Sent',group_id:Groupdata}
                 await Model.ActivityUser.create(GroupUserData)
               }
             } catch (err){
@@ -309,13 +315,12 @@ const update = async (req, res) => {
       }
       if(req.body.user_ids){
         let SelectedUsers = req.body.user_ids
+        await Model.ActivityUser.destroy({activity_id:doc.id,group_id:{[Op.eq]:null}})
         if(SelectedUsers){
           SelectedUsers.splice(SelectedUsers.indexOf(req.user.id),1);
-          let ActivityUser = []
           for (let i = 0; i < SelectedUsers.length; i++) {
-            // ActivityUser.push(SingUsersData)
             try{
-              let cntSingUserCheck = await Model.ActivityUser.count({activity_id : doc.id,user_id:SelectedUsers[i]})
+              let cntSingUserCheck = await Model.ActivityUser.count({where:{activity_id:doc.id,user_id:SelectedUsers[i]}})
               if(cntSingUserCheck == 0){ 
                 let SingUsersData = {activity_id : doc.id,user_id:SelectedUsers[i],status:'Sent'}
                 await Model.ActivityUser.create(SingUsersData)

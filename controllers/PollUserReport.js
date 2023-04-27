@@ -27,6 +27,25 @@ const create = async (req, res) => {
   })
 }
 
+const commonGet = async (req,res,whereInclude) => {
+  return [
+    {
+      model:Model.User,
+      attributes:["id","first_name","user_id"],
+      required:true
+    },
+    {
+      model:Model.Activity,
+      include:{
+        model:Model.MasterActivity,
+        attributes:["id","title","icon","is_active"],
+        required:true
+      },
+      required:true
+    }
+  ]
+}
+
 const list = async (req, res) => {
   // #swagger.tags = ['PollUserReport']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}

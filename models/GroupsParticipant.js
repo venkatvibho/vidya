@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return PostUserReportReply.init(sequelize, DataTypes);
+  return GroupsParticipant.init(sequelize, DataTypes);
 }
 
-class PostUserReportReply extends Sequelize.Model {
+class GroupsParticipant extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   return super.init({
     id: {
@@ -12,17 +12,14 @@ class PostUserReportReply extends Sequelize.Model {
       allowNull: false,
       primaryKey: true
     },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: false
-    },
-    postuserreport_id: {
+    group_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       references: {
-        model: 'post_user_reports',
+        model: 'groups',
         key: 'id'
-      }
+      },
+      unique: "groups_participants_group_id_user_id_ccc2118b_uniq"
     },
     user_id: {
       type: DataTypes.BIGINT,
@@ -30,29 +27,38 @@ class PostUserReportReply extends Sequelize.Model {
       references: {
         model: 'users',
         key: 'id'
-      }
+      },
+      unique: "groups_participants_group_id_user_id_ccc2118b_uniq"
     }
   }, {
     sequelize,
-    tableName: 'post_user_report_replies',
+    tableName: 'groups_participants',
     schema: 'public',
-    timestamps: true,
+    timestamps: false,
     indexes: [
       {
-        name: "post_user_report_replies_pkey",
+        name: "groups_participants_group_id_77e3cbc1",
+        fields: [
+          { name: "group_id" },
+        ]
+      },
+      {
+        name: "groups_participants_group_id_user_id_ccc2118b_uniq",
+        unique: true,
+        fields: [
+          { name: "group_id" },
+          { name: "user_id" },
+        ]
+      },
+      {
+        name: "groups_participants_pkey",
         unique: true,
         fields: [
           { name: "id" },
         ]
       },
       {
-        name: "post_user_report_replies_postuserreport_id_859c638c",
-        fields: [
-          { name: "postuserreport_id" },
-        ]
-      },
-      {
-        name: "post_user_report_replies_user_id_094eb146",
+        name: "groups_participants_user_id_e4f68d4e",
         fields: [
           { name: "user_id" },
         ]

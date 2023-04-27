@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return Group.init(sequelize, DataTypes);
+  return UserReportReply.init(sequelize, DataTypes);
 }
 
-class Group extends Sequelize.Model {
+class UserReportReply extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   return super.init({
     id: {
@@ -12,21 +12,21 @@ class Group extends Sequelize.Model {
       allowNull: false,
       primaryKey: true
     },
-    title: {
-      type: DataTypes.STRING(250),
-      allowNull: false
-    },
-    icon: {
-      type: DataTypes.JSONB,
-      allowNull: true
-    },
     description: {
       type: DataTypes.TEXT,
-      allowNull: true
+      allowNull: false
+    },
+    user_report_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: 'user_reports',
+        key: 'id'
+      }
     },
     user_id: {
       type: DataTypes.BIGINT,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'users',
         key: 'id'
@@ -34,19 +34,25 @@ class Group extends Sequelize.Model {
     }
   }, {
     sequelize,
-    tableName: 'groups',
+    tableName: 'user_report_replies',
     schema: 'public',
     timestamps: true,
     indexes: [
       {
-        name: "groups_pkey",
+        name: "user_report_replies_pkey",
         unique: true,
         fields: [
           { name: "id" },
         ]
       },
       {
-        name: "groups_user_id_55017db9",
+        name: "user_report_replies_post_user_report_id_e3c58376",
+        fields: [
+          { name: "user_report_id" },
+        ]
+      },
+      {
+        name: "user_report_replies_user_id_id_1d81e490",
         fields: [
           { name: "user_id" },
         ]

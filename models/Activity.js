@@ -60,14 +60,6 @@ class Activity extends Sequelize.Model {
         key: 'id'
       }
     },
-    group_id: {
-      type: DataTypes.BIGINT,
-      allowNull: false,
-      references: {
-        model: 'groups',
-        key: 'id'
-      }
-    },
     user_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
@@ -86,12 +78,6 @@ class Activity extends Sequelize.Model {
         name: "activities_activity_id_e7b2d538",
         fields: [
           { name: "activity_id" },
-        ]
-      },
-      {
-        name: "activities_group_id_f664c654",
-        fields: [
-          { name: "group_id" },
         ]
       },
       {

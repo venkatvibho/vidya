@@ -10,21 +10,45 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["first_name","phonenumber"], 
+        "required": ["replay_comment","postcomment_id"], 
         "properties": { 
-          "first_name": { 
+          "replay_comment": { 
             "type": "string",
+          },
+          "postcomment_id": { 
+            "type": "number",
+            "description": "Take id from PostComment",
           }
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
+  req.body['user_id']=req.user.id
   return await ThisModel.create(req.body).then(async(doc) => {
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
     return await Helper.ErrorValidation(req,res,err,'cache')
   })
+}
+
+const commonGet = async (req,res,whereInclude) => {
+  return [
+    {
+      model:Model.User,
+      attributes:["id","first_name","user_id"],
+      required:true
+    },
+    {
+      model:Model.Activity,
+      include:{
+        model:Model.MasterActivity,
+        attributes:["id","title","icon","is_active"],
+        required:true
+      },
+      required:true
+    }
+  ]
 }
 
 const list = async (req, res) => {
@@ -71,7 +95,7 @@ const update = async (req, res) => {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "first_name": { 
+          "replay_comment": { 
             "type": "string",
           },
         }

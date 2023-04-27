@@ -35,13 +35,36 @@ const create = async (req, res) => {
   */
   // const opts = { runValidators: false , upsert: true };
   req.body['user_id'] = req.user.id
-  req.body['participants'].push(req.user.id)
-  console.log(req.body)
+  let participants = req.body['participants']
+  delete req.body['participants']
   return await ThisModel.create(req.body).then(async(doc) => {
+    await Model.GroupsParticipant.create({group_id:doc.id,user_id:req.user.id})
+    for (const part of participants) {  
+      try{
+        await Model.GroupsParticipant.create({group_id:doc.id,user_id:part})
+      }catch(err){
+        console.log(err)
+      }
+    }
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
     return await Helper.ErrorValidation(req,res,err,'cache')
   })
+}
+
+const commonGet = async (req,res,whereInclude) => {
+  return [
+    {
+      model:Model.GroupsParticipant,
+      include:{
+        model:Model.User,
+        attributes:["id","user_id","first_name","phonenumber"],
+        where : (whereInclude)?whereInclude.ParticipantWhere:{},
+        required:(whereInclude)?whereInclude.ParticipantReq:false
+      },
+      required:(whereInclude)?whereInclude.ParticipantReq:false
+    }
+  ]
 }
 
 const list = async (req, res) => {
@@ -56,11 +79,16 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      let ParticipantReq = false
+      let ParticipantWhere = {}
+      if(req.query.participant_user_id){
+        // query['where']['participants'] = {[Sequelize.Op.contains]: [req.query.participant_user_id]}
+        ParticipantReq = true
+        ParticipantWhere = {user_id:req.query.participant_user_id}
+      }
+      query['include'] = await commonGet(req, res,{ParticipantWhere:ParticipantWhere,ParticipantReq:ParticipantReq})
       if(req.query.created_by_user_id){
         query['where']['user_id'] = req.query.created_by_user_id
-      }
-      if(req.query.participant_user_id){
-        query['where']['participants'] = {[Sequelize.Op.contains]: [req.query.participant_user_id]}
       }
       console.log(query)
       if(req.query.page && req.query.page_size){
@@ -82,6 +110,7 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['Group']
   let query={}
+  query['include'] = await commonGet(req, res,{})
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
@@ -117,7 +146,21 @@ const update = async (req, res) => {
       } 
     }
   */
+  let participants = null
+  if(req.body.participants){
+    participants = req.body['participants']
+    delete req.body['participants']
+  }
   return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
+    if(req.body.participants){
+      for (const part of participants) {  
+        try{
+          await Model.GroupsParticipant.create({group_id:doc.id,user_id:part})
+        }catch(err){
+          console.log(err)
+        }
+      }
+    }
     records = await ThisModel.findByPk(req.params.id);
     await Helper.SuccessValidation(req,res,records,'Updated successfully')
   }).catch( async (err) => {

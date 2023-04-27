@@ -23,6 +23,14 @@ class PostCommentReply extends Sequelize.Model {
         model: 'post_comments',
         key: 'id'
       }
+    },
+    user_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id'
+      }
     }
   }, {
     sequelize,
@@ -41,6 +49,12 @@ class PostCommentReply extends Sequelize.Model {
         name: "post_comment_replies_postcomment_id_a8428ae9",
         fields: [
           { name: "postcomment_id" },
+        ]
+      },
+      {
+        name: "post_comment_replies_user_id_f2468448",
+        fields: [
+          { name: "user_id" },
         ]
       },
     ]

@@ -58,6 +58,25 @@ const create = async (req, res) => {
   })
 }
 
+const commonGet = async (req,res,whereInclude) => {
+  return [
+    {
+      model:Model.UserInterest,
+      include:{
+        model:Model.MasterInterest,
+        required:false
+      },
+      required:false
+    },
+    {
+      model:Model.UserFollowing,
+      attributes:["id","status"],
+      where : (whereInclude)?whereInclude.UserFollowingWhere:{},
+      required:false
+    }
+  ]
+}
+
 const list = async (req, res) => {
   // #swagger.tags = ['User']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
@@ -78,16 +97,7 @@ const list = async (req, res) => {
       // let FollowWhere = {}
       // FollowWhere.user_from_id = req.user.id
       query['where'] = {}
-      query['include'] =[
-        {
-          model:Model.UserInterest,
-          include:{
-            model:Model.MasterInterest,
-            required:false
-          },
-          required:false
-        }
-      ]
+      query['include'] = await commonGet(req, res,{})
       console.log(query)
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
@@ -123,23 +133,7 @@ const view = async (req, res) => {
       Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_to_id=${user_id})`),'gifts'
     ],
   ]
-  query['include'] =[
-    {
-      model:Model.UserInterest,
-      include:{
-        model:Model.MasterInterest,
-        required:false
-      },
-      required:false
-    },
-    {
-      model:Model.UserFollowing,
-      // as: "UserFollowing",
-      attributes:["id","status"],
-      where : {user_from_id:user_id},
-      required:false
-    }
-  ]
+  query['include'] = await commonGet(req, res,{UserFollowingWhere:{user_from_id:user_id}})
   console.log(query)
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
@@ -279,11 +273,11 @@ const login = async (req, res) => {
       } 
     }
   */
-  req.query['is_with_otp'] = true
+  let is_with_otp = true
   try{
     let records = await ThisModel.findOne({where:{phonenumber:req.body.phonenumber}});
     if(records){
-      if(req.query.is_with_otp == false || req.query.is_with_otp == "false"){
+      if(is_with_otp == false || is_with_otp == "false"){
         let PwdStatus = true
         if(req.body.password && req.body.password!=null){
           PwdStatus = await bcrypt.compare(req.body.password, records.password);
