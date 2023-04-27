@@ -105,6 +105,10 @@ class User extends Sequelize.Model {
     city: {
       type: DataTypes.STRING(250),
       allowNull: true
+    },
+    status: {
+      type: DataTypes.STRING(10),
+      allowNull: true
     }
   }, {
     sequelize,

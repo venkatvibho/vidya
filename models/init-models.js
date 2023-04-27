@@ -1,5 +1,6 @@
 const DataTypes = require("sequelize").DataTypes;
 const _Activity = require("./Activity");
+const _ActivityGroup = require("./ActivityGroup");
 const _ActivityUser = require("./ActivityUser");
 const _ChatRoom = require("./ChatRoom");
 const _ChatRoomHistory = require("./ChatRoomHistory");
@@ -10,6 +11,7 @@ const _GroupChat = require("./GroupChat");
 const _GroupChatroomUserReportReply = require("./GroupChatroomUserReportReply");
 const _GroupChatroomUserReport = require("./GroupChatroomUserReport");
 const _Group = require("./Group");
+const _GroupsParticipant = require("./GroupsParticipant");
 const _MasterActivity = require("./MasterActivity");
 const _MasterBeatQuestion = require("./MasterBeatQuestion");
 const _MasterIndustry = require("./MasterIndustry");
@@ -30,11 +32,13 @@ const _SlambookBeatQuestion = require("./SlambookBeatQuestion");
 const _SlambookBeat = require("./SlambookBeat");
 const _UserFollowing = require("./UserFollowing");
 const _UserInterest = require("./UserInterest");
+const _UserReportReply = require("./UserReportReply");
 const _UserReport = require("./UserReport");
 const _User = require("./User");
 
 function initModels(sequelize) {
   const Activity = _Activity(sequelize, DataTypes);
+  const ActivityGroup = _ActivityGroup(sequelize, DataTypes);
   const ActivityUser = _ActivityUser(sequelize, DataTypes);
   const ChatRoom = _ChatRoom(sequelize, DataTypes);
   const ChatRoomHistory = _ChatRoomHistory(sequelize, DataTypes);
@@ -45,6 +49,7 @@ function initModels(sequelize) {
   const GroupChatroomUserReportReply = _GroupChatroomUserReportReply(sequelize, DataTypes);
   const GroupChatroomUserReport = _GroupChatroomUserReport(sequelize, DataTypes);
   const Group = _Group(sequelize, DataTypes);
+  const GroupsParticipant = _GroupsParticipant(sequelize, DataTypes);
   const MasterActivity = _MasterActivity(sequelize, DataTypes);
   const MasterBeatQuestion = _MasterBeatQuestion(sequelize, DataTypes);
   const MasterIndustry = _MasterIndustry(sequelize, DataTypes);
@@ -65,12 +70,14 @@ function initModels(sequelize) {
   const SlambookBeat = _SlambookBeat(sequelize, DataTypes);
   const UserFollowing = _UserFollowing(sequelize, DataTypes);
   const UserInterest = _UserInterest(sequelize, DataTypes);
+  const UserReportReply = _UserReportReply(sequelize, DataTypes);
   const UserReport = _UserReport(sequelize, DataTypes);
   const User = _User(sequelize, DataTypes);
 
+  ActivityGroup.belongsTo(Activity, { foreignKey: "activity_id"});
+  Activity.hasMany(ActivityGroup, { foreignKey: "activity_id"});
   ActivityUser.belongsTo(Activity, { foreignKey: "activity_id"});
   Activity.hasMany(ActivityUser, { foreignKey: "activity_id"});
-  Activity.hasMany(ActivityUser, { as:"PrivateUser",foreignKey: "activity_id"});
   Post.belongsTo(Activity, { foreignKey: "activity_id"});
   Activity.hasMany(Post, { foreignKey: "activity_id"});
   ChatRoomHistory.belongsTo(ChatRoom, { foreignKey: "chatroom_id"});
@@ -81,12 +88,16 @@ function initModels(sequelize) {
   ChatroomUserReport.hasMany(ChatroomUserReportReply, { foreignKey: "chatroomreport_id"});
   GroupChatroomUserReportReply.belongsTo(GroupChatroomUserReport, { foreignKey: "group_chat_report_id"});
   GroupChatroomUserReport.hasMany(GroupChatroomUserReportReply, { foreignKey: "group_chat_report_id"});
-  Activity.belongsTo(Group, { foreignKey: "group_id"});
-  Group.hasMany(Activity, { foreignKey: "group_id"});
+  ActivityGroup.belongsTo(Group, { foreignKey: "group_id"});
+  Group.hasMany(ActivityGroup, { foreignKey: "group_id"});
+  ActivityUser.belongsTo(Group, { foreignKey: "group_id"});
+  Group.hasMany(ActivityUser, { foreignKey: "group_id"});
   GroupChat.belongsTo(Group, { foreignKey: "group_id"});
   Group.hasMany(GroupChat, { foreignKey: "group_id"});
   GroupChatroomUserReport.belongsTo(Group, { foreignKey: "group_id"});
   Group.hasMany(GroupChatroomUserReport, { foreignKey: "group_id"});
+  GroupsParticipant.belongsTo(Group, { foreignKey: "group_id"});
+  Group.hasMany(GroupsParticipant, { foreignKey: "group_id"});
   Poll.belongsTo(Group, { foreignKey: "group_id"});
   Group.hasMany(Poll, { foreignKey: "group_id"});
   Post.belongsTo(Group, { foreignKey: "group_id"});
@@ -121,6 +132,8 @@ function initModels(sequelize) {
   SlambookBeat.hasMany(SlambookBeatQuestion, { foreignKey: "user_following_id"});
   SlambookBeat.belongsTo(UserFollowing, { foreignKey: "user_following_id"});
   UserFollowing.hasOne(SlambookBeat, { foreignKey: "user_following_id"});
+  UserReportReply.belongsTo(UserReport, { foreignKey: "user_report_id"});
+  UserReport.hasMany(UserReportReply, { foreignKey: "user_report_id"});
   Activity.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(Activity, { foreignKey: "user_id"});
   ActivityUser.belongsTo(User, { foreignKey: "user_id"});
@@ -135,27 +148,36 @@ function initModels(sequelize) {
   User.hasMany(GroupChatroomUserReport, { foreignKey: "reported_user_id"});
   Group.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(Group, { foreignKey: "user_id"});
+  GroupsParticipant.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(GroupsParticipant, { foreignKey: "user_id"});
   PollUser.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(PollUser, { foreignKey: "user_id"});
   Poll.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(Poll, { foreignKey: "user_id"});
+  PostCommentReply.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(PostCommentReply, { foreignKey: "user_id"});
+  PostUserReportReply.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(PostUserReportReply, { foreignKey: "user_id"});
   PostUser.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(PostUser, { foreignKey: "user_id"});
   Post.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(Post, { foreignKey: "user_id"});
-  UserFollowing.belongsTo(User, { as:"FollowingFrom",foreignKey: "user_from_id"});
-  User.hasMany(UserFollowing, { as:"UserFollowing",foreignKey: "user_from_id"});
+  UserFollowing.belongsTo(User, { foreignKey: "user_from_id"});
+  User.hasMany(UserFollowing, { foreignKey: "user_from_id"});
   UserFollowing.belongsTo(User, { foreignKey: "user_to_id"});
   User.hasMany(UserFollowing, { foreignKey: "user_to_id"});
   UserInterest.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(UserInterest, { foreignKey: "user_id"});
-  UserReport.belongsTo(User, { as:"ReportFrom",foreignKey: "from_user_id"});
-  User.hasMany(UserReport, { as:"UserReportFrom",foreignKey: "from_user_id"});
+  UserReportReply.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(UserReportReply, { foreignKey: "user_id"});
+  UserReport.belongsTo(User, { foreignKey: "from_user_id"});
+  User.hasMany(UserReport, { foreignKey: "from_user_id"});
   UserReport.belongsTo(User, { foreignKey: "to_user_id"});
   User.hasMany(UserReport, { foreignKey: "to_user_id"});
 
   return {
     Activity,
+    ActivityGroup,
     ActivityUser,
     ChatRoom,
     ChatRoomHistory,
@@ -166,6 +188,7 @@ function initModels(sequelize) {
     GroupChatroomUserReportReply,
     GroupChatroomUserReport,
     Group,
+    GroupsParticipant,
     MasterActivity,
     MasterBeatQuestion,
     MasterIndustry,
@@ -186,6 +209,7 @@ function initModels(sequelize) {
     SlambookBeat,
     UserFollowing,
     UserInterest,
+    UserReportReply,
     UserReport,
     User,
   };

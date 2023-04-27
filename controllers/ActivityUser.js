@@ -25,7 +25,7 @@ const create = async (req, res) => {
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  req.body['user_id'] = req.body.id
+  req.body['user_id'] = req.user.id
   if(req.body.status=="Accepted"){
     req.body["acceptedAt"] = await Helper.CurrentDate()
   }
@@ -37,6 +37,25 @@ const create = async (req, res) => {
   }).catch( async (err) => {
     return await Helper.ErrorValidation(req,res,err,'cache')
   })
+}
+
+const commonGet = async (req,res,whereInclude) => {
+  return [
+    {
+      model:Model.User,
+      attributes:["id","first_name","user_id"],
+      required:true
+    },
+    {
+      model:Model.Activity,
+      include:{
+        model:Model.MasterActivity,
+        attributes:["id","title","icon","is_active"],
+        required:true
+      },
+      required:true
+    }
+  ]
 }
 
 const list = async (req, res) => {
@@ -53,22 +72,7 @@ const list = async (req, res) => {
       if(req.query.is_notification_screen){
         query['where']['status'] = {[Sequelize.Op.notIn]:['Rejected']}
       }
-      query['include'] =[
-        {
-          model:Model.User,
-          attributes:["id","first_name","user_id"],
-          required:true
-        },
-        {
-          model:Model.Activity,
-          include:{
-            model:Model.MasterActivity,
-            attributes:["id","title","icon","is_active"],
-            required:true
-          },
-          required:true
-        }
-      ]
+      query['include'] = await commonGet(req, res,{})
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -88,22 +92,7 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['ActivityUser']
   let query={}
-  query['include'] =[
-    {
-      model:Model.User,
-      attributes:["id","first_name","user_id"],
-      required:true
-    },
-    {
-      model:Model.Activity,
-      include:{
-        model:Model.MasterActivity,
-        attributes:["id","title","icon","is_active"],
-        required:true
-      },
-      required:true
-    }
-  ]
+  query['include'] = await commonGet(req, res,{})
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null

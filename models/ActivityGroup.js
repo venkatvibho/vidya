@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return PostUserReportReply.init(sequelize, DataTypes);
+  return ActivityGroup.init(sequelize, DataTypes);
 }
 
-class PostUserReportReply extends Sequelize.Model {
+class ActivityGroup extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   return super.init({
     id: {
@@ -12,49 +12,45 @@ class PostUserReportReply extends Sequelize.Model {
       allowNull: false,
       primaryKey: true
     },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: false
-    },
-    postuserreport_id: {
+    activity_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       references: {
-        model: 'post_user_reports',
+        model: 'activities',
         key: 'id'
       }
     },
-    user_id: {
+    group_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       references: {
-        model: 'users',
+        model: 'groups',
         key: 'id'
       }
     }
   }, {
     sequelize,
-    tableName: 'post_user_report_replies',
+    tableName: 'activity_groups',
     schema: 'public',
     timestamps: true,
     indexes: [
       {
-        name: "post_user_report_replies_pkey",
+        name: "activity_groups_activity_id_3dc9c3c3",
+        fields: [
+          { name: "activity_id" },
+        ]
+      },
+      {
+        name: "activity_groups_group_id_06b76c9d",
+        fields: [
+          { name: "group_id" },
+        ]
+      },
+      {
+        name: "activity_groups_pkey",
         unique: true,
         fields: [
           { name: "id" },
-        ]
-      },
-      {
-        name: "post_user_report_replies_postuserreport_id_859c638c",
-        fields: [
-          { name: "postuserreport_id" },
-        ]
-      },
-      {
-        name: "post_user_report_replies_user_id_094eb146",
-        fields: [
-          { name: "user_id" },
         ]
       },
     ]

@@ -31,6 +31,23 @@ const create = async (req, res) => {
   })
 }
 
+const commonGet = async (req,res,whereInclude) => {
+  return [
+    {
+      model:Model.User,
+      as: "FollowingFrom",
+      attributes:["id","first_name","user_id"],
+      required:true
+    },
+    {
+      model:Model.User,
+      foreignKey: 'user_to_id',
+      attributes:["id","first_name","user_id"],
+      required:true
+    }
+  ]
+}
+
 const list = async (req, res) => {
   //  #swagger.tags = ['UserFollowing']
   //  #swagger.parameters['is_screen_for'] = {in: 'query',type:'string','enum':["notifications","slambook","following","followers","--"]}
@@ -65,20 +82,7 @@ const list = async (req, res) => {
           console.log("Test")
         }
       }
-      query['include'] =[
-        {
-          model:Model.User,
-          as: "FollowingFrom",
-          attributes:["id","first_name","user_id"],
-          required:true
-        },
-        {
-          model:Model.User,
-          foreignKey: 'user_to_id',
-          attributes:["id","first_name","user_id"],
-          required:true
-        }
-      ]
+      query['include'] = await commonGet(req, res,{})
       console.log(query)
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
@@ -104,18 +108,7 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['UserFollowing']
   let query={}
-  query['include'] =[
-    {
-      model:Model.User,
-      as: "FollowingFrom",
-      required:true
-    },
-    {
-      model:Model.User,
-      foreignKey: 'user_to_id',
-      required:true
-    }
-  ]
+  query['include'] = await commonGet(req, res,{})
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null

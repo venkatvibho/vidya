@@ -10,7 +10,7 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["title","description","from_user_id"], 
+        "required": ["title","description","to_user_id"], 
         "properties": { 
           "title": { 
             "type": "string",
@@ -18,7 +18,7 @@ const create = async (req, res) => {
           "description": { 
             "type": "string",
           },
-          "from_user_id": { 
+          "to_user_id": { 
             "type": "number",
             "description":"Take from User"
           }
@@ -27,11 +27,33 @@ const create = async (req, res) => {
     }
   */
   // const opts = { runValidators: false , upsert: true };
+  req.body['from_user_id'] = req.user.id
   return await ThisModel.create(req.body).then(async(doc) => {
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
     return await Helper.ErrorValidation(req,res,err,'cache')
   })
+}
+
+const commonGet = async (req,res,whereInclude) => {
+  return [
+    {
+      model:Model.User,
+      as: "ReportFrom",
+      attributes:["id","user_id","first_name","phonenumber"],
+      required:true
+    },
+    {
+      model:Model.User,
+      foreignKey: 'to_user_id',
+      attributes:["id","user_id","first_name","phonenumber"],
+      required:true
+    },
+    {
+      model:Model.UserReportReply,
+      required:false
+    }
+  ]
 }
 
 const list = async (req, res) => {
@@ -44,18 +66,7 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
-      query['include'] =[
-        {
-          model:Model.User,
-          as: "UserReportFrom",
-          required:true
-        },
-        {
-          model:Model.User,
-          foreignKey: 'to_user_id',
-          required:true
-        }
-      ]
+      query['include'] = await commonGet(req, res,{})
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -74,18 +85,7 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['UserReport']
   let query={}
-  query['include'] =[
-    {
-      model:Model.User,
-      as: "UserReportFrom",
-      required:true
-    },
-    {
-      model:Model.User,
-      foreignKey: 'to_user_id',
-      required:true
-    }
-  ]
+  query['include'] = await commonGet(req, res,{})
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
@@ -105,10 +105,6 @@ const update = async (req, res) => {
           },
           "description": { 
             "type": "string",
-          },
-          "from_user_id": { 
-            "type": "number",
-            "description":"Take from User"
           }
         } 
       } 

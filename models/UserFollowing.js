@@ -31,7 +31,7 @@ class UserFollowing extends Sequelize.Model {
         model: 'users',
         key: 'id'
       },
-      unique: "user_followings_user_from_id_user_to_id_5409ae8f_uniq"
+      unique: "user_followings_user_to_id_user_from_id_5b565266_uniq"
     },
     user_to_id: {
       type: DataTypes.BIGINT,
@@ -40,7 +40,7 @@ class UserFollowing extends Sequelize.Model {
         model: 'users',
         key: 'id'
       },
-      unique: "user_followings_user_from_id_user_to_id_5409ae8f_uniq"
+      unique: "user_followings_user_to_id_user_from_id_5b565266_uniq"
     },
     is_blocked: {
       type: DataTypes.BOOLEAN,
@@ -78,17 +78,17 @@ class UserFollowing extends Sequelize.Model {
         ]
       },
       {
-        name: "user_followings_user_from_id_user_to_id_5409ae8f_uniq",
-        unique: true,
+        name: "user_followings_user_to_id_cff4bfde",
         fields: [
-          { name: "user_from_id" },
           { name: "user_to_id" },
         ]
       },
       {
-        name: "user_followings_user_to_id_cff4bfde",
+        name: "user_followings_user_to_id_user_from_id_5b565266_uniq",
+        unique: true,
         fields: [
           { name: "user_to_id" },
+          { name: "user_from_id" },
         ]
       },
     ]

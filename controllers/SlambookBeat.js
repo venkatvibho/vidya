@@ -25,11 +25,12 @@ const create = async (req, res) => {
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  if(req.beatquestions.lenght<6){
+  let resultCount = req.body['beatquestions'].filter(i => i).length;
+  if(resultCount<6){
     let beatquestions = req.body['beatquestions']
     delete req.body['beatquestions']
     req.body['status'] = 'Sent'
-    return await ThisModel.create(createBody).then(async(doc) => {
+    return await ThisModel.create(req.body).then(async(doc) => {
       try{
         for (let i = 0; i < beatquestions.length; i++) {
           await Model.SlambookBeatQuestion.create({title:beatquestions[i],is_active:true,user_following_id:doc.id})
@@ -46,6 +47,15 @@ const create = async (req, res) => {
   }
 }
 
+const commonGet = async (req,res,whereInclude) => {
+  return [
+    {
+      model:Model.SlambookBeatQuestion,
+      required:false
+    }
+  ]
+}
+
 const list = async (req, res) => {
   // #swagger.tags = ['SlambookBeat']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
@@ -58,12 +68,7 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
-      query['include'] =[
-        {
-          model:Model.SlambookBeatQuestion,
-          required:false
-        }
-      ]
+      query['include'] = await commonGet(req, res,{})
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -83,12 +88,7 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['SlambookBeat']
   let query={}
-  query['include'] =[
-    {
-      model:Model.SlambookBeatQuestion,
-      required:false
-    }
-  ]
+  query['include'] = await commonGet(req, res,{})
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
@@ -131,8 +131,11 @@ const update = async (req, res) => {
     }
   */
   let momentLimit = true
-  if(req.body.happiest_moments.lenght<5){
-    momentLimit = false
+  if(req.body.happiest_moments){
+    let resultCount = req.body['happiest_moments'].filter(i => i).length;
+    if(resultCount<5){
+      momentLimit = false
+    }
   }
   let beatquestions = null
   if(req.body.beatquestions){

@@ -41,6 +41,18 @@ class ActivityUser extends Sequelize.Model {
     rejectedAt: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    group_id: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+      references: {
+        model: 'groups',
+        key: 'id'
+      }
+    },
+    honour: {
+      type: DataTypes.BIGINT,
+      allowNull: true
     }
   }, {
     sequelize,
@@ -60,6 +72,12 @@ class ActivityUser extends Sequelize.Model {
         fields: [
           { name: "activity_id" },
           { name: "user_id" },
+        ]
+      },
+      {
+        name: "activity_users_group_id_e0270753",
+        fields: [
+          { name: "group_id" },
         ]
       },
       {

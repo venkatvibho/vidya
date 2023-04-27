@@ -10,21 +10,60 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["first_name","phonenumber"], 
+        "required": ["comment","postuser_id"], 
         "properties": { 
-          "first_name": { 
+          "comment": { 
             "type": "string",
+          },
+          "postuser_id": { 
+            "type": "number",
+            "description":"IF is_post is true means it is public POST so share id off the POST Object here ELSE share id of the PostUser Object",
+          },
+          "is_post": { 
+            "type": "boolean",
+            "default":false
           }
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
+  if(req.body.is_post==true){
+    let checkPost = await Model.Post.count({id:req.body.postuser_id})
+    if(checkPost>0){
+      try{
+        let NewPostUser = await Model.PostUser.create({post_id:req.body.postuser_id,user_id:req.user.id,status:'Sent'})
+        req.body['postuser_id'] = NewPostUser.id
+      }catch(error){
+        console.log(error)
+      }
+    }
+  }
+  delete req.body['is_post']
   return await ThisModel.create(req.body).then(async(doc) => {
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
     return await Helper.ErrorValidation(req,res,err,'cache')
   })
+}
+
+const commonGet = async (req,res,whereInclude) => {
+  return [
+    {
+      model:Model.User,
+      attributes:["id","first_name","user_id"],
+      required:true
+    },
+    {
+      model:Model.Activity,
+      include:{
+        model:Model.MasterActivity,
+        attributes:["id","title","icon","is_active"],
+        required:true
+      },
+      required:true
+    }
+  ]
 }
 
 const list = async (req, res) => {
@@ -71,7 +110,7 @@ const update = async (req, res) => {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "first_name": { 
+          "comment": { 
             "type": "string",
           },
         }
