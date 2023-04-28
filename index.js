@@ -4,7 +4,7 @@ const bodyParser    = require('body-parser');
 const app           = express();
 const swaggerUi     = require('swagger-ui-express')
 const swaggerFile   = require('./swagger_output.json')
-const port          = 1010;
+const port          = 8000;
 app.use(cors({ origin: '*' }));
 app.use(bodyParser.json({limit: '50mb'}));
 //app.use(bodyParser.urlencoded( { extended : true } ));
