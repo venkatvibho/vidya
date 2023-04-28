@@ -1,25 +1,25 @@
 {
   "development": {
     "username": "postgres",
-    "password": "root",
-    "database": "socio",
-    "host": "localhost",
+    "password": "Venkat@99$$",
+    "database": "sociobeats",
+    "host": "ec2-13-233-186-49.ap-south-1.compute.amazonaws.com",
     "port": 5432,
     "dialect": "postgres"
   },
   "test": {
     "username": "postgres",
-    "password": "root",
-    "database": "socio",
-    "host": "localhost",
+    "password": "Venkat@99$$",
+    "database": "sociobeats",
+    "host": "ec2-13-233-186-49.ap-south-1.compute.amazonaws.com",
     "port": 5432,
     "dialect": "postgres"
   },
   "production": {
     "username": "postgres",
-    "password": "root",
-    "database": "socio",
-    "host": "localhost",
+    "password": "Venkat@99$$",
+    "database": "sociobeats",
+    "host": "ec2-13-233-186-49.ap-south-1.compute.amazonaws.com",
     "port": 5432,
     "dialect": "postgres"
   }
