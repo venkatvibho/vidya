@@ -23,7 +23,7 @@ class MasterProfession extends Sequelize.Model {
     },
     is_active: {
       type: DataTypes.BOOLEAN,
-      allowNull: false
+      defaultValue: true
     },
     industry_id: {
       type: DataTypes.BIGINT,

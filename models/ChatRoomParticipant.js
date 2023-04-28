@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return Poll.init(sequelize, DataTypes);
+  return ChatRoomParticipant.init(sequelize, DataTypes);
 }
 
-class Poll extends Sequelize.Model {
+class ChatRoomParticipant extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   return super.init({
     id: {
@@ -12,25 +12,14 @@ class Poll extends Sequelize.Model {
       allowNull: false,
       primaryKey: true
     },
-    question: {
-      type: DataTypes.TEXT,
-      allowNull: false
-    },
-    expairy_date: {
-      type: DataTypes.DATEONLY,
-      allowNull: false
-    },
-    is_deleted: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true
-    },
-    group_id: {
+    chatroom_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       references: {
-        model: 'groups',
+        model: 'chat_room',
         key: 'id'
-      }
+      },
+      unique: "chat_room_participants_chatroom_id_user_id_02ffaf48_uniq"
     },
     user_id: {
       type: DataTypes.BIGINT,
@@ -38,29 +27,38 @@ class Poll extends Sequelize.Model {
       references: {
         model: 'users',
         key: 'id'
-      }
+      },
+      unique: "chat_room_participants_chatroom_id_user_id_02ffaf48_uniq"
     }
   }, {
     sequelize,
-    tableName: 'polls',
+    tableName: 'chat_room_participants',
     schema: 'public',
-    timestamps: true,
+    timestamps: false,
     indexes: [
       {
-        name: "polls_group_id_9aa2e4bc",
+        name: "chat_room_participants_chatroom_id_1d18a761",
         fields: [
-          { name: "group_id" },
+          { name: "chatroom_id" },
         ]
       },
       {
-        name: "polls_pkey",
+        name: "chat_room_participants_chatroom_id_user_id_02ffaf48_uniq",
+        unique: true,
+        fields: [
+          { name: "chatroom_id" },
+          { name: "user_id" },
+        ]
+      },
+      {
+        name: "chat_room_participants_pkey",
         unique: true,
         fields: [
           { name: "id" },
         ]
       },
       {
-        name: "polls_user_id_f5c76b13",
+        name: "chat_room_participants_user_id_e1e48324",
         fields: [
           { name: "user_id" },
         ]

@@ -4,6 +4,7 @@ const _ActivityGroup = require("./ActivityGroup");
 const _ActivityUser = require("./ActivityUser");
 const _ChatRoom = require("./ChatRoom");
 const _ChatRoomHistory = require("./ChatRoomHistory");
+const _ChatRoomParticipant = require("./ChatRoomParticipant");
 const _ChatroomUserReportReply = require("./ChatroomUserReportReply");
 const _ChatroomUserReport = require("./ChatroomUserReport");
 const _DjangoMigration = require("./DjangoMigration");
@@ -42,6 +43,7 @@ function initModels(sequelize) {
   const ActivityUser = _ActivityUser(sequelize, DataTypes);
   const ChatRoom = _ChatRoom(sequelize, DataTypes);
   const ChatRoomHistory = _ChatRoomHistory(sequelize, DataTypes);
+  const ChatRoomParticipant = _ChatRoomParticipant(sequelize, DataTypes);
   const ChatroomUserReportReply = _ChatroomUserReportReply(sequelize, DataTypes);
   const ChatroomUserReport = _ChatroomUserReport(sequelize, DataTypes);
   const DjangoMigration = _DjangoMigration(sequelize, DataTypes);
@@ -78,10 +80,13 @@ function initModels(sequelize) {
   Activity.hasMany(ActivityGroup, { foreignKey: "activity_id"});
   ActivityUser.belongsTo(Activity, { foreignKey: "activity_id"});
   Activity.hasMany(ActivityUser, { foreignKey: "activity_id"});
+  Activity.hasMany(ActivityUser, { as:"PrivateUser",foreignKey: "activity_id"});
   Post.belongsTo(Activity, { foreignKey: "activity_id"});
   Activity.hasMany(Post, { foreignKey: "activity_id"});
   ChatRoomHistory.belongsTo(ChatRoom, { foreignKey: "chatroom_id"});
   ChatRoom.hasMany(ChatRoomHistory, { foreignKey: "chatroom_id"});
+  ChatRoomParticipant.belongsTo(ChatRoom, { foreignKey: "chatroom_id"});
+  ChatRoom.hasMany(ChatRoomParticipant, { foreignKey: "chatroom_id"});
   ChatroomUserReport.belongsTo(ChatRoom, { foreignKey: "chatroom_id"});
   ChatRoom.hasMany(ChatroomUserReport, { foreignKey: "chatroom_id"});
   ChatroomUserReportReply.belongsTo(ChatroomUserReport, { foreignKey: "chatroomreport_id"});
@@ -142,6 +147,8 @@ function initModels(sequelize) {
   User.hasMany(ChatRoom, { foreignKey: "user_id"});
   ChatRoomHistory.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(ChatRoomHistory, { foreignKey: "user_id"});
+  ChatRoomParticipant.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(ChatRoomParticipant, { foreignKey: "user_id"});
   GroupChat.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(GroupChat, { foreignKey: "user_id"});
   GroupChatroomUserReport.belongsTo(User, { foreignKey: "reported_user_id"});
@@ -162,16 +169,16 @@ function initModels(sequelize) {
   User.hasMany(PostUser, { foreignKey: "user_id"});
   Post.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(Post, { foreignKey: "user_id"});
-  UserFollowing.belongsTo(User, { foreignKey: "user_from_id"});
-  User.hasMany(UserFollowing, { foreignKey: "user_from_id"});
+	UserFollowing.belongsTo(User, { as:"FollowingFrom",foreignKey: "user_from_id"});
+	User.hasMany(UserFollowing, { as:"UserFollowing",foreignKey: "user_from_id"});
   UserFollowing.belongsTo(User, { foreignKey: "user_to_id"});
   User.hasMany(UserFollowing, { foreignKey: "user_to_id"});
   UserInterest.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(UserInterest, { foreignKey: "user_id"});
   UserReportReply.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(UserReportReply, { foreignKey: "user_id"});
-  UserReport.belongsTo(User, { foreignKey: "from_user_id"});
-  User.hasMany(UserReport, { foreignKey: "from_user_id"});
+  UserReport.belongsTo(User, { as:"ReportFrom",foreignKey: "from_user_id"});
+  User.hasMany(UserReport, { as:"UserReportFrom",foreignKey: "from_user_id"});
   UserReport.belongsTo(User, { foreignKey: "to_user_id"});
   User.hasMany(UserReport, { foreignKey: "to_user_id"});
 
@@ -181,6 +188,7 @@ function initModels(sequelize) {
     ActivityUser,
     ChatRoom,
     ChatRoomHistory,
+    ChatRoomParticipant,
     ChatroomUserReportReply,
     ChatroomUserReport,
     DjangoMigration,

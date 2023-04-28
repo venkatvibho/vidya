@@ -12,10 +12,6 @@ class ChatRoom extends Sequelize.Model {
       allowNull: false,
       primaryKey: true
     },
-    participants: {
-      type: DataTypes.ARRAY(DataTypes.INTEGER),
-      allowNull: false
-    },
     user_id: {
       type: DataTypes.BIGINT,
       allowNull: false,

@@ -18,19 +18,19 @@ class PostUser extends Sequelize.Model {
     },
     is_hide: {
       type: DataTypes.BOOLEAN,
-      allowNull: false
+      defaultValue: true
     },
     is_save: {
       type: DataTypes.BOOLEAN,
-      allowNull: false
+      defaultValue: true
     },
     is_viewed: {
       type: DataTypes.BOOLEAN,
-      allowNull: false
+      defaultValue: true
     },
     is_liked: {
       type: DataTypes.BOOLEAN,
-      allowNull: false
+      defaultValue: true
     },
     post_id: {
       type: DataTypes.BIGINT,
@@ -38,7 +38,8 @@ class PostUser extends Sequelize.Model {
       references: {
         model: 'posts',
         key: 'id'
-      }
+      },
+      unique: "post_users_user_id_post_id_1b8c0363_uniq"
     },
     user_id: {
       type: DataTypes.BIGINT,
@@ -46,7 +47,8 @@ class PostUser extends Sequelize.Model {
       references: {
         model: 'users',
         key: 'id'
-      }
+      },
+      unique: "post_users_user_id_post_id_1b8c0363_uniq"
     }
   }, {
     sequelize,
@@ -71,6 +73,14 @@ class PostUser extends Sequelize.Model {
         name: "post_users_user_id_420265b6",
         fields: [
           { name: "user_id" },
+        ]
+      },
+      {
+        name: "post_users_user_id_post_id_1b8c0363_uniq",
+        unique: true,
+        fields: [
+          { name: "user_id" },
+          { name: "post_id" },
         ]
       },
     ]
