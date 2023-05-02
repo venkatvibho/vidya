@@ -22,7 +22,7 @@ const authenticationToken = (req, res , next) => {
     }else{
         let defaultKey = false
         if(defaultKey){
-            req.user = {id:31};
+            req.user = {id:2};
             next();
         }else{
             let WithoutAccess = [

@@ -57,6 +57,10 @@ class UserFollowing extends Sequelize.Model {
     rejectedAt: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    is_hide_at: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
   }, {
     sequelize,

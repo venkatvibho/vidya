@@ -18,11 +18,11 @@ class SlambookBeat extends Sequelize.Model {
     },
     upload_pics: {
       type: DataTypes.ARRAY(DataTypes.JSONB),
-      allowNull: true
+      allowNull: false
     },
     happiest_moments: {
       type: DataTypes.ARRAY(DataTypes.TEXT),
-      allowNull: true
+      allowNull: false
     },
     description: {
       type: DataTypes.TEXT,

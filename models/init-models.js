@@ -17,6 +17,7 @@ const _MasterActivity = require("./MasterActivity");
 const _MasterBeatQuestion = require("./MasterBeatQuestion");
 const _MasterIndustry = require("./MasterIndustry");
 const _MasterInterest = require("./MasterInterest");
+const _MasterLanguage = require("./MasterLanguage");
 const _MasterProfession = require("./MasterProfession");
 const _PollOption = require("./PollOption");
 const _PollUserReportReply = require("./PollUserReportReply");
@@ -36,6 +37,7 @@ const _UserInterest = require("./UserInterest");
 const _UserReportReply = require("./UserReportReply");
 const _UserReport = require("./UserReport");
 const _User = require("./User");
+const _UsersLanguage = require("./UsersLanguage");
 
 function initModels(sequelize) {
   const Activity = _Activity(sequelize, DataTypes);
@@ -56,6 +58,7 @@ function initModels(sequelize) {
   const MasterBeatQuestion = _MasterBeatQuestion(sequelize, DataTypes);
   const MasterIndustry = _MasterIndustry(sequelize, DataTypes);
   const MasterInterest = _MasterInterest(sequelize, DataTypes);
+  const MasterLanguage = _MasterLanguage(sequelize, DataTypes);
   const MasterProfession = _MasterProfession(sequelize, DataTypes);
   const PollOption = _PollOption(sequelize, DataTypes);
   const PollUserReportReply = _PollUserReportReply(sequelize, DataTypes);
@@ -75,12 +78,12 @@ function initModels(sequelize) {
   const UserReportReply = _UserReportReply(sequelize, DataTypes);
   const UserReport = _UserReport(sequelize, DataTypes);
   const User = _User(sequelize, DataTypes);
+  const UsersLanguage = _UsersLanguage(sequelize, DataTypes);
 
   ActivityGroup.belongsTo(Activity, { foreignKey: "activity_id"});
   Activity.hasMany(ActivityGroup, { foreignKey: "activity_id"});
   ActivityUser.belongsTo(Activity, { foreignKey: "activity_id"});
   Activity.hasMany(ActivityUser, { foreignKey: "activity_id"});
-  Activity.hasMany(ActivityUser, { as:"PrivateUser",foreignKey: "activity_id"});
   Post.belongsTo(Activity, { foreignKey: "activity_id"});
   Activity.hasMany(Post, { foreignKey: "activity_id"});
   ChatRoomHistory.belongsTo(ChatRoom, { foreignKey: "chatroom_id"});
@@ -111,8 +114,14 @@ function initModels(sequelize) {
   MasterActivity.hasMany(Activity, { foreignKey: "activity_id"});
   MasterProfession.belongsTo(MasterIndustry, { foreignKey: "industry_id"});
   MasterIndustry.hasMany(MasterProfession, { foreignKey: "industry_id"});
+  User.belongsTo(MasterIndustry, { foreignKey: "industry_id"});
+  MasterIndustry.hasMany(User, { foreignKey: "industry_id"});
   UserInterest.belongsTo(MasterInterest, { foreignKey: "interest_id"});
   MasterInterest.hasMany(UserInterest, { foreignKey: "interest_id"});
+  UsersLanguage.belongsTo(MasterLanguage, { foreignKey: "languages_id"});
+  MasterLanguage.hasMany(UsersLanguage, { foreignKey: "languages_id"});
+  User.belongsTo(MasterProfession, { foreignKey: "profession_id"});
+  MasterProfession.hasMany(User, { foreignKey: "profession_id"});
   PollUser.belongsTo(PollOption, { foreignKey: "is_voted_option_id"});
   PollOption.hasMany(PollUser, { foreignKey: "is_voted_option_id"});
   PollUserReportReply.belongsTo(PollUserReport, { foreignKey: "postuserreport_id"});
@@ -169,18 +178,25 @@ function initModels(sequelize) {
   User.hasMany(PostUser, { foreignKey: "user_id"});
   Post.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(Post, { foreignKey: "user_id"});
-	UserFollowing.belongsTo(User, { as:"FollowingFrom",foreignKey: "user_from_id"});
-	User.hasMany(UserFollowing, { as:"UserFollowing",foreignKey: "user_from_id"});
+  UserFollowing.belongsTo(User, { foreignKey: "user_from_id"});
+  User.hasMany(UserFollowing, { foreignKey: "user_from_id"});
   UserFollowing.belongsTo(User, { foreignKey: "user_to_id"});
   User.hasMany(UserFollowing, { foreignKey: "user_to_id"});
   UserInterest.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(UserInterest, { foreignKey: "user_id"});
   UserReportReply.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(UserReportReply, { foreignKey: "user_id"});
-  UserReport.belongsTo(User, { as:"ReportFrom",foreignKey: "from_user_id"});
-  User.hasMany(UserReport, { as:"UserReportFrom",foreignKey: "from_user_id"});
+  UserReport.belongsTo(User, { foreignKey: "from_user_id"});
+  User.hasMany(UserReport, { foreignKey: "from_user_id"});
   UserReport.belongsTo(User, { foreignKey: "to_user_id"});
   User.hasMany(UserReport, { foreignKey: "to_user_id"});
+  UsersLanguage.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(UsersLanguage, { foreignKey: "user_id"});
+  UserFollowing.belongsTo(User, { as:"FollowingFrom",foreignKey: "user_from_id"});
+  User.hasMany(UserFollowing, { as:"UserFollowing",foreignKey: "user_from_id"});
+  UserReport.belongsTo(User, { as:"ReportFrom",foreignKey: "from_user_id"});
+  User.hasMany(UserReport, { as:"UserReportFrom",foreignKey: "from_user_id"});
+  Activity.hasMany(ActivityUser, { as:"PrivateUser",foreignKey: "activity_id"});
 
   return {
     Activity,
@@ -201,6 +217,7 @@ function initModels(sequelize) {
     MasterBeatQuestion,
     MasterIndustry,
     MasterInterest,
+    MasterLanguage,
     MasterProfession,
     PollOption,
     PollUserReportReply,
@@ -220,6 +237,7 @@ function initModels(sequelize) {
     UserReportReply,
     UserReport,
     User,
+    UsersLanguage,
   };
 }
 module.exports = initModels;

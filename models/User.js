@@ -55,7 +55,7 @@ class User extends Sequelize.Model {
       allowNull: true
     },
     gender: {
-      type: DataTypes.STRING(6),
+      type: DataTypes.STRING(10),
       allowNull: true
     },
     location: {
@@ -71,10 +71,6 @@ class User extends Sequelize.Model {
       allowNull: true
     },
     region: {
-      type: DataTypes.STRING(250),
-      allowNull: true
-    },
-    language: {
       type: DataTypes.STRING(250),
       allowNull: true
     },
@@ -109,6 +105,42 @@ class User extends Sequelize.Model {
     status: {
       type: DataTypes.STRING(10),
       allowNull: true
+    },
+    otp_at: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    highest_qualification: {
+      type: DataTypes.STRING(250),
+      allowNull: true
+    },
+    industry_id: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+      references: {
+        model: 'master_industries',
+        key: 'id'
+      }
+    },
+    salary_range: {
+      type: DataTypes.STRING(250),
+      allowNull: true
+    },
+    your_study: {
+      type: DataTypes.STRING(250),
+      allowNull: true
+    },
+    marital_status: {
+      type: DataTypes.STRING(10),
+      allowNull: true
+    },
+    profession_id: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+      references: {
+        model: 'master_professions',
+        key: 'id'
+      }
     }
   }, {
     sequelize,
@@ -116,6 +148,12 @@ class User extends Sequelize.Model {
     schema: 'public',
     timestamps: true,
     indexes: [
+      {
+        name: "users_industry_id_cbb0e610",
+        fields: [
+          { name: "industry_id" },
+        ]
+      },
       {
         name: "users_phonenumber_key",
         unique: true,
@@ -128,6 +166,12 @@ class User extends Sequelize.Model {
         unique: true,
         fields: [
           { name: "id" },
+        ]
+      },
+      {
+        name: "users_profession_id_2ed2b325",
+        fields: [
+          { name: "profession_id" },
         ]
       },
       {

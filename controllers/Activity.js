@@ -1,6 +1,7 @@
 const Sequelize         =      require("sequelize");
 const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
+const { body, validationResult } = require('express-validator');
 const Model             =      require("../models");
 const ThisModel         =      Model.Activity
 
@@ -66,58 +67,69 @@ const create = async (req, res) => {
       } 
     }
   */
-  // const opts = { runValidators: false , upsert: true };
-  req.body['user_id'] = req.user.id
-  let Groupdata = null
-  if(req.body.group_id){
-    Groupdata = req.body.group_id
-    delete req.body['group_id']
+  if(req.body.type_of_badges){
+    await body('type_of_badges').isIn(["General","Honour"]).withMessage('Badges must be General | Honour').run(req)
   }
-  return await ThisModel.create(req.body).then(async(doc) => {
-    if(req.body.type_of_activity == "Private"){
-      if(Groupdata){
-        let participants = await Model.GroupsParticipant.findAll({where:{group_id:Groupdata}})
-        try{
-          await Model.ActivityGroup.create({group_id:Groupdata,activity_id:doc.id})
-        } catch (err){
-          console.log(err);
-        }
-        if(participants){
-          for (let i = 0; i < participants.length; i++) {
-            try{
-              let cntGroupCheck = await Model.ActivityUser.count({where:{activity_id:doc.id,user_id:participants[i].user_id}})
-              if(cntGroupCheck == 0){ 
-                let GroupUserData = {activity_id:doc.id,user_id:participants[i].user_id,status:'Sent',group_id:Groupdata}
-                await Model.ActivityUser.create(GroupUserData)
-              }
-            } catch (err){
-              console.log(err);
-            }
-          }
-        }
-      }
-      if(req.body.user_ids){
-        let SelectedUsers = req.body.user_ids
-        if(SelectedUsers){
-          SelectedUsers.splice(SelectedUsers.indexOf(req.user.id),1);
-          for (let i = 0; i < SelectedUsers.length; i++) {
-            try{
-              let cntSingUserCheck = await Model.ActivityUser.count({where:{activity_id:doc.id,user_id:SelectedUsers[i]}})
-              if(cntSingUserCheck == 0){ 
-                let SingUsersData = {activity_id : doc.id,user_id:SelectedUsers[i],status:'Sent'}
-                await Model.ActivityUser.create(SingUsersData)
-              }
-            } catch (err){
-              console.log(err);
-            }
-          }
-        }
-      }
+  if(req.body.type_of_activity){
+    await body('type_of_activity').isIn(["Private","Public","Self"]).withMessage('Marital Status must be Private | Public | Self').run(req)
+  }
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    let firstError = errors.errors.map(error => error.msg)[0];
+    return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
+  }else{
+    req.body['user_id'] = req.user.id
+    let Groupdata = null
+    if(req.body.group_id){
+      Groupdata = req.body.group_id
+      delete req.body['group_id']
     }
-    await Helper.SuccessValidation(req,res,doc,'Added successfully')
-  }).catch( async (err) => {
-    return await Helper.ErrorValidation(req,res,err,'cache')
-  })
+    return await ThisModel.create(req.body).then(async(doc) => {
+      if(req.body.type_of_activity == "Private"){
+        if(Groupdata){
+          let participants = await Model.GroupsParticipant.findAll({where:{group_id:Groupdata}})
+          try{
+            await Model.ActivityGroup.create({group_id:Groupdata,activity_id:doc.id})
+          } catch (err){
+            console.log(err);
+          }
+          if(participants){
+            for (let i = 0; i < participants.length; i++) {
+              try{
+                let cntGroupCheck = await Model.ActivityUser.count({where:{activity_id:doc.id,user_id:participants[i].user_id}})
+                if(cntGroupCheck == 0){ 
+                  let GroupUserData = {activity_id:doc.id,user_id:participants[i].user_id,status:'Sent',group_id:Groupdata}
+                  await Model.ActivityUser.create(GroupUserData)
+                }
+              } catch (err){
+                console.log(err);
+              }
+            }
+          }
+        }
+        if(req.body.user_ids){
+          let SelectedUsers = req.body.user_ids
+          if(SelectedUsers){
+            SelectedUsers.splice(SelectedUsers.indexOf(req.user.id),1);
+            for (let i = 0; i < SelectedUsers.length; i++) {
+              try{
+                let cntSingUserCheck = await Model.ActivityUser.count({where:{activity_id:doc.id,user_id:SelectedUsers[i]}})
+                if(cntSingUserCheck == 0){ 
+                  let SingUsersData = {activity_id : doc.id,user_id:SelectedUsers[i],status:'Sent'}
+                  await Model.ActivityUser.create(SingUsersData)
+                }
+              } catch (err){
+                console.log(err);
+              }
+            }
+          }
+        }
+      }
+      await Helper.SuccessValidation(req,res,doc,'Added successfully')
+    }).catch( async (err) => {
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    })
+  }
 }
 
 const commonGet = async (req,res,whereInclude) => {
@@ -204,7 +216,7 @@ const list = async (req, res) => {
         query['offset'] = skip
         query['limit'] = pageSize
       }
-      query['order'] =[ ['id', 'DESC']]
+      query['order'] =[ ['id', 'ASC']]
       const noOfRecord = await ThisModel.findAndCountAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)
   } catch (err) {
@@ -284,61 +296,73 @@ const update = async (req, res) => {
       } 
     }
   */
-  let Groupdata = null
-  if(req.body.group_id){
-    Groupdata = req.body.group_id
-    delete req.body['group_id']
+  if(req.body.type_of_badges){
+    await body('type_of_badges').isIn(["General","Honour"]).withMessage('Badges must be General | Honour').run(req)
   }
   if(req.body.type_of_activity){
-    if(req.body.type_of_activity == "Private"){
-      if(Groupdata){
-        await Model.ActivityUser.destroy({activity_id:doc.id,group_id:Groupdata})
-        try{
-          await Model.ActivityGroup.create({group_id:Groupdata,activity_id:doc.id})
-        } catch (err){
-          console.log(err);
-        }
-        let participants = await Model.GroupsParticipant.findAll({where:{group_id:Groupdata}})
-        if(participants){
-          for (let i = 0; i < participants.length; i++) {
-            try{
-              let cntGroupCheck = await Model.ActivityUser.count({where:{activity_id:doc.id,user_id:participants[i].user_id}})
-              if(cntGroupCheck == 0){ 
-                let GroupUserData = {activity_id:doc.id,user_id:participants[i].user_id,status:'Sent',group_id:Groupdata}
-                await Model.ActivityUser.create(GroupUserData)
+    await body('type_of_activity').isIn(["Private","Public","Self"]).withMessage('Marital Status must be Private | Public | Self').run(req)
+  }
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    let firstError = errors.errors.map(error => error.msg)[0];
+    return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
+  }else{
+    let Groupdata = null
+    if(req.body.group_id){
+      Groupdata = req.body.group_id
+      delete req.body['group_id']
+    }
+    if(req.body.type_of_activity){
+      if(req.body.type_of_activity == "Private"){
+        if(Groupdata){
+          await Model.ActivityUser.destroy({where:{activity_id:doc.id,group_id:Groupdata}})
+          try{
+            await Model.ActivityGroup.create({group_id:Groupdata,activity_id:doc.id})
+          } catch (err){
+            console.log(err);
+          }
+          let participants = await Model.GroupsParticipant.findAll({where:{group_id:Groupdata}})
+          if(participants){
+            for (let i = 0; i < participants.length; i++) {
+              try{
+                let cntGroupCheck = await Model.ActivityUser.count({where:{activity_id:doc.id,user_id:participants[i].user_id}})
+                if(cntGroupCheck == 0){ 
+                  let GroupUserData = {activity_id:doc.id,user_id:participants[i].user_id,status:'Sent',group_id:Groupdata}
+                  await Model.ActivityUser.create(GroupUserData)
+                }
+              } catch (err){
+                console.log(err);
               }
-            } catch (err){
-              console.log(err);
             }
           }
         }
-      }
-      if(req.body.user_ids){
-        let SelectedUsers = req.body.user_ids
-        await Model.ActivityUser.destroy({activity_id:doc.id,group_id:{[Op.eq]:null}})
-        if(SelectedUsers){
-          SelectedUsers.splice(SelectedUsers.indexOf(req.user.id),1);
-          for (let i = 0; i < SelectedUsers.length; i++) {
-            try{
-              let cntSingUserCheck = await Model.ActivityUser.count({where:{activity_id:doc.id,user_id:SelectedUsers[i]}})
-              if(cntSingUserCheck == 0){ 
-                let SingUsersData = {activity_id : doc.id,user_id:SelectedUsers[i],status:'Sent'}
-                await Model.ActivityUser.create(SingUsersData)
+        if(req.body.user_ids){
+          let SelectedUsers = req.body.user_ids
+          await Model.ActivityUser.destroy({where:{activity_id:doc.id,group_id:{[Op.eq]:null}}})
+          if(SelectedUsers){
+            SelectedUsers.splice(SelectedUsers.indexOf(req.user.id),1);
+            for (let i = 0; i < SelectedUsers.length; i++) {
+              try{
+                let cntSingUserCheck = await Model.ActivityUser.count({where:{activity_id:doc.id,user_id:SelectedUsers[i]}})
+                if(cntSingUserCheck == 0){ 
+                  let SingUsersData = {activity_id : doc.id,user_id:SelectedUsers[i],status:'Sent'}
+                  await Model.ActivityUser.create(SingUsersData)
+                }
+              } catch (err){
+                console.log(err);
               }
-            } catch (err){
-              console.log(err);
             }
           }
         }
       }
     }
+    return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
+      records = await ThisModel.findByPk(req.params.id);
+      await Helper.SuccessValidation(req,res,records,'Updated successfully')
+    }).catch( async (err) => {
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    })
   }
-  return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
-    records = await ThisModel.findByPk(req.params.id);
-    await Helper.SuccessValidation(req,res,records,'Updated successfully')
-  }).catch( async (err) => {
-    return await Helper.ErrorValidation(req,res,err,'cache')
-  })
 }
 
 const remove = async (req, res) => {

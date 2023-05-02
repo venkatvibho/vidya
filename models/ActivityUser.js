@@ -53,6 +53,10 @@ class ActivityUser extends Sequelize.Model {
     honour: {
       type: DataTypes.BIGINT,
       allowNull: true
+    },
+    rejectedReason: {
+      type: DataTypes.TEXT,
+      allowNull: true
     }
   }, {
     sequelize,

@@ -1,6 +1,7 @@
 const Sequelize         =      require("sequelize");
 const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
+const { body, validationResult } = require('express-validator');
 const Model             =      require("../models");
 const ThisModel         =      Model.UserFollowing
 
@@ -15,24 +16,41 @@ const create = async (req, res) => {
           "user_to_id": { 
             "type": "number",
             "description":"Take from User"
+          },
+          "status": { 
+            "type": "string",
+            "enum":["Sent","Hide"]
           }
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  req.body['is_slambook_skip'] = false
-  req.body['user_from_id'] = req.user.id
-  req.body['status'] = 'Sent'
-  return await ThisModel.create(req.body).then(async(doc) => {
-    await Helper.SuccessValidation(req,res,doc,'Added successfully')
-  }).catch( async (err) => {
-    return await Helper.ErrorValidation(req,res,err,'cache')
-  })
+  if(req.body.status){
+    await body('status').isIn(["Sent","Hide"]).withMessage('Status must be Hide | Sent').run(req)
+  }
+  const errors = validationResult(req);
+  if (!errors.isEmpty()){
+    let firstError = errors.errors.map(error => error.msg)[0];
+    return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
+  }else{
+    req.body['is_slambook_skip'] = false
+    req.body['user_from_id'] = req.user.id
+    if(req.query.status=="Hide"){
+      req.body["is_hide_at"] = await Helper.CurrentDate()
+    }else{
+      req.body['status'] = 'Sent'
+    }
+    return await ThisModel.create(req.body).then(async(doc) => {
+      await Helper.SuccessValidation(req,res,doc,'Added successfully')
+    }).catch( async (err) => {
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    })
+  }
 }
 
 const commonGet = async (req,res,whereInclude) => {
-  return [
+  let WhereInc = [
     {
       model:Model.User,
       as: "FollowingFrom",
@@ -46,6 +64,7 @@ const commonGet = async (req,res,whereInclude) => {
       required:true
     }
   ]
+  return WhereInc
 }
 
 const list = async (req, res) => {
@@ -55,7 +74,7 @@ const list = async (req, res) => {
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   //  #swagger.parameters['followed_by_me'] = {in: 'query',type:'number',"description":"Select id From Users"}
   //  #swagger.parameters['followed_to_me'] = {in: 'query',type:'number',"description":"Select id From Users"}
-  //  #swagger.parameters['is_sort_by'] = {in: 'query',type:'string','enum':["ASC","DESC"]}
+  //  #swagger.parameters['is_sort_by'] = {in: 'query',type:'string','enum':["newest","older","alphabet"]}
 
   try{
       let pageSize = 0;
@@ -68,6 +87,8 @@ const list = async (req, res) => {
       if(req.query.followed_to_me){
         query['where']['user_to_id'] = req.query.followed_to_me
       }
+      let UserFollowingOrder = null
+      let UserFollwerOrder   = null
       if(req.query.is_screen_for){
         if(req.query.is_screen_for=="notifications"){
           query['where']['status'] = {[Op.notIn]:['Rejected']}
@@ -78,11 +99,9 @@ const list = async (req, res) => {
           query['where']['status'] = 'Accepted'
           query['where']['acceptedAt'] = {[Op.gte]: Sequelize.literal(`'${today}'`)}
           console.log("Where",query)
-        }else{
-          console.log("Test")
         }
       }
-      query['include'] = await commonGet(req, res,{})
+      query['include'] = await commonGet(req, res,{UserFollowingOrder:UserFollowingOrder,UserFollwerOrder:UserFollwerOrder})
       console.log(query)
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
@@ -93,9 +112,19 @@ const list = async (req, res) => {
         query['limit'] = pageSize
       }
       if(req.query.is_sort_by){
-        query['order'] =  [[{model: Model.User},'first_name',req.query.is_sort_by]]
-      }else{
-        query['order'] =[ ['id', 'ASC']]
+        if(req.query.is_sort_by!="alphabet"){
+          if(req.query.is_sort_by=="newest"){
+            query['order'] =[ ['id', 'DESC']]
+          }else{
+            query['order'] =[ ['id', 'ASC']]
+          }
+        }else{
+          if(req.query.is_screen_for=="following"){
+            query['order'] =[["FollowingFrom", 'first_name']]
+          }else{
+            query['order'] =[[Model.User, 'first_name']]
+          }
+        }
       }
       console.log(query)
       const noOfRecord = await ThisModel.findAndCountAll(query)
@@ -125,7 +154,7 @@ const update = async (req, res) => {
         "properties": { 
           "status": { 
             "type": "string",
-            "enum":["Sent","Accepted","Rejected"],
+            "enum":["Sent","Accepted","Rejected","Hide"],
             "default":"Sent"
           },
           "is_muted": { 
@@ -138,18 +167,30 @@ const update = async (req, res) => {
       } 
     }
   */
-  if(req.query.status=="Accepted"){
-    req.body["acceptedAt"] = await Helper.CurrentDate()
+  if(req.body.status){
+    await body('status').isIn(["Accepted","Hide","Rejected","Sent"]).withMessage('Status must be Accepted | Hide | Rejected | Sent').run(req)
   }
-  if(req.query.status=="Rejected"){
-    req.body["rejectedAt"] = await Helper.CurrentDate()
+  const errors = validationResult(req);
+  if (!errors.isEmpty()){
+    let firstError = errors.errors.map(error => error.msg)[0];
+    return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
+  }else{
+    if(req.body.status=="Accepted"){
+      req.body["acceptedAt"] = await Helper.CurrentDate()
+    }
+    if(req.body.status=="Hide"){
+      req.body["is_hide_at"] = await Helper.CurrentDate()
+    }
+    if(req.body.status=="Rejected"){
+      req.body["rejectedAt"] = await Helper.CurrentDate()
+    }
+    return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
+      records = await ThisModel.findByPk(req.params.id);
+      await Helper.SuccessValidation(req,res,records,'Updated successfully')
+    }).catch( async (err) => {
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    })
   }
-  return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
-    records = await ThisModel.findByPk(req.params.id);
-    await Helper.SuccessValidation(req,res,records,'Updated successfully')
-  }).catch( async (err) => {
-    return await Helper.ErrorValidation(req,res,err,'cache')
-  })
 }
 
 const remove = async (req, res) => {

@@ -129,6 +129,11 @@
             "description": "Take id from MasterIndustry"
           },
           {
+            "name": "username",
+            "in": "query",
+            "type": "string"
+          },
+          {
             "name": "location",
             "in": "query",
             "type": "string"
@@ -214,7 +219,7 @@
                 "first_name": {
                   "type": "string"
                 },
-                "last_name": {
+                "user_id": {
                   "type": "string"
                 },
                 "email": {
@@ -223,7 +228,21 @@
                 "phonenumber": {
                   "type": "string"
                 },
-                "password": {
+                "highest_qualification": {
+                  "type": "string"
+                },
+                "industry_id": {
+                  "type": "number",
+                  "description": "Take id from MasterIndustry"
+                },
+                "profession_id": {
+                  "type": "number",
+                  "description": "Take id from MasterProfessions"
+                },
+                "salary_range": {
+                  "type": "string"
+                },
+                "your_study": {
                   "type": "string"
                 },
                 "photo_1": {
@@ -260,20 +279,30 @@
                   "enum": [
                     "Male",
                     "Female",
-                    "Other"
+                    "Non-Binary"
                   ]
                 },
                 "region": {
                   "type": "string"
                 },
-                "language": {
-                  "type": "string"
+                "languages": {
+                  "type": "array",
+                  "description": "Take id from MasterLanguages Ex:[1,2,3]"
                 },
                 "experience": {
                   "type": "number"
                 },
                 "height": {
                   "type": "number"
+                },
+                "marital_status": {
+                  "type": "string",
+                  "enum": [
+                    "Single",
+                    "Married",
+                    "Divorced"
+                  ],
+                  "default": "Single"
                 },
                 "about_us": {
                   "type": "string"
@@ -349,6 +378,7 @@
           {
             "name": "otp",
             "type": "number",
+            "required": true,
             "in": "query"
           },
           {
@@ -763,7 +793,7 @@
         }
       }
     },
-    "/UserInterest/create": {
+    "/UserInterest/create/selectAndDeselect": {
       "post": {
         "tags": [
           "UserInterest"
@@ -845,59 +875,6 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/UserInterest/delete/{id}": {
-      "delete": {
-        "tags": [
-          "UserInterest"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/UserInterest/bulkdelete/{ids}": {
-      "delete": {
-        "tags": [
-          "UserInterest"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "ids",
-            "in": "path",
-            "required": true,
-            "type": "array",
-            "description": "Enter multiple ids"
           },
           {
             "name": "authorization",
@@ -1274,12 +1251,15 @@
                   "description": "Take id from Activitiy"
                 },
                 "status": {
-                  "type": "status",
+                  "type": "string",
                   "enum": [
                     "Sent",
                     "Accepted",
                     "Rejected"
                   ]
+                },
+                "rejectedReason": {
+                  "type": "string"
                 }
               }
             }
@@ -1520,9 +1500,21 @@
                 "user_to_id": {
                   "type": "number",
                   "description": "Take from User"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "Sent",
+                    "Hide"
+                  ]
                 }
               }
             }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {
@@ -1583,8 +1575,9 @@
             "in": "query",
             "type": "string",
             "enum": [
-              "ASC",
-              "DESC"
+              "newest",
+              "older",
+              "alphabet"
             ]
           }
         ],
@@ -1649,7 +1642,8 @@
                   "enum": [
                     "Sent",
                     "Accepted",
-                    "Rejected"
+                    "Rejected",
+                    "Hide"
                   ],
                   "default": "Sent"
                 },
@@ -1661,11 +1655,6 @@
                 }
               }
             }
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "type": "string"
           }
         ],
         "responses": {
@@ -3469,6 +3458,192 @@
       "delete": {
         "tags": [
           "GroupsParticipant"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "path",
+            "required": true,
+            "type": "array",
+            "description": "Enter multiple ids"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterLanguage/create": {
+      "post": {
+        "tags": [
+          "MasterLanguage"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "title"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "icon": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterLanguage/list": {
+      "get": {
+        "tags": [
+          "MasterLanguage"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterLanguage/view/{id}": {
+      "get": {
+        "tags": [
+          "MasterLanguage"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterLanguage/update/{id}": {
+      "patch": {
+        "tags": [
+          "MasterLanguage"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "icon": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterLanguage/delete/{id}": {
+      "delete": {
+        "tags": [
+          "MasterLanguage"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterLanguage/bulkdelete/{ids}": {
+      "delete": {
+        "tags": [
+          "MasterLanguage"
         ],
         "description": "",
         "parameters": [

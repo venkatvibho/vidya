@@ -1,6 +1,7 @@
 const expres                    =   require('express')
 const router                    =   expres.Router()
 const authorization             =   require('../middleware/authentication')
+const valiDations             =   require('../middleware/valiDations')
 
 const CommonController          =  require('../controllers/Common.js')
 const upload = require('../middleware/fileUpload')
@@ -38,12 +39,12 @@ router.delete("/UserReportReply/delete/:id",authorization,UserReportReplyControl
 router.delete("/UserReportReply/bulkdelete/:ids",authorization,UserReportReplyController.bulkremove)
 
 const UserInterestController          =  require('../controllers/UserInterest.js')
-router.post("/UserInterest/create",authorization,UserInterestController.create)
+router.post("/UserInterest/create/selectAndDeselect",authorization,UserInterestController.create)
 router.get("/UserInterest/list",authorization,UserInterestController.list)
 router.get("/UserInterest/view/:id",authorization,UserInterestController.view)
 // router.patch("/UserInterest/update/:id",authorization,UserInterestController.update)
-router.delete("/UserInterest/delete/:id",authorization,UserInterestController.remove)
-router.delete("/UserInterest/bulkdelete/:ids",authorization,UserInterestController.bulkremove)
+// router.delete("/UserInterest/delete/:id",authorization,UserInterestController.remove)
+// router.delete("/UserInterest/bulkdelete/:ids",authorization,UserInterestController.bulkremove)
 
 const ActivityController          =  require('../controllers/Activity.js')
 router.post("/Activity/create",authorization,ActivityController.create)
@@ -148,6 +149,14 @@ router.get("/GroupsParticipant/view/:id",authorization,GroupsParticipantControll
 router.patch("/GroupsParticipant/update/:id",authorization,GroupsParticipantController.update)
 router.delete("/GroupsParticipant/delete/:id",authorization,GroupsParticipantController.remove)
 router.delete("/GroupsParticipant/bulkdelete/:ids",authorization,GroupsParticipantController.bulkremove)
+
+const MasterLanguageController          =  require('../controllers/MasterLanguage.js')
+router.post("/MasterLanguage/create",authorization,MasterLanguageController.create)
+router.get("/MasterLanguage/list",authorization,MasterLanguageController.list)
+router.get("/MasterLanguage/view/:id",authorization,MasterLanguageController.view)
+router.patch("/MasterLanguage/update/:id",authorization,MasterLanguageController.update)
+router.delete("/MasterLanguage/delete/:id",authorization,MasterLanguageController.remove)
+router.delete("/MasterLanguage/bulkdelete/:ids",authorization,MasterLanguageController.bulkremove)
 
 const MasterActivityController          =  require('../controllers/MasterActivity.js')
 router.post("/MasterActivity/create",authorization,MasterActivityController.create)

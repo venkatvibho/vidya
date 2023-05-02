@@ -1,6 +1,7 @@
 const { uuid }  = require('uuidv4');
 const moment    = require('moment')
 var nodemailer  = require('nodemailer');
+const Model     = require("../models");
 
 const SentMail = async (email,subject,text) => {
     let transporter = await nodemailer.createTransport({
@@ -237,7 +238,10 @@ const BookingId = async (RowId,type='cr') => {
 }
 
 const GenerateUid = async (body) => {
-    return body.phonenumber
+    let lastId      = await Model.User.findOne({order:[[ 'id', 'DESC' ]]})
+    let IncLastId   = ('000'+parseInt(parseInt(lastId.id)+1))
+    console.log("##############",IncLastId)
+    return IncLastId
 }
 
 const Otp = async () => {
@@ -293,6 +297,14 @@ const InbetweenDates = async (startDate, stopDate)=> {
     }
     console.log(dateArray)
     return dateArray;
+}
+
+const IncrementSeconds = async ()=> {
+    let startDate   = await CurrentDate()
+    var currentDate = moment(startDate);
+    var stopDate = moment(stopDate);
+    currentDate = moment(currentDate).add(1,'minutes')
+    return currentDate;
 }
 
 const Signzy_Api_Url = async ()=> {
@@ -351,5 +363,6 @@ helper.SentMail             =   SentMail
 helper.Signzy_Api_Url       =   Signzy_Api_Url
 helper.Signzy_Api_Uname_Pwd =   Signzy_Api_Uname_Pwd
 helper.GenerateUid          =   GenerateUid
+helper.IncrementSeconds     =   IncrementSeconds
 
 module.exports = helper;

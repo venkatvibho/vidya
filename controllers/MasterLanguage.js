@@ -3,44 +3,27 @@ const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
 const { body, validationResult } = require('express-validator');
 const Model             =      require("../models");
-const ThisModel         =      Model.PostComment
+const ThisModel         =      Model.MasterLanguage
 
 const create = async (req, res) => {
-  // #swagger.tags = ['PostComment']
+  // #swagger.tags = ['MasterLanguage']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["comment","postuser_id"], 
+        "required": ["title"], 
         "properties": { 
-          "comment": { 
+          "title": { 
             "type": "string",
           },
-          "postuser_id": { 
-            "type": "number",
-            "description":"IF is_post is true means it is public POST so share id off the POST Object here ELSE share id of the PostUser Object",
-          },
-          "is_post": { 
-            "type": "boolean",
-            "default":false
+          "icon": { 
+            "type": "object",
           }
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  if(req.body.is_post==true){
-    let checkPost = await Model.Post.count({id:req.body.postuser_id})
-    if(checkPost>0){
-      try{
-        let NewPostUser = await Model.PostUser.create({post_id:req.body.postuser_id,user_id:req.user.id,status:'Sent'})
-        req.body['postuser_id'] = NewPostUser.id
-      }catch(error){
-        console.log(error)
-      }
-    }
-  }
-  delete req.body['is_post']
   return await ThisModel.create(req.body).then(async(doc) => {
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
@@ -68,7 +51,7 @@ const commonGet = async (req,res,whereInclude) => {
 }
 
 const list = async (req, res) => {
-  // #swagger.tags = ['PostComment']
+  // #swagger.tags = ['MasterLanguage']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   
@@ -95,7 +78,7 @@ const list = async (req, res) => {
 }
 
 const view = async (req, res) => {
-  // #swagger.tags = ['PostComment']
+  // #swagger.tags = ['MasterLanguage']
   let query={}
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
@@ -105,16 +88,19 @@ const view = async (req, res) => {
 }
 
 const update = async (req, res) => {
-  // #swagger.tags = ['PostComment']
+  // #swagger.tags = ['MasterLanguage']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "comment": { 
+          "title": { 
             "type": "string",
           },
-        }
+          "icon": { 
+            "type": "object",
+          }
+        } 
       } 
     }
   */
@@ -127,7 +113,7 @@ const update = async (req, res) => {
 }
 
 const remove = async (req, res) => {
-  // #swagger.tags = ['PostComment']
+  // #swagger.tags = ['MasterLanguage']
   try{
     let record = await ThisModel.destroy({where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
@@ -137,8 +123,8 @@ const remove = async (req, res) => {
 }
 
 const bulkremove = async (req, res) => {
-  // #swagger.tags = ['PostComment']
-  // #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
+  // #swagger.tags = ['MasterLanguage']
+  //  #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
     let theArray = req.params.ids 
     if(!Array.isArray(theArray)){theArray = theArray.split(",");}
     for (let index = 0; index < theArray.length; ++index) {

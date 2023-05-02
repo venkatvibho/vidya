@@ -1,6 +1,7 @@
 const Sequelize         =      require("sequelize");
 const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
+const { body, validationResult } = require('express-validator');
 const Model             =      require("../models");
 const ThisModel         =      Model.SlambookBeat
 
@@ -36,7 +37,7 @@ const create = async (req, res) => {
           await Model.SlambookBeatQuestion.create({title:beatquestions[i],is_active:true,user_following_id:doc.id})
         }
       } catch (err){
-        await ThisModel.destroy({id:doc.id})
+        await ThisModel.destroy({where:{id:doc.id}})
       }
       await Helper.SuccessValidation(req,res,doc,'Added successfully')
     }).catch( async (err) => {
@@ -130,36 +131,45 @@ const update = async (req, res) => {
       } 
     }
   */
-  let momentLimit = true
-  if(req.body.happiest_moments){
-    let resultCount = req.body['happiest_moments'].filter(i => i).length;
-    if(resultCount<5){
-      momentLimit = false
+  if(req.body.status){
+    await body('status').isIn(["Sent","Accepted","Rejected"]).withMessage('Status must be Sent | Accepted | Rejected').run(req)
+  }
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    let firstError = errors.errors.map(error => error.msg)[0];
+    return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
+  }else{
+    let momentLimit = true
+    if(req.body.happiest_moments){
+      let resultCount = req.body['happiest_moments'].filter(i => i).length;
+      if(resultCount<5){
+        momentLimit = false
+      }
     }
-  }
-  let beatquestions = null
-  if(req.body.beatquestions){
-    beatquestions = req.body['beatquestions']
-    delete req.body['beatquestions']
-  }
-  if(momentLimit){
-    return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
-      if(req.body.beatquestions){
-        for (let i = 0; i < beatquestions.length; i++) {
-          try{
-            await Model.SlambookBeatQuestion.update({answer:beatquestions[i].answer},{where:{id:beatquestions[i].qid}})
-          } catch (err){
-            console.log(err);
+    let beatquestions = null
+    if(req.body.beatquestions){
+      beatquestions = req.body['beatquestions']
+      delete req.body['beatquestions']
+    }
+    if(momentLimit){
+      return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
+        if(req.body.beatquestions){
+          for (let i = 0; i < beatquestions.length; i++) {
+            try{
+              await Model.SlambookBeatQuestion.update({answer:beatquestions[i].answer},{where:{id:beatquestions[i].qid}})
+            } catch (err){
+              console.log(err);
+            }
           }
         }
-      }
-      records = await ThisModel.findByPk(req.params.id);
-      await Helper.SuccessValidation(req,res,records,'Updated successfully')
-    }).catch( async (err) => {
-      return await Helper.ErrorValidation(req,res,err,'cache')
-    })
-  }else{
-    return await Helper.ErrorValidation(req,res,{message:"Minimum 4 moments allowed only"},'cache')
+        records = await ThisModel.findByPk(req.params.id);
+        await Helper.SuccessValidation(req,res,records,'Updated successfully')
+      }).catch( async (err) => {
+        return await Helper.ErrorValidation(req,res,err,'cache')
+      })
+    }else{
+      return await Helper.ErrorValidation(req,res,{message:"Minimum 4 moments allowed only"},'cache')
+    }
   }
 }
 

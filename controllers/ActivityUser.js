@@ -1,6 +1,7 @@
 const Sequelize         =      require("sequelize");
 const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
+const { body, validationResult } = require('express-validator');
 const Model             =      require("../models");
 const ThisModel         =      Model.ActivityUser
 
@@ -17,26 +18,38 @@ const create = async (req, res) => {
             "description":"Take id from Activitiy"
           },
           "status": { 
-            "type": "status",
+            "type": "string",
             "enum":["Sent","Accepted","Rejected"]
+          },
+          "rejectedReason": { 
+            "type": "string",
           }
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  req.body['user_id'] = req.user.id
-  if(req.body.status=="Accepted"){
-    req.body["acceptedAt"] = await Helper.CurrentDate()
+  if(req.body.status){
+    await body('status').isIn(["Sent","Accepted","Rejected"]).withMessage('Status must be Sent | Accepted | Rejected').run(req)
   }
-  if(req.body.status=="Rejected"){
-    req.body["rejectedAt"] = await Helper.CurrentDate()
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    let firstError = errors.errors.map(error => error.msg)[0];
+    return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
+  }else{
+    req.body['user_id'] = req.user.id
+    if(req.body.status=="Accepted"){
+      req.body["acceptedAt"] = await Helper.CurrentDate()
+    }
+    if(req.body.status=="Rejected"){
+      req.body["rejectedAt"] = await Helper.CurrentDate()
+    }
+    return await ThisModel.create(req.body).then(async(doc) => {
+      await Helper.SuccessValidation(req,res,doc,'Added successfully')
+    }).catch( async (err) => {
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    })
   }
-  return await ThisModel.create(req.body).then(async(doc) => {
-    await Helper.SuccessValidation(req,res,doc,'Added successfully')
-  }).catch( async (err) => {
-    return await Helper.ErrorValidation(req,res,err,'cache')
-  })
 }
 
 const commonGet = async (req,res,whereInclude) => {
@@ -116,18 +129,27 @@ const update = async (req, res) => {
       } 
     }
   */
-  if(req.query.status=="Accepted"){
-    req.body["acceptedAt"] = await Helper.CurrentDate()
+  if(req.body.status){
+    await body('status').isIn(["Sent","Accepted","Rejected"]).withMessage('Status must be Sent | Accepted | Rejected').run(req)
   }
-  if(req.query.status=="Rejected"){
-    req.body["rejectedAt"] = await Helper.CurrentDate()
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    let firstError = errors.errors.map(error => error.msg)[0];
+    return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
+  }else{
+    if(req.query.status=="Accepted"){
+      req.body["acceptedAt"] = await Helper.CurrentDate()
+    }
+    if(req.query.status=="Rejected"){
+      req.body["rejectedAt"] = await Helper.CurrentDate()
+    }
+    return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
+      records = await ThisModel.findByPk(req.params.id);
+      await Helper.SuccessValidation(req,res,records,'Updated successfully')
+    }).catch( async (err) => {
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    })
   }
-  return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
-    records = await ThisModel.findByPk(req.params.id);
-    await Helper.SuccessValidation(req,res,records,'Updated successfully')
-  }).catch( async (err) => {
-    return await Helper.ErrorValidation(req,res,err,'cache')
-  })
 }
 
 const remove = async (req, res) => {

@@ -1,6 +1,7 @@
 const Sequelize         =      require("sequelize");
 const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
+const { body, validationResult } = require('express-validator');
 const Model             =      require("../models");
 const ThisModel         =      Model.UserInterest
 
@@ -26,26 +27,31 @@ const create = async (req, res) => {
   if(req.body.interest_ids){
     InterestCnt = interest_ids.length
   }
-  if(InterestCnt<=5){
-    let ModelObjData = []
-    for (let i = 0; i < interest_ids.length; i++) {
-      let IntrData= {interest_id:interest_ids[i],user_id:req.user.id}
-      let alreadyExusts = await ThisModel.count({where:IntrData})
-      if(alreadyExusts==0){
-        ModelObjData.push(IntrData)
+  if(InterestCnt<=9){
+    if(InterestCnt>2){
+      await ThisModel.destroy({where:{user_id:req.user.id}})
+      let ModelObjData = []
+      for (let i = 0; i < interest_ids.length; i++) {
+        let IntrData= {interest_id:interest_ids[i],user_id:req.user.id}
+        let alreadyExusts = await ThisModel.count({where:IntrData})
+        if(alreadyExusts==0){
+          ModelObjData.push(IntrData)
+        }
       }
-    }
-    if(ModelObjData.length>0){
-      return await ThisModel.bulkCreate(ModelObjData).then(async(doc) => {
-        await Helper.SuccessValidation(req,res,doc,'Added successfully')
-      }).catch( async (err) => {
-        return await Helper.ErrorValidation(req,res,err,'cache')
-      })
+      if(ModelObjData.length>0){
+        return await ThisModel.bulkCreate(ModelObjData).then(async(doc) => {
+          await Helper.SuccessValidation(req,res,doc,'Added successfully')
+        }).catch( async (err) => {
+          return await Helper.ErrorValidation(req,res,err,'cache')
+        })
+      }else{
+        return await Helper.ErrorValidation(req,res,{message:'Interests already added'},'cache')
+      }
     }else{
-      return await Helper.ErrorValidation(req,res,{message:'Interests already added'},'cache')
-    }
+      return await Helper.ErrorValidation(req,res,{message:'Interests allowed minimum 3'},'cache')
+    } 
   }else{
-    return await Helper.ErrorValidation(req,res,{message:'Interests allowed max 5 only'},'cache')
+    return await Helper.ErrorValidation(req,res,{message:'Interests allowed max 8 only'},'cache')
   }
 }
 

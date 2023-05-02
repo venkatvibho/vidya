@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return MasterBeatQuestion.init(sequelize, DataTypes);
+  return MasterLanguage.init(sequelize, DataTypes);
 }
 
-class MasterBeatQuestion extends Sequelize.Model {
+class MasterLanguage extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   return super.init({
     id: {
@@ -13,8 +13,9 @@ class MasterBeatQuestion extends Sequelize.Model {
       primaryKey: true
     },
     title: {
-      type: DataTypes.TEXT,
-      allowNull: false
+      type: DataTypes.STRING(250),
+      allowNull: false,
+      unique: "master_languages_title_key"
     },
     is_active: {
       type: DataTypes.BOOLEAN,
@@ -22,15 +23,28 @@ class MasterBeatQuestion extends Sequelize.Model {
     }
   }, {
     sequelize,
-    tableName: 'master_beat_questions',
+    tableName: 'master_languages',
     schema: 'public',
     timestamps: true,
     indexes: [
       {
-        name: "master_beat_questions_pkey",
+        name: "master_languages_pkey",
         unique: true,
         fields: [
           { name: "id" },
+        ]
+      },
+      {
+        name: "master_languages_title_94d3b884_like",
+        fields: [
+          { name: "title" },
+        ]
+      },
+      {
+        name: "master_languages_title_key",
+        unique: true,
+        fields: [
+          { name: "title" },
         ]
       },
     ]
