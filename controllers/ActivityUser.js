@@ -122,7 +122,7 @@ const update = async (req, res) => {
         "properties": { 
           "status": { 
             "type": "string",
-            "enum":["Sent","Accepted","Rejected"],
+            "enum":["Sent","Accepted","Rejected","Joined"],
             "default":"Sent"
           },
         }
@@ -130,7 +130,7 @@ const update = async (req, res) => {
     }
   */
   if(req.body.status){
-    await body('status').isIn(["Sent","Accepted","Rejected"]).withMessage('Status must be Sent | Accepted | Rejected').run(req)
+    await body('status').isIn(["Sent","Accepted","Rejected","Joined"]).withMessage('Status must be Sent | Accepted | Rejected | Joined').run(req)
   }
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -142,6 +142,9 @@ const update = async (req, res) => {
     }
     if(req.query.status=="Rejected"){
       req.body["rejectedAt"] = await Helper.CurrentDate()
+    }
+    if(req.query.status=="Joined"){
+      req.body["joineddAt"] = await Helper.CurrentDate()
     }
     return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
       records = await ThisModel.findByPk(req.params.id);

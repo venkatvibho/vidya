@@ -237,7 +237,7 @@ const BookingId = async (RowId,type='cr') => {
     return '0000'+BookId
 }
 
-const GenerateUid = async (body) => {
+const GenerateUid = async (req,res) => {
     let lastId      = await Model.User.findOne({order:[[ 'id', 'DESC' ]]})
     let IncLastId   = ('000'+parseInt(parseInt(lastId.id)+1))
     console.log("##############",IncLastId)
