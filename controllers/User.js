@@ -33,7 +33,7 @@ const create = async (req, res) => {
     let firstError = errors.errors.map(error => error.msg)[0];
     return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
   }else{
-    req.body['user_id'] = await Helper.GenerateUid(req.body)
+    req.body['user_id'] = await Helper.GenerateUid(req,res)
     req.body['password'] = 'test123'
     req.body['otp_at'] = await Helper.IncrementSeconds()
     // const opts = { runValidators: false , upsert: true };
@@ -189,7 +189,15 @@ const view = async (req, res) => {
   }
   let ActivityCnt = Model.ActivityUser.count({where:{user_id:req.user.id,status:'Sent'}})
   let NotifCount  = Model.UserFollowing.count({where:{user_to_id:req.user.id,status:'Sent'}})
-  records['notif_count'] = ActivityCnt+NotifCount
+  records['notif_count']   = ActivityCnt+NotifCount
+  records['honour_count']  = await Model.ActivityUser.count({where:{user_id:req.user.id}})
+  records['genuine_count'] = await Model.SlambookBeat.count({
+    include:[{
+      model:Model.UserFollowing,
+      where:{user_from_id:req.user.id,status:"Accepted"},
+      required:true
+    }]
+  })
   return await Helper.SuccessValidation(req,res,records)
 }
 
@@ -542,6 +550,32 @@ const changePassword = async (req, res) => {
   }
 }
 
+const CheckUserId = async (req, res) => {
+  // #swagger.tags = ['User']
+  let WhQuery = {}
+  WhQuery['where'] = {}
+  WhQuery['where']['user_id'] = req.body.user_id
+  if(req.user){
+    WhQuery['where']['id'] = {[Op.notIn]:[req.user.id]}
+  }
+  try{
+    let records = await ThisModel.count(WhQuery)
+    if(records){
+      return await Helper.SuccessValidation(req,res,{message:"This userID is already taken, please try for new one."})
+    }else{
+      return await Helper.ErrorValidation(req,res,"User id is valid",'cache')
+    }
+  } catch (err) {
+    return await Helper.ErrorValidation(req,res,err,'cache')
+  }
+}
+
+const GenerateUserId = async (req, res) => {
+  // #swagger.tags = ['User']
+  let UserId = await Helper.GenerateUid(req,res)
+  return await Helper.SuccessValidation(req,res,{"user_id":UserId})
+}
+
 const refreshToken = async (req, res) => {
   // #swagger.tags = ['User']
   try{
@@ -618,4 +652,4 @@ const forgotpassword = async (req, res) => {
   }
 }
 
-module.exports = {create,list, view, update, remove, bulkremove, login, resetpassword, forgotpassword, refreshToken, changePassword, loginwithotp};
+module.exports = {create,list, view, update, remove, bulkremove, login, resetpassword, CheckUserId, GenerateUserId, forgotpassword, refreshToken, changePassword, loginwithotp};

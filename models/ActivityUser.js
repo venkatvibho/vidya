@@ -57,6 +57,10 @@ class ActivityUser extends Sequelize.Model {
     rejectedReason: {
       type: DataTypes.TEXT,
       allowNull: true
+    },
+    joineddAt: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
   }, {
     sequelize,
