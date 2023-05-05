@@ -11,11 +11,18 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["first_name","phonenumber"], 
+        "required": ["polltuser_id","title","description"], 
         "properties": { 
-          "first_name": { 
+          "polltuser_id":{ 
+            "type": "number",
+            "description":"Take from Pollser"
+          },
+          "title":{ 
             "type": "string",
-          }
+          },
+          "description":{ 
+            "type": "string",
+          },
         } 
       } 
     }
@@ -28,20 +35,20 @@ const create = async (req, res) => {
   })
 }
 
-const commonGet = async (req,res,whereInclude) => {
+const commonGet = async (req,res) => {
   return [
     {
-      model:Model.User,
-      attributes:["id","first_name","user_id"],
-      required:true
-    },
-    {
-      model:Model.Activity,
-      include:{
-        model:Model.MasterActivity,
-        attributes:["id","title","icon","is_active"],
-        required:true
-      },
+      model:Model.UserPoll,
+      include:[
+        {
+          model:Model.Poll,
+          required:true
+        },
+        {
+          model:Model.PollOption,
+          required:true
+        }
+      ],
       required:true
     }
   ]
@@ -58,6 +65,7 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['include'] = await commonGet(req, res)
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -77,6 +85,7 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['PollUserReport']
   let query={}
+  query['include'] = await commonGet(req, res)
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
@@ -91,7 +100,14 @@ const update = async (req, res) => {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "first_name": { 
+          "polltuser_id":{ 
+            "type": "number",
+            "description":"Take from Pollser"
+          },
+          "title":{ 
+            "type": "string",
+          },
+          "description":{ 
             "type": "string",
           },
         }

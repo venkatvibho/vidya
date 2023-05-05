@@ -11,10 +11,14 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["first_name","phonenumber"], 
+        "required": ["poll_id","title"], 
         "properties": { 
-          "first_name": { 
-            "type": "string",
+          "poll_id": { 
+            "type": "number",
+            "type": "Take id from Poll",
+          },
+          "title": { 
+            "type": "string"
           }
         } 
       } 
@@ -28,20 +32,10 @@ const create = async (req, res) => {
   })
 }
 
-const commonGet = async (req,res,whereInclude) => {
+const commonGet = async (req,res) => {
   return [
     {
-      model:Model.User,
-      attributes:["id","first_name","user_id"],
-      required:true
-    },
-    {
-      model:Model.Activity,
-      include:{
-        model:Model.MasterActivity,
-        attributes:["id","title","icon","is_active"],
-        required:true
-      },
+      model:Model.Poll,
       required:true
     }
   ]
@@ -51,13 +45,13 @@ const list = async (req, res) => {
   // #swagger.tags = ['PollOption']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
-  
 
   try{
       let pageSize = 0;
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['include'] = await commonGet(req, res)
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -77,6 +71,7 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['PollOption']
   let query={}
+  query['include'] = await commonGet(req, res)
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
@@ -91,9 +86,13 @@ const update = async (req, res) => {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "first_name": { 
-            "type": "string",
+          "poll_id": { 
+            "type": "number",
+            "type": "Take id from Poll",
           },
+          "title": { 
+            "type": "string"
+          }
         }
       } 
     }

@@ -11,16 +11,22 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["first_name","phonenumber"], 
+        "required": ["poll_id","poll_option_id"], 
         "properties": { 
-          "first_name": { 
-            "type": "string",
+          "poll_id": { 
+            "type": "number",
+            "type": "Take id from Poll",
+          },
+          "poll_option_id": { 
+            "type": "number",
+            "type": "Take id from PollOptions",
           }
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
+  req.body['user_id'] = req.user.id
   return await ThisModel.create(req.body).then(async(doc) => {
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
@@ -31,17 +37,11 @@ const create = async (req, res) => {
 const commonGet = async (req,res,whereInclude) => {
   return [
     {
-      model:Model.User,
-      attributes:["id","first_name","user_id"],
+      model:Model.Poll,
       required:true
     },
     {
-      model:Model.Activity,
-      include:{
-        model:Model.MasterActivity,
-        attributes:["id","title","icon","is_active"],
-        required:true
-      },
+      model:Model.PollOption,
       required:true
     }
   ]
@@ -58,6 +58,7 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['include'] = await commonGet(req, res)
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -77,6 +78,7 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['PollUser']
   let query={}
+  query['include'] = await commonGet(req, res)
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null

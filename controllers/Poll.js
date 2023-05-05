@@ -3,6 +3,7 @@ const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
 const { body, validationResult } = require('express-validator');
 const Model             =      require("../models");
+const PollUser = require("../models/PollUser");
 const ThisModel         =      Model.Poll
 
 const create = async (req, res) => {
@@ -11,37 +12,67 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["first_name","phonenumber"], 
+        "required": ["question","group_id","start_date","expairy_date","questionoptions"], 
         "properties": { 
-          "first_name": { 
+          "question": { 
             "type": "string",
-          }
+          },
+          "start_date": { 
+            "type": "string",
+            "description": "Accepts YY-DD-MM formats only",
+          },
+          "expairy_date": { 
+            "type": "string",
+            "description": "Accepts YY-DD-MM formats only",
+          },
+          "group_id": { 
+            "type": "number",
+            "description": "Take from Group",
+          },
+          "questionoptions": { 
+            "type": "array",
+            "description": "Ex:[option1,option2,option3,option4]",
+          },
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
+  req.body['expairy_date'] = await Helper.DT_Y_M_D(req.body.expairy_date)
+  let questionoptions = null
+  if(req.body.questionoptions){
+      questionoptions = req.body.questionoptions
+      delete req.body['questionoptions']
+  }
   return await ThisModel.create(req.body).then(async(doc) => {
+    if(questionoptions){
+      for (const opt of questionoptions) {
+        try{
+          await Model.PollOptions.create({poll_id:doc.id,title:opt})
+        }catch(err){
+          console.log(err)
+        }
+      }
+    }
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
     return await Helper.ErrorValidation(req,res,err,'cache')
   })
 }
 
-const commonGet = async (req,res,whereInclude) => {
+const commonGet = async (req,res) => {
+  let poll_created_for_me = null
+  if(req.query.poll_created_for_me){
+    poll_created_for_me = req.query.poll_created_for_me
+  }
   return [
     {
-      model:Model.User,
-      attributes:["id","first_name","user_id"],
+      model:Model.Group,
+      where:(poll_created_for_me)?{user_id:poll_created_for_me}:{},
       required:true
     },
     {
-      model:Model.Activity,
-      include:{
-        model:Model.MasterActivity,
-        attributes:["id","title","icon","is_active"],
-        required:true
-      },
+      model:Model.PollOption,
       required:true
     }
   ]
@@ -51,13 +82,19 @@ const list = async (req, res) => {
   // #swagger.tags = ['Poll']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
+  //  #swagger.parameters['keyword'] = {in: 'query',type:'string'}
+  //  #swagger.parameters['poll_created_by_me'] = {in: 'query',type:'number',"description":"Take id from User"}
+  //  #swagger.parameters['poll_created_for_me'] = {in: 'query',type:'number',"description":"Take id from User"}
   
-
   try{
       let pageSize = 0;
       let skip = 0;
       let query={}
       query['where'] = {}
+      if(req.query.poll_created_by_me){
+        query['where']['user_id'] = req.query.poll_created_by_me 
+      }
+      query['include'] = await commonGet(req, res)
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -77,10 +114,21 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['Poll']
   let query={}
+  query['include'] = await commonGet(req, res)
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
   }
+  records = JSON.parse(JSON.stringify(records))
+  records['total'] = await Model.Group.findByPk(records.group_id,{model:Model.User,attributes:["id","first_name","user_id"],required:true})
+  records['voted'] = await Model.PollUser.findAll({where:{poll_id:req.params.id},model:Model.User,attributes:["id","first_name","user_id"],required:true})
+  let Uids = null
+  for (const vot of records['voted']) {
+    if(vot.User){
+      Uids.push(vot.User[0].id)
+    }
+  }
+  records['not_voted'] = await Model.Group.findByPk(records.group_id,{model:Model.User,attributes:["id","first_name","user_id"],where:{user_id:{[Op.notIn]:[Uids]}},required:true})
   return await Helper.SuccessValidation(req,res,records)
 }
 

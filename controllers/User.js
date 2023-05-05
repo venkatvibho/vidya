@@ -166,32 +166,22 @@ const view = async (req, res) => {
   query['attributes']['exclude']= await commonExclude()
   query['attributes']['include'] = [
     [
-      Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_to_id=${user_id})`),'honor'
-    ],
-    [
-      Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_to_id=${user_id})`),'genune'
-    ],
-    [
         Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_from_id=${user_id})`),'followings'
     ],
     [
       Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_to_id=${user_id})`),'followers'
     ],
-    [
-      Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_to_id=${user_id})`),'gifts'
-    ],
   ]
   query['include'] = await commonGet(req, res,{UserFollowingWhere:{user_from_id:user_id}})
   console.log(query)
   let records = await ThisModel.findByPk(req.params.id,query);
-  if(!records){
-    records = null
-  }
-  let ActivityCnt = Model.ActivityUser.count({where:{user_id:req.user.id,status:'Sent'}})
-  let NotifCount  = Model.UserFollowing.count({where:{user_to_id:req.user.id,status:'Sent'}})
-  records['notif_count']   = ActivityCnt+NotifCount
-  records['honour_count']  = await Model.ActivityUser.count({where:{user_id:req.user.id}})
-  records['genuine_count'] = await Model.SlambookBeat.count({
+  if(!records){records = null}
+  let ActivityCnt = await Model.ActivityUser.count({where:{user_id:req.user.id,status:'Sent'}})
+  let NotifCount  = await Model.UserFollowing.count({where:{user_to_id:req.user.id,status:'Sent'}})
+  records = JSON.parse(JSON.stringify(records))
+  records['notifications']   = ActivityCnt+NotifCount
+  records['honour']  = await Model.ActivityUser.count({where:{user_id:req.user.id}})
+  records['genuine'] = await Model.SlambookBeat.count({
     include:[{
       model:Model.UserFollowing,
       where:{user_from_id:req.user.id,status:"Accepted"},

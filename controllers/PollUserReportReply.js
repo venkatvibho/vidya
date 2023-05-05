@@ -11,10 +11,14 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["first_name","phonenumber"], 
+        "required": ["polluserreport_id","description"], 
         "properties": { 
-          "first_name": { 
+          "description": { 
             "type": "string",
+          },
+          "polluserreport_id": { 
+            "type": "number",
+            "description": "Take id from PollUserReport",
           }
         } 
       } 
@@ -29,22 +33,7 @@ const create = async (req, res) => {
 }
 
 const commonGet = async (req,res,whereInclude) => {
-  return [
-    {
-      model:Model.User,
-      attributes:["id","first_name","user_id"],
-      required:true
-    },
-    {
-      model:Model.Activity,
-      include:{
-        model:Model.MasterActivity,
-        attributes:["id","title","icon","is_active"],
-        required:true
-      },
-      required:true
-    }
-  ]
+  return []
 }
 
 const list = async (req, res) => {
@@ -58,6 +47,7 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['include'] = await commonGet(req, res)
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -77,6 +67,7 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['PollUserReportReply']
   let query={}
+  query['include'] = await commonGet(req, res)
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
@@ -91,9 +82,13 @@ const update = async (req, res) => {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "first_name": { 
+          "description": { 
             "type": "string",
           },
+          "polluserreport_id": { 
+            "type": "number",
+            "description": "Take id from PollUserReport",
+          }
         }
       } 
     }
