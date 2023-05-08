@@ -11,13 +11,8 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["type_of_badges","type_of_activity","location","latitude","longitude","start_date","start_time","end_date","end_time","description","activity_id","group_id"], 
-        "properties": { 
-          "type_of_badges": { 
-            "type": "string",
-            "enum":["General","Honour"],
-            "default":"General"
-          },
+        "required": ["type_of_activity","location","latitude","longitude","start_date","start_time","end_date","end_time","description","activity_id","group_id"], 
+        "properties": {
           "type_of_activity": { 
             "type": "string",
             "enum":["Private","Public","Self"],
@@ -67,9 +62,6 @@ const create = async (req, res) => {
       } 
     }
   */
-  if(req.body.type_of_badges){
-    await body('type_of_badges').isIn(["General","Honour"]).withMessage('Badges must be General | Honour').run(req)
-  }
   if(req.body.type_of_activity){
     await body('type_of_activity').isIn(["Private","Public","Self"]).withMessage('Marital Status must be Private | Public | Self').run(req)
   }
@@ -156,7 +148,6 @@ const list = async (req, res) => {
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   //  #swagger.parameters['date'] = {in: 'query',type:'string','description':"YY-MM-DD"}
-  //  #swagger.parameters['type_of_badges'] = {in: 'query',type:'string','enum':['General','Honour']}
   //  #swagger.parameters['type_of_activity'] = {in: 'query',type:'string','enum':['Private','Public','Self']}
   //  #swagger.parameters['created_by_user_id'] = {in: 'query',type:'number','description':"Invited By me"}
   //  #swagger.parameters['participant_user_id'] = {in: 'query',type:'number','description':"Invited For me"}
@@ -184,9 +175,6 @@ const list = async (req, res) => {
       let is_Required = false
       if(req.query.created_by_user_id){
         query['where']['user_id'] = req.query.created_by_user_id
-      }
-      if(req.query.type_of_badges){
-        query['where']['type_of_badges'] = req.query.type_of_badges
       }
       if(req.query.type_of_activity){
         query['where']['type_of_activity'] = req.query.type_of_activity
@@ -242,11 +230,6 @@ const update = async (req, res) => {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "type_of_badges": { 
-            "type": "string",
-            "enum":["General","Honour"],
-            "default":"General"
-          },
           "type_of_activity": { 
             "type": "string",
             "enum":["Private","Public","Self"],
@@ -296,9 +279,6 @@ const update = async (req, res) => {
       } 
     }
   */
-  if(req.body.type_of_badges){
-    await body('type_of_badges').isIn(["General","Honour"]).withMessage('Badges must be General | Honour').run(req)
-  }
   if(req.body.type_of_activity){
     await body('type_of_activity').isIn(["Private","Public","Self"]).withMessage('Marital Status must be Private | Public | Self').run(req)
   }

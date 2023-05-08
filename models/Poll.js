@@ -39,6 +39,10 @@ class Poll extends Sequelize.Model {
         model: 'users',
         key: 'id'
       }
+    },
+    start_date: {
+      type: DataTypes.DATEONLY,
+      allowNull: false
     }
   }, {
     sequelize,

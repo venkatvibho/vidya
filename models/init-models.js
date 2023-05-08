@@ -19,6 +19,7 @@ const _MasterIndustry = require("./MasterIndustry");
 const _MasterInterest = require("./MasterInterest");
 const _MasterLanguage = require("./MasterLanguage");
 const _MasterProfession = require("./MasterProfession");
+const _MasterRegion = require("./MasterRegion");
 const _PollOption = require("./PollOption");
 const _PollUserReportReply = require("./PollUserReportReply");
 const _PollUserReport = require("./PollUserReport");
@@ -60,6 +61,7 @@ function initModels(sequelize) {
   const MasterInterest = _MasterInterest(sequelize, DataTypes);
   const MasterLanguage = _MasterLanguage(sequelize, DataTypes);
   const MasterProfession = _MasterProfession(sequelize, DataTypes);
+  const MasterRegion = _MasterRegion(sequelize, DataTypes);
   const PollOption = _PollOption(sequelize, DataTypes);
   const PollUserReportReply = _PollUserReportReply(sequelize, DataTypes);
   const PollUserReport = _PollUserReport(sequelize, DataTypes);
@@ -122,16 +124,16 @@ function initModels(sequelize) {
   MasterLanguage.hasMany(UsersLanguage, { foreignKey: "languages_id"});
   User.belongsTo(MasterProfession, { foreignKey: "profession_id"});
   MasterProfession.hasMany(User, { foreignKey: "profession_id"});
-  PollUser.belongsTo(PollOption, { foreignKey: "is_voted_option_id"});
-  PollOption.hasMany(PollUser, { foreignKey: "is_voted_option_id"});
-  PollUserReportReply.belongsTo(PollUserReport, { foreignKey: "postuserreport_id"});
-  PollUserReport.hasMany(PollUserReportReply, { foreignKey: "postuserreport_id"});
-  PollUserReport.belongsTo(PollUser, { foreignKey: "postuser_id"});
-  PollUser.hasMany(PollUserReport, { foreignKey: "postuser_id"});
+  PollUser.belongsTo(PollOption, { foreignKey: "poll_option_id"});
+  PollOption.hasMany(PollUser, { foreignKey: "poll_option_id"});
+  PollUserReportReply.belongsTo(PollUserReport, { foreignKey: "polluserreport_id"});
+  PollUserReport.hasMany(PollUserReportReply, { foreignKey: "polluserreport_id"});
+  PollUserReport.belongsTo(PollUser, { foreignKey: "polltuser_id"});
+  PollUser.hasMany(PollUserReport, { foreignKey: "polltuser_id"});
   PollOption.belongsTo(Poll, { foreignKey: "poll_id"});
   Poll.hasMany(PollOption, { foreignKey: "poll_id"});
-  PollUser.belongsTo(Poll, { foreignKey: "post_id"});
-  Poll.hasMany(PollUser, { foreignKey: "post_id"});
+  PollUser.belongsTo(Poll, { foreignKey: "poll_id"});
+  Poll.hasMany(PollUser, { foreignKey: "poll_id"});
   PostCommentReply.belongsTo(PostComment, { foreignKey: "postcomment_id"});
   PostComment.hasMany(PostCommentReply, { foreignKey: "postcomment_id"});
   PostUserReportReply.belongsTo(PostUserReport, { foreignKey: "postuserreport_id"});
@@ -219,6 +221,7 @@ function initModels(sequelize) {
     MasterInterest,
     MasterLanguage,
     MasterProfession,
+    MasterRegion,
     PollOption,
     PollUserReportReply,
     PollUserReport,

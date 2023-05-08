@@ -20,7 +20,7 @@ class PollUserReport extends Sequelize.Model {
       type: DataTypes.TEXT,
       allowNull: false
     },
-    postuser_id: {
+    polltuser_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       references: {
@@ -44,7 +44,7 @@ class PollUserReport extends Sequelize.Model {
       {
         name: "poll_user_reports_postuser_id_c3d2328d",
         fields: [
-          { name: "postuser_id" },
+          { name: "polltuser_id" },
         ]
       },
     ]

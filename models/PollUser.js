@@ -12,7 +12,7 @@ class PollUser extends Sequelize.Model {
       allowNull: false,
       primaryKey: true
     },
-    is_voted_option_id: {
+    poll_option_id: {
       type: DataTypes.BIGINT,
       allowNull: true,
       references: {
@@ -20,7 +20,7 @@ class PollUser extends Sequelize.Model {
         key: 'id'
       }
     },
-    post_id: {
+    poll_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       references: {
@@ -45,7 +45,7 @@ class PollUser extends Sequelize.Model {
       {
         name: "poll_users_is_voted_option_id_3de08026",
         fields: [
-          { name: "is_voted_option_id" },
+          { name: "poll_option_id" },
         ]
       },
       {
@@ -58,7 +58,7 @@ class PollUser extends Sequelize.Model {
       {
         name: "poll_users_post_id_8957c4ef",
         fields: [
-          { name: "post_id" },
+          { name: "poll_id" },
         ]
       },
       {

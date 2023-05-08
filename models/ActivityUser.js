@@ -61,6 +61,18 @@ class ActivityUser extends Sequelize.Model {
     joineddAt: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    acceptedBy: {
+      type: DataTypes.BIGINT,
+      allowNull: true
+    },
+    rejectedBy: {
+      type: DataTypes.BIGINT,
+      allowNull: true
+    },
+    sentBy: {
+      type: DataTypes.BIGINT,
+      allowNull: true
     }
   }, {
     sequelize,

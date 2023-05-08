@@ -77,15 +77,20 @@ const commonExclude = async (req,res) => {
 }
 
 const commonGet = async (req,res,whereInclude) => {
+  let UsersLanguageBooLn = false
+  let UserInterestBooLn = false
+  let UsersLanguageArr = {}
+  let UserInterestArr = {}
+  if(req.query.language_id){
+    UsersLanguageBooLn = true
+    UsersLanguageArr['languages_id'] = {[Op.in]:req.query.language_id.split(',')}
+  }
+  if(req.query.interest_id){
+    UserInterestBooLn = true
+    UserInterestArr['interest_id'] = {[Op.in]:req.query.interest_id.split(',')}
+  }
+  console.log(UserInterestArr)
   return [
-    {
-      model:Model.UserInterest,
-      include:{
-        model:Model.MasterInterest,
-        required:false
-      },
-      required:false
-    },
     {
       model:Model.UserFollowing,
       // as:"UserFollowing",
@@ -93,6 +98,20 @@ const commonGet = async (req,res,whereInclude) => {
       where:{user_from_id:req.user.id},
       required:false,
       duplicate: false
+    },
+    {
+      model:Model.UserInterest,
+      include:{
+        model:Model.MasterInterest,
+        required:false
+      },
+      where:UserInterestArr,
+      required:UserInterestBooLn
+    },
+    {
+      model:Model.UsersLanguage,
+      where:UsersLanguageArr,
+      required:UsersLanguageBooLn
     }
   ]
 }
@@ -101,15 +120,14 @@ const list = async (req, res) => {
   // #swagger.tags = ['User']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
-  //  #swagger.parameters['badge_type'] = {in: 'query',type:'string',enum:["General","Honour"]}
-  //  #swagger.parameters['profession_id'] = {in: 'query',type:'number','description':'Take id from MasterProfession'}
-  //  #swagger.parameters['qualification_id'] = {in: 'query',type:'number','description':'Take id from MasterIndustry'}
   //  #swagger.parameters['username'] = {in: 'query',type:'string'}
-  //  #swagger.parameters['location'] = {in: 'query',type:'string'}
-  //  #swagger.parameters['age_from'] = {in: 'query',type:'number'}
-  //  #swagger.parameters['age_to'] = {in: 'query',type:'number'}
-  //  #swagger.parameters['language'] = {in: 'query',type:'string'}
-  //  #swagger.parameters['interests'] = {in: 'query',type:'array','description':'Take ids from MasterInterest'}
+  //  #swagger.parameters['profession_id'] = {in: 'query',type:'array','description':'Take id from MasterProfession'}
+  //  #swagger.parameters['city'] = {in: 'query',type:'array','description':'Take name from MasterCities'}
+  //  #swagger.parameters['qualification_id'] = {in: 'query',type:'array','description':'Take id from MasterIndustry'}
+  //  #swagger.parameters['gender'] = {in: 'query',type:'array',description:"Male,Female,Non-Binary"}
+  //  #swagger.parameters['language_id'] = {in: 'query',type:'array','description':'Take ids from MasterLanguages'}
+  //  #swagger.parameters['region'] = {in: 'query',type:'array'}
+  //  #swagger.parameters['interest_id'] = {in: 'query',type:'array','description':'Take ids from MasterInterest'}
   
   try{
       let pageSize = 0;
@@ -135,6 +153,21 @@ const list = async (req, res) => {
         query['where']['first_name'] = {[Op.like]: '%'+req.query.username+'%'}
       }
       query['where']['id'] = {[Op.notIn]:[req.user.id]}
+      if(req.query.profession_id){
+        query['where']['profession_id'] = {[Op.in]:req.query.profession_id.split(',')}
+      }
+      if(req.query.city){
+        query['where']['city'] = {[Op.in]:[req.query.city]}
+      }
+      if(req.query.qualification_id){
+        query['where']['highest_qualification'] = {[Op.in]:req.query.qualification_id.split(',')}
+      }
+      if(req.query.gender){
+        query['where']['gender'] = {[Op.in]:req.query.gender.split(',')}
+      }
+      if(req.query.region){
+        query['where']['region'] = {[Op.in]:req.query.region.split(',')}
+      }
       let is_whereHide = {}
       query['include'] = await commonGet(req, res,{is_whereHide:is_whereHide})
       console.log(query)

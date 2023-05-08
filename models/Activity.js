@@ -12,10 +12,6 @@ class Activity extends Sequelize.Model {
       allowNull: false,
       primaryKey: true
     },
-    type_of_badges: {
-      type: DataTypes.STRING(15),
-      allowNull: false
-    },
     type_of_activity: {
       type: DataTypes.STRING(15),
       allowNull: false

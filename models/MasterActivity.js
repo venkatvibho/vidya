@@ -24,6 +24,34 @@ class MasterActivity extends Sequelize.Model {
     is_active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    f2_points: {
+      type: DataTypes.BIGINT,
+      allowNull: false
+    },
+    general_points: {
+      type: DataTypes.BIGINT,
+      allowNull: false
+    },
+    honor_points: {
+      type: DataTypes.BIGINT,
+      allowNull: false
+    },
+    max_participants: {
+      type: DataTypes.BIGINT,
+      allowNull: false
+    },
+    min_participants: {
+      type: DataTypes.BIGINT,
+      allowNull: false
+    },
+    type_of_badge: {
+      type: DataTypes.STRING(15),
+      allowNull: false
     }
   }, {
     sequelize,

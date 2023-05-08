@@ -3,39 +3,17 @@ const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
 const { body, validationResult } = require('express-validator');
 const Model             =      require("../models");
-const ThisModel         =      Model.MasterActivity
+const ThisModel         =      Model.MasterRegion
 
 const create = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['MasterRegion']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["title","type_of_badge","f2_points","general_points","honor_points","max_participants","min_participants","description"], 
+        "required": ["title"], 
         "properties": { 
           "title": { 
-            "type": "string",
-          },
-          "type_of_badge": { 
-            "type": "string",
-            "enum":['General','Honour']
-          },
-          "f2_points": { 
-            "type": "number",
-          },
-          "general_points": { 
-            "type": "number",
-          },
-          "honor_points": { 
-            "type": "number",
-          },
-          "max_participants": { 
-            "type": "number",
-          },
-          "min_participants": { 
-            "type": "number",
-          },
-          "description": { 
             "type": "string",
           },
           "icon": { 
@@ -46,20 +24,11 @@ const create = async (req, res) => {
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  if(req.body.type_of_badges){
-    await body('type_of_badges').isIn(["General","Honour"]).withMessage('Badges must be General | Honour').run(req)
-  }
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    let firstError = errors.errors.map(error => error.msg)[0];
-    return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
-  }else{
-    return await ThisModel.create(req.body).then(async(doc) => {
-      await Helper.SuccessValidation(req,res,doc,'Added successfully')
-    }).catch( async (err) => {
-      return await Helper.ErrorValidation(req,res,err,'cache')
-    })
-  }
+  return await ThisModel.create(req.body).then(async(doc) => {
+    await Helper.SuccessValidation(req,res,doc,'Added successfully')
+  }).catch( async (err) => {
+    return await Helper.ErrorValidation(req,res,err,'cache')
+  })
 }
 
 const commonGet = async (req,res,whereInclude) => {
@@ -82,10 +51,10 @@ const commonGet = async (req,res,whereInclude) => {
 }
 
 const list = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['MasterRegion']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
-  //  #swagger.parameters['type_of_badge'] = {in: 'query',type:'string',"enum":['General','Honour']}
+  
 
   try{
       let pageSize = 0;
@@ -109,7 +78,7 @@ const list = async (req, res) => {
 }
 
 const view = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['MasterRegion']
   let query={}
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
@@ -119,35 +88,13 @@ const view = async (req, res) => {
 }
 
 const update = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['MasterRegion']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
         "properties": { 
           "title": { 
-            "type": "string",
-          },
-          "type_of_badge": { 
-            "type": "string",
-            "enum":['General','Honour']
-          },
-          "f2_points": { 
-            "type": "number",
-          },
-          "general_points": { 
-            "type": "number",
-          },
-          "honor_points": { 
-            "type": "number",
-          },
-          "max_participants": { 
-            "type": "number",
-          },
-          "min_participants": { 
-            "type": "number",
-          },
-          "description": { 
             "type": "string",
           },
           "icon": { 
@@ -157,25 +104,16 @@ const update = async (req, res) => {
       } 
     }
   */
-  if(req.body.type_of_badges){
-    await body('type_of_badges').isIn(["General","Honour"]).withMessage('Badges must be General | Honour').run(req)
-  }
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    let firstError = errors.errors.map(error => error.msg)[0];
-    return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
-  }else{
-    return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
-      records = await ThisModel.findByPk(req.params.id);
-      await Helper.SuccessValidation(req,res,records,'Updated successfully')
-    }).catch( async (err) => {
-      return await Helper.ErrorValidation(req,res,err,'cache')
-    })
-  }
+  return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
+    records = await ThisModel.findByPk(req.params.id);
+    await Helper.SuccessValidation(req,res,records,'Updated successfully')
+  }).catch( async (err) => {
+    return await Helper.ErrorValidation(req,res,err,'cache')
+  })
 }
 
 const remove = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['MasterRegion']
   try{
     let record = await ThisModel.destroy({where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
@@ -185,7 +123,7 @@ const remove = async (req, res) => {
 }
 
 const bulkremove = async (req, res) => {
-  // #swagger.tags = ['MasterActivity']
+  // #swagger.tags = ['MasterRegion']
   //  #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
     let theArray = req.params.ids 
     if(!Array.isArray(theArray)){theArray = theArray.split(",");}
