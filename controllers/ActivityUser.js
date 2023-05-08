@@ -38,11 +38,16 @@ const create = async (req, res) => {
     return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
   }else{
     req.body['user_id'] = req.user.id
+    if(req.query.status=="Sent"){
+      req.body["sentBy"] = req.user.id
+    }
     if(req.body.status=="Accepted"){
       req.body["acceptedAt"] = await Helper.CurrentDate()
+      req.body["acceptedBy"] = req.user.id
     }
     if(req.body.status=="Rejected"){
       req.body["rejectedAt"] = await Helper.CurrentDate()
+      req.body["rejectedBy"] = req.user.id
     }
     return await ThisModel.create(req.body).then(async(doc) => {
       await Helper.SuccessValidation(req,res,doc,'Added successfully')
@@ -137,11 +142,16 @@ const update = async (req, res) => {
     let firstError = errors.errors.map(error => error.msg)[0];
     return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
   }else{
+    if(req.query.status=="Sent"){
+      req.body["sentBy"] = req.user.id
+    }
     if(req.query.status=="Accepted"){
       req.body["acceptedAt"] = await Helper.CurrentDate()
+      req.body["acceptedBy"] = req.user.id
     }
     if(req.query.status=="Rejected"){
       req.body["rejectedAt"] = await Helper.CurrentDate()
+      req.body["rejectedBy"] = req.user.id
     }
     if(req.query.status=="Joined"){
       req.body["joineddAt"] = await Helper.CurrentDate()

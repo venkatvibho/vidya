@@ -192,6 +192,14 @@ router.patch("/PollUserReportReply/update/:id",authorization,PollUserReportReply
 router.delete("/PollUserReportReply/delete/:id",authorization,PollUserReportReplyController.remove)
 router.delete("/PollUserReportReply/bulkdelete/:ids",authorization,PollUserReportReplyController.bulkremove)
 
+const MasterRegionController          =  require('../controllers/MasterRegion.js')
+router.post("/MasterRegion/create",authorization,MasterRegionController.create)
+router.get("/MasterRegion/list",authorization,MasterRegionController.list)
+router.get("/MasterRegion/view/:id",authorization,MasterRegionController.view)
+router.patch("/MasterRegion/update/:id",authorization,MasterRegionController.update)
+router.delete("/MasterRegion/delete/:id",authorization,MasterRegionController.remove)
+router.delete("/MasterRegion/bulkdelete/:ids",authorization,MasterRegionController.bulkremove)
+
 const MasterLanguageController          =  require('../controllers/MasterLanguage.js')
 router.post("/MasterLanguage/create",authorization,MasterLanguageController.create)
 router.get("/MasterLanguage/list",authorization,MasterLanguageController.list)

@@ -16,7 +16,7 @@ class PollUserReportReply extends Sequelize.Model {
       type: DataTypes.TEXT,
       allowNull: false
     },
-    postuserreport_id: {
+    polluserreport_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       references: {
@@ -40,7 +40,7 @@ class PollUserReportReply extends Sequelize.Model {
       {
         name: "poll_user_report_replies_postuserreport_id_ff52d2af",
         fields: [
-          { name: "postuserreport_id" },
+          { name: "polluserreport_id" },
         ]
       },
     ]
