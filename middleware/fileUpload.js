@@ -8,10 +8,11 @@ function fileFilter (req, file, cb) {
 }
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, 'uploads')
+      cb(null, 'uploads/files/')
     },
     filename: function (req, file, cb) {
       cb(null, file.originalname + '-' + Date.now()+'.'+file.mimetype.split("/")[1])
+      // cb(null, file.originalname)
     }
   })
    

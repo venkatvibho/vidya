@@ -5,7 +5,8 @@ const valiDations             =   require('../middleware/valiDations')
 
 const CommonController          =  require('../controllers/Common.js')
 const upload = require('../middleware/fileUpload')
-router.post("/Common/Upload",upload.single("singleFile"),CommonController.Upload)
+router.post("/Common/Upload",authorization,upload.single("singleFile"),CommonController.Upload)
+router.post("/Common/Indicators",authorization,CommonController.Indicators)
 
 const UserController          =  require('../controllers/User.js')
 router.post("/User/create",UserController.create)
@@ -191,6 +192,22 @@ router.get("/PollUserReportReply/view/:id",authorization,PollUserReportReplyCont
 router.patch("/PollUserReportReply/update/:id",authorization,PollUserReportReplyController.update)
 router.delete("/PollUserReportReply/delete/:id",authorization,PollUserReportReplyController.remove)
 router.delete("/PollUserReportReply/bulkdelete/:ids",authorization,PollUserReportReplyController.bulkremove)
+
+const ChatRoomController          =  require('../controllers/ChatRoom.js')
+router.post("/ChatRoom/create",authorization,ChatRoomController.create)
+router.get("/ChatRoom/list",authorization,ChatRoomController.list)
+router.get("/ChatRoom/view/:id",authorization,ChatRoomController.view)
+// router.patch("/ChatRoom/update/:id",authorization,ChatRoomController.update)
+router.delete("/ChatRoom/delete/:id",authorization,ChatRoomController.remove)
+router.delete("/ChatRoom/bulkdelete/:ids",authorization,ChatRoomController.bulkremove)
+
+const ChatRoomParticipantController          =  require('../controllers/ChatRoomParticipant.js')
+router.post("/ChatRoomParticipant/create",authorization,ChatRoomParticipantController.create)
+router.get("/ChatRoomParticipant/list",authorization,ChatRoomParticipantController.list)
+router.get("/ChatRoomParticipant/view/:id",authorization,ChatRoomParticipantController.view)
+// router.patch("/ChatRoomParticipant/update/:id",authorization,ChatRoomParticipantController.update)
+router.delete("/ChatRoomParticipant/delete/:id",authorization,ChatRoomParticipantController.remove)
+router.delete("/ChatRoomParticipant/bulkdelete/:ids",authorization,ChatRoomParticipantController.bulkremove)
 
 const MasterRegionController          =  require('../controllers/MasterRegion.js')
 router.post("/MasterRegion/create",authorization,MasterRegionController.create)

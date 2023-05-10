@@ -342,6 +342,10 @@ const Sms_Otp_Details = async ()=> {
     }
 }
 
+const StringToSingleCOde = async (str)=> {
+    return  "'%" + str + "%'";
+}
+
 const helper = {};
 helper.SuccessValidation    =   SuccessValidation 
 helper.Sms_Otp_Details      =   Sms_Otp_Details
@@ -364,5 +368,6 @@ helper.Signzy_Api_Url       =   Signzy_Api_Url
 helper.Signzy_Api_Uname_Pwd =   Signzy_Api_Uname_Pwd
 helper.GenerateUid          =   GenerateUid
 helper.IncrementSeconds     =   IncrementSeconds
+helper.StringToSingleCOde   =   StringToSingleCOde
 
 module.exports = helper;

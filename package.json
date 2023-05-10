@@ -20,9 +20,6 @@
   },
   "homepage": "https://github.com/venkat-ksnp/BasicNodePostgress#readme",
   "dependencies": {
-    "@adminjs/express": "^6.0.0",
-    "@adminjs/sequelize": "^4.0.0",
-    "adminjs": "^7.0.0",
     "argon2": "^0.30.3",
     "arr-pluck": "^0.1.0",
     "aws-sdk": "^2.1364.0",

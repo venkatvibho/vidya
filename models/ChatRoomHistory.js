@@ -43,6 +43,10 @@ class ChatRoomHistory extends Sequelize.Model {
         model: 'users',
         key: 'id'
       }
+    },
+    is_viewed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
     }
   }, {
     sequelize,

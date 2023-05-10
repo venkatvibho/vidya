@@ -64,6 +64,11 @@ const commonGet = async (req,res,whereInclude) => {
         required:(whereInclude)?whereInclude.ParticipantReq:false
       },
       required:(whereInclude)?whereInclude.ParticipantReq:false
+    },{
+      Model:Model.GroupChat,
+      as:Group_Chat,
+      order: [ ['id', 'desc'] ],
+      required:false
     }
   ]
 }
@@ -72,7 +77,7 @@ const list = async (req, res) => {
   // #swagger.tags = ['Group']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
-  //  #swagger.parameters['created_by_user_id'] = {in: 'query',type:'number','description':"Invited By me"}
+  //  #swagger.parameters['created_by_user_id'] = {in: 'query',type:'number','description':"Created By me"}
   //  #swagger.parameters['participant_user_id'] = {in: 'query',type:'number','description':"Invited For me"}
 
   try{
@@ -83,10 +88,16 @@ const list = async (req, res) => {
       let ParticipantReq = false
       let ParticipantWhere = {}
       if(req.query.participant_user_id){
-        // query['where']['participants'] = {[Sequelize.Op.contains]: [req.query.participant_user_id]}
         ParticipantReq = true
         ParticipantWhere = {user_id:req.query.participant_user_id}
       }
+      if(req.query.keyword){
+        var quote_str =  await Helper.StringToSingleCOde(req.query.keyword);
+        query['where'][Op.or] =[
+          {title:{[Op.substring]:req.query.keyword} },
+          Sequelize.literal('"Group_Chat"."message" LIKE '+quote_str)
+        ]
+      } 
       query['include'] = await commonGet(req, res,{ParticipantWhere:ParticipantWhere,ParticipantReq:ParticipantReq})
       if(req.query.created_by_user_id){
         query['where']['user_id'] = req.query.created_by_user_id

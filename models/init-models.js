@@ -199,6 +199,8 @@ function initModels(sequelize) {
   UserReport.belongsTo(User, { as:"ReportFrom",foreignKey: "from_user_id"});
   User.hasMany(UserReport, { as:"UserReportFrom",foreignKey: "from_user_id"});
   Activity.hasMany(ActivityUser, { as:"PrivateUser",foreignKey: "activity_id"});
+  ChatRoom.hasOne(ChatRoomHistory, { as:"Chat_Room_History",foreignKey: "chatroom_id"});
+  Group.hasOne(GroupChat, { as:"Group_Chat",foreignKey: "group_id"});
 
   return {
     Activity,

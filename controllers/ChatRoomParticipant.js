@@ -3,16 +3,20 @@ const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
 const { body, validationResult } = require('express-validator');
 const Model             =      require("../models");
-const ThisModel         =      Model.ChatRoom
+const ThisModel         =      Model.ChatRoomParticipant
 
 const create = async (req, res) => {
-  // #swagger.tags = ['ChatRoom']
+  // #swagger.tags = ['ChatRoomParticipant']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["participants"], 
+        "required": ["chatroom_id","participants"], 
         "properties": { 
+          "chatroom_id": { 
+            "type": "number",
+            "description":"Take id fron ChatRoom"
+          },
           "participants": { 
             "type": "array",
             "description":"Enter userids like:[1,2,3]"
@@ -22,78 +26,52 @@ const create = async (req, res) => {
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  req.body['user_id'] = req.user.id
   // await body('first_name').isIn('en-US', {ignore: ' '}).withMessage('Name must be alphabetic.').run(req)
   let participants = req.body.participants
-  delete req.body.participants
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     let firstError = errors.errors.map(error => error.msg)[0];
     return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
   }else{
-    return await ThisModel.create(req.body).then(async(doc) => {
-      for (const uid of participants) {  
-        try{
-          await Model.ChatRoomParticipant.create({user_id:uid,chatroom_id:doc.id})
-        }catch(err){
-          console.log(err)
-        }
+    for (const uid of participants) {  
+      try{
+        await ThisModel.create({user_id:uid,chatroom_id:req.body.chatroom_id})
+      }catch(err){
+        console.log(err)
       }
-      await Helper.SuccessValidation(req,res,doc,'Added successfully')
-    }).catch( async (err) => {
-      return await Helper.ErrorValidation(req,res,err,'cache')
-    })
+    }
+    let query={}
+    query['where'] = {}
+    query['include'] = await commonGet(req, res,{query:query})
+    let records = await ThisModel.findByPk(req.body.chatroom_id);
+    await Helper.SuccessValidation(req,res,records,'Added successfully')
   }
 }
 
 const commonGet = async (req,res,whereInclude) => {
-  let poll_created_for_me = null
-  if(req.query.poll_created_for_me){
-    poll_created_for_me = req.query.poll_created_for_me
-  }
   return [
     {
       model:Model.ChatRoomParticipant,
-      where:(poll_created_for_me)?{user_id:poll_created_for_me}:{},
       include:{
         model:Model.User,
         attributes:["id","first_name","user_id"],
-        required:true
+        required:false
       },
-      required:true
-    },
-    {
-      model:Model.ChatRoomHistory,
-      as:"Chat_Room_History",
-      order: [ ['id', 'desc'] ],
       required:false
     }
   ]
 }
 
 const list = async (req, res) => {
-  // #swagger.tags = ['ChatRoom']
+  // #swagger.tags = ['ChatRoomParticipant']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
-  //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   //  #swagger.parameters['keyword'] = {in: 'query',type:'string'}
-  //  #swagger.parameters['poll_created_by_me'] = {in: 'query',type:'number','description':"Created By me"}
-  //  #swagger.parameters['poll_created_for_me'] = {in: 'query',type:'number','description':"Invited For me"}
-
+  
   try{
       let pageSize = 0;
       let skip = 0;
       let query={}
       query['where'] = {}
-      if(req.query.poll_created_by_me){
-        query['where']['user_id'] = req.query.poll_created_by_me 
-      }
-      if(req.query.keyword){
-        var quote_str =  await Helper.StringToSingleCOde(req.query.keyword);
-        query['where'][Op.or] =[
-          Sequelize.literal('"Chat_Room_History"."message" LIKE '+quote_str),
-          Sequelize.literal('"ChatRoomParticipants->User"."first_name" LIKE '+quote_str)
-        ]
-      } 
       query['include'] = await commonGet(req, res,{query:query})
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
@@ -112,7 +90,7 @@ const list = async (req, res) => {
 }
 
 const view = async (req, res) => {
-  // #swagger.tags = ['ChatRoom']
+  // #swagger.tags = ['ChatRoomParticipant']
   let query={}
   query['where'] = {}
   query['include'] = await commonGet(req, res,{query:query})
@@ -124,7 +102,7 @@ const view = async (req, res) => {
 }
 
 const update = async (req, res) => {
-  // #swagger.tags = ['ChatRoom']
+  // #swagger.tags = ['ChatRoomParticipant']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
@@ -146,7 +124,7 @@ const update = async (req, res) => {
 }
 
 const remove = async (req, res) => {
-  // #swagger.tags = ['ChatRoom']
+  // #swagger.tags = ['ChatRoomParticipant']
   try{
     let record = await ThisModel.destroy({where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
@@ -156,7 +134,7 @@ const remove = async (req, res) => {
 }
 
 const bulkremove = async (req, res) => {
-  // #swagger.tags = ['ChatRoom']
+  // #swagger.tags = ['ChatRoomParticipant']
   // #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
     let theArray = req.params.ids 
     if(!Array.isArray(theArray)){theArray = theArray.split(",");}
