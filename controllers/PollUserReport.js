@@ -74,6 +74,7 @@ const list = async (req, res) => {
         query['offset'] = skip
         query['limit'] = pageSize
       }
+      query['distinct'] = true
       query['order'] =[ ['id', 'DESC']]
       const noOfRecord = await ThisModel.findAndCountAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)

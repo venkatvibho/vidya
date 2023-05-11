@@ -11,22 +11,58 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["first_name","phonenumber"], 
+        "required": ["chatroom_id","message","send_type","replied_chat_room_history_id"], 
         "properties": { 
-          "first_name": { 
+          "chatroom_id": { 
+            "type": "number",
+            "deascription":"Take id from ChatRoom"
+          },
+          "message": { 
             "type": "string",
+            "deascription":"Enter message here"
+          },
+          "replied_chat_room_history_id": { 
+            "type": "number",
+            "deascription":"Take id from ChatRoomHistoryList"
+          },
+          "send_type": { 
+            "type": "array",
+            "enum":["Sent","Share","Forward","Replay"]
           }
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  req.bod['is_viewed'] = false
-  return await ThisModel.create(req.body).then(async(doc) => {
-    await Helper.SuccessValidation(req,res,doc,'Added successfully')
-  }).catch( async (err) => {
-    return await Helper.ErrorValidation(req,res,err,'cache')
-  })
+  await body('participants').isArray({min:1}).withMessage('Min of 1 participant required.').run(req)
+  await body('send_type').isIn(["Sent","Share","Forward","Replay"]).withMessage('Marital Status must be Sent | Share | Forward | Replay').run(req)
+  if(req.body.send_type=="Forward" || req.body.send_type=="Replay"){
+    await body('replied_chat_room_history_id').notEmpty().withMessage('replied_chat_room_history_id is required').custom(async (value, req) => {
+      try {
+      const user = await ThisModel.findByPk(req.body.replied_chat_room_history_id)
+        if (!user) {
+          return Promise.reject('invalid replied_chat_room_history_id')
+        }
+      } catch (e) {
+        return Promise.reject(e)
+      }
+    })
+    .normalizeEmail()
+  }
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    let firstError = errors.errors.map(error => error.msg)[0];
+    return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
+  }else{
+    req.body['is_viewed'] = false
+    req.body['user_id'] = req.user.id
+    req.body['is_deleted'] = false
+    return await ThisModel.create(req.body).then(async(doc) => {
+      await Helper.SuccessValidation(req,res,doc,'Added successfully')
+    }).catch( async (err) => {
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    })
+  }
 }
 
 const commonGet = async (req,res,whereInclude) => {
@@ -67,6 +103,7 @@ const list = async (req, res) => {
         query['offset'] = skip
         query['limit'] = pageSize
       }
+      query['distinct'] = true
       query['order'] =[ ['id', 'DESC']]
       const noOfRecord = await ThisModel.findAndCountAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)

@@ -46,45 +46,87 @@ const create = async (req, res) => {
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  req.body['start_date']    = await Helper.DT_Y_M_D(req.body.start_date)
-  req.body['expairy_date']  = await Helper.DT_Y_M_D(req.body.expairy_date)
-  let questionoptions = null
-  if(req.body.questionoptions){
-      questionoptions = req.body.questionoptions
-      delete req.body['questionoptions']
-  }
-  return await ThisModel.create(req.body).then(async(doc) => {
-    if(questionoptions){
-      for (const opt of questionoptions) {
-        try{
-          await Model.PollOptions.create({poll_id:doc.id,title:opt})
-        }catch(err){
-          console.log(err)
+  await body('questionoptions').isArray({min:2}).withMessage('Min of 2 options allowed required.').run(req)
+  await body('questionoptions').isArray({max:5}).withMessage('Max of 5 options allowed only.').run(req)
+  await body('question').isLength({min:6}).withMessage('Provide the question. Minimum of 6 chars').run(req)
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    let firstError = errors.errors.map(error => error.msg)[0];
+    return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
+  }else{
+    req.body['start_date']    = await Helper.DT_Y_M_D(req.body.start_date)
+    req.body['expairy_date']  = await Helper.DT_Y_M_D(req.body.expairy_date)
+    req.body['user_id'] = req.user.id
+    req.body['is_deleted'] = false
+    let questionoptions = null
+    if(req.body.questionoptions){
+        questionoptions = req.body.questionoptions
+        delete req.body['questionoptions']
+    }
+    return await ThisModel.create(req.body).then(async(doc) => {
+      if(questionoptions){
+        for (const opttit of questionoptions) {
+          try{
+            await Model.PollOption.create({poll_id:doc.id,title:opttit})
+          }catch(err){
+            console.log(err)
+          }
         }
       }
-    }
-    await Helper.SuccessValidation(req,res,doc,'Added successfully')
-  }).catch( async (err) => {
-    return await Helper.ErrorValidation(req,res,err,'cache')
-  })
+      await Helper.SuccessValidation(req,res,doc,'Added successfully')
+    }).catch( async (err) => {
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    })
+  }
 }
 
 const commonGet = async (req,res,whereInclude) => {
+  let routePath = await Helper.GetRoutePath(req)
   let poll_created_for_me = null
   if(req.query.poll_created_for_me){
     poll_created_for_me = req.query.poll_created_for_me
   }
-  return [
-    {
-      model:Model.Group,
-      where:(poll_created_for_me)?{user_id:poll_created_for_me}:{},
-      required:true
-    },
-    {
-      model:Model.PollOption,
-      required:true
-    }
-  ]
+  let IncAttr =  []
+  let groupPoll = {
+    model:Model.Group,
+    where:(poll_created_for_me)?{user_id:poll_created_for_me}:{},
+    required:true
+  }
+  // if(routePath=="/Poll/view/:id"){
+  //   groupPoll['include'] = {
+  //     model:Model.GroupsParticipant,
+  //     attributes:{
+  //       exclude: ['createdAt','updatedAt'],
+  //       include:[
+  //         [
+  //           Sequelize.literal(`SELECT * FROM public.poll_options WHERE poll_id="Poll"."id" AND id IN(SELECT poll_option_id FROM public.poll_users WHERE poll_id="Poll"."id" LIMIT 1)`),'isVotedOption'
+  //         ],
+  //       ]
+  //     },
+  //     include:{
+  //       model:Model.User,
+  //       attributes:["id","first_name"],
+  //       required:false
+  //     },
+  //     required:false
+  //   }
+  // }
+  IncAttr.push(groupPoll)
+  IncAttr.push(
+      {
+        model:Model.PollOption,
+        attributes:{
+          exclude: ['createdAt','updatedAt','poll_id'],
+          include:[
+            [
+              Sequelize.literal(`(SELECT COUNT(id) FROM public.poll_users WHERE poll_option_id="PollOptions"."id")`),'votedCount'
+            ],
+          ]
+        },
+        required:true
+      }
+  )
+  return IncAttr
 }
 
 const list = async (req, res) => {
@@ -103,9 +145,13 @@ const list = async (req, res) => {
       query['attributes']['include'] = [
         [
           Sequelize.literal(`(SELECT COUNT(id) FROM public.poll_users WHERE poll_id="Poll"."id" AND user_id=${req.user.id})`),'isVoted'
-        ]
+        ],
+        [
+          Sequelize.literal(`(SELECT COUNT(id) FROM public.groups_participants WHERE group_id="Poll"."group_id")`),'totalParticipants'
+        ],
       ]
       query['where'] = {}
+      query['where']['is_deleted'] = false
       if(req.query.poll_created_by_me){
         query['where']['user_id'] = req.query.poll_created_by_me 
       }
@@ -125,6 +171,7 @@ const list = async (req, res) => {
         query['offset'] = skip
         query['limit'] = pageSize
       }
+      query['distinct'] = true
       query['order'] =[ ['id', 'DESC']]
       const noOfRecord = await ThisModel.findAndCountAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)
@@ -140,17 +187,46 @@ const view = async (req, res) => {
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
-  }
-  records = JSON.parse(JSON.stringify(records))
-  records['total'] = await Model.Group.findByPk(records.group_id,{model:Model.User,attributes:["id","first_name","user_id"],required:true})
-  records['voted'] = await Model.PollUser.findAll({where:{poll_id:req.params.id},model:Model.User,attributes:["id","first_name","user_id"],required:true})
-  let Uids = null
-  for (const vot of records['voted']) {
-    if(vot.User){
-      Uids.push(vot.User[0].id)
+  }else{
+    records = JSON.parse(JSON.stringify(records))
+    records['total'] = await Model.Group.findByPk(records.group_id,{
+      include:[
+        {
+          model:Model.User,
+          attributes:["id","first_name","user_id"],
+          required:true
+        }
+      ]
+    })
+    records['voted'] = await Model.PollUser.findAll({
+      where:{poll_id:req.params.id},
+      include:[
+        {
+          model:Model.User,
+          attributes:["id","first_name","user_id"],
+          required:true,
+        },
+        {
+          model:Model.PollOption,
+          attributes:["id","title"],
+          required:true
+        }
+      ]
+    })
+    let Uids = null
+    for (const vot of records['voted']) {
+      if(vot.User){
+        Uids.push(vot.User[0].id)
+      }
     }
+    records['not_voted'] = await Model.Group.findByPk(records.group_id,{
+      include:[
+        {
+          model:Model.User,attributes:["id","first_name","user_id"],where:{user_id:{[Op.notIn]:[Uids]}},required:true
+        }
+      ]
+    })
   }
-  records['not_voted'] = await Model.Group.findByPk(records.group_id,{model:Model.User,attributes:["id","first_name","user_id"],where:{user_id:{[Op.notIn]:[Uids]}},required:true})
   return await Helper.SuccessValidation(req,res,records)
 }
 

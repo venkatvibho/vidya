@@ -209,6 +209,14 @@ router.get("/ChatRoomParticipant/view/:id",authorization,ChatRoomParticipantCont
 router.delete("/ChatRoomParticipant/delete/:id",authorization,ChatRoomParticipantController.remove)
 router.delete("/ChatRoomParticipant/bulkdelete/:ids",authorization,ChatRoomParticipantController.bulkremove)
 
+const ChatRoomHistoryController          =  require('../controllers/ChatRoomHistory.js')
+router.post("/ChatRoomHistory/create",authorization,ChatRoomHistoryController.create)
+router.get("/ChatRoomHistory/list",authorization,ChatRoomHistoryController.list)
+router.get("/ChatRoomHistory/view/:id",authorization,ChatRoomHistoryController.view)
+router.patch("/ChatRoomHistory/update/:id",authorization,ChatRoomHistoryController.update)
+router.delete("/ChatRoomHistory/delete/:id",authorization,ChatRoomHistoryController.remove)
+router.delete("/ChatRoomHistory/bulkdelete/:ids",authorization,ChatRoomHistoryController.bulkremove)
+
 const MasterRegionController          =  require('../controllers/MasterRegion.js')
 router.post("/MasterRegion/create",authorization,MasterRegionController.create)
 router.get("/MasterRegion/list",authorization,MasterRegionController.list)

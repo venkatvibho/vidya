@@ -13,5 +13,5 @@ const router = require('./routes');
 app.use("/api", router.api);
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 app.listen(port,() => {
-    console.log(`Server is running on http://localhost:${port}/swagger`);
+    console.log(`Server is running on http://${swaggerFile.host}/swagger `);
 });

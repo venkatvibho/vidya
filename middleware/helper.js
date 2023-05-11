@@ -346,6 +346,10 @@ const StringToSingleCOde = async (str)=> {
     return  "'%" + str + "%'";
 }
 
+const GetRoutePath = async (req)=> {
+    return req.route.path
+}
+
 const helper = {};
 helper.SuccessValidation    =   SuccessValidation 
 helper.Sms_Otp_Details      =   Sms_Otp_Details
@@ -369,5 +373,6 @@ helper.Signzy_Api_Uname_Pwd =   Signzy_Api_Uname_Pwd
 helper.GenerateUid          =   GenerateUid
 helper.IncrementSeconds     =   IncrementSeconds
 helper.StringToSingleCOde   =   StringToSingleCOde
+helper.GetRoutePath         =   GetRoutePath
 
 module.exports = helper;

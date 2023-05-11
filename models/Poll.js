@@ -43,6 +43,14 @@ class Poll extends Sequelize.Model {
     start_date: {
       type: DataTypes.DATEONLY,
       allowNull: false
+    },
+    expairy_time: {
+      type: DataTypes.TIME,
+      allowNull: true
+    },
+    start_time: {
+      type: DataTypes.TIME,
+      allowNull: true
     }
   }, {
     sequelize,

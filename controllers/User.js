@@ -179,6 +179,7 @@ const list = async (req, res) => {
         query['offset'] = skip
         query['limit'] = pageSize
       }
+      query['distinct'] = true
       query['order'] =[ ['id', 'DESC']]
       // query['having']= { isHideCount: 0 }
       // query['subQuery']= false

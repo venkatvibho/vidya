@@ -18,7 +18,8 @@ class PollUser extends Sequelize.Model {
       references: {
         model: 'poll_options',
         key: 'id'
-      }
+      },
+      unique: "poll_users_poll_id_user_id_poll_option_id_f01c89bd_uniq"
     },
     poll_id: {
       type: DataTypes.BIGINT,
@@ -26,7 +27,8 @@ class PollUser extends Sequelize.Model {
       references: {
         model: 'polls',
         key: 'id'
-      }
+      },
+      unique: "poll_users_poll_id_user_id_poll_option_id_f01c89bd_uniq"
     },
     user_id: {
       type: DataTypes.BIGINT,
@@ -34,7 +36,8 @@ class PollUser extends Sequelize.Model {
       references: {
         model: 'users',
         key: 'id'
-      }
+      },
+      unique: "poll_users_poll_id_user_id_poll_option_id_f01c89bd_uniq"
     }
   }, {
     sequelize,
@@ -53,6 +56,15 @@ class PollUser extends Sequelize.Model {
         unique: true,
         fields: [
           { name: "id" },
+        ]
+      },
+      {
+        name: "poll_users_poll_id_user_id_poll_option_id_f01c89bd_uniq",
+        unique: true,
+        fields: [
+          { name: "poll_id" },
+          { name: "user_id" },
+          { name: "poll_option_id" },
         ]
       },
       {

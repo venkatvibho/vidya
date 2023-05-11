@@ -22,15 +22,15 @@ const create = async (req, res) => {
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  req.body['user_id'] = req.user.id
-  // await body('first_name').isIn('en-US', {ignore: ' '}).withMessage('Name must be alphabetic.').run(req)
-  let participants = req.body.participants
-  delete req.body.participants
+  await body('participants').isArray({min:1}).withMessage('Min of 1 participant required.').run(req)
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     let firstError = errors.errors.map(error => error.msg)[0];
     return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
   }else{
+    req.body['user_id'] = req.user.id
+    let participants = req.body.participants
+    delete req.body.participants
     return await ThisModel.create(req.body).then(async(doc) => {
       for (const uid of participants) {  
         try{
@@ -84,6 +84,12 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['attributes']= {}
+      query['attributes']['include'] = [
+        [
+          Sequelize.literal(`(SELECT COUNT(id) FROM public.chat_room_history WHERE chatroom_id="ChatRoom"."id" AND is_viewed=false AND user_id!=${req.user.id})`),'unOpened'
+        ]
+      ]
       if(req.query.poll_created_by_me){
         query['where']['user_id'] = req.query.poll_created_by_me 
       }
@@ -103,6 +109,7 @@ const list = async (req, res) => {
         query['offset'] = skip
         query['limit'] = pageSize
       }
+      query['distinct'] = true
       query['order'] =[ ['id', 'DESC']]
       const noOfRecord = await ThisModel.findAndCountAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)

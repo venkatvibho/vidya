@@ -126,7 +126,7 @@ const list = async (req, res) => {
           }
         }
       }
-      console.log(query)
+      query['distinct'] = true
       const noOfRecord = await ThisModel.findAndCountAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)
   } catch (err) {

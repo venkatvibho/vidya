@@ -63,6 +63,7 @@ const create = async (req, res) => {
     }
   */
   if(req.body.type_of_activity){
+    
     await body('type_of_activity').isIn(["Private","Public","Self"]).withMessage('Marital Status must be Private | Public | Self').run(req)
   }
   const errors = validationResult(req);
@@ -204,6 +205,7 @@ const list = async (req, res) => {
         query['offset'] = skip
         query['limit'] = pageSize
       }
+      query['distinct'] = true
       query['order'] =[ ['id', 'ASC']]
       const noOfRecord = await ThisModel.findAndCountAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)

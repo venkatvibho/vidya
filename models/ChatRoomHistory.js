@@ -12,10 +12,6 @@ class ChatRoomHistory extends Sequelize.Model {
       allowNull: false,
       primaryKey: true
     },
-    is_share_or_forwared: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true
-    },
     replied_chat_room_history_id: {
       type: DataTypes.INTEGER,
       allowNull: true
@@ -47,6 +43,10 @@ class ChatRoomHistory extends Sequelize.Model {
     is_viewed: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
+    },
+    send_type: {
+      type: DataTypes.STRING(10),
+      allowNull: false
     }
   }, {
     sequelize,
