@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return ChatRoomHistory.init(sequelize, DataTypes);
+  return GroupChatInvited.init(sequelize, DataTypes);
 }
 
-class ChatRoomHistory extends Sequelize.Model {
+class GroupChatInvited extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   return super.init({
     id: {
@@ -12,27 +12,15 @@ class ChatRoomHistory extends Sequelize.Model {
       allowNull: false,
       primaryKey: true
     },
-    replied_chat_room_history_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    message: {
-      type: DataTypes.TEXT,
+    phonenumber: {
+      type: DataTypes.BIGINT,
       allowNull: false
     },
     is_deleted: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
     },
-    chatroom_id: {
-      type: DataTypes.BIGINT,
-      allowNull: false,
-      references: {
-        model: 'chat_room',
-        key: 'id'
-      }
-    },
-    user_id: {
+    invited_by_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       references: {
@@ -40,33 +28,37 @@ class ChatRoomHistory extends Sequelize.Model {
         key: 'id'
       }
     },
-    send_type: {
-      type: DataTypes.STRING(10),
-      allowNull: false
+    group_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: 'groups',
+        key: 'id'
+      }
     }
   }, {
     sequelize,
-    tableName: 'chat_room_history',
+    tableName: 'group_chat_invited',
     schema: 'public',
-    timestamps: true,
+    timestamps: false,
     indexes: [
       {
-        name: "chat_room_history_chatroom_id_7c29bc51",
+        name: "group_chat_invited_group_id_737debfb",
         fields: [
-          { name: "chatroom_id" },
+          { name: "group_id" },
         ]
       },
       {
-        name: "chat_room_history_pkey",
+        name: "group_chat_invited_invited_by_id_6532af05",
+        fields: [
+          { name: "invited_by_id" },
+        ]
+      },
+      {
+        name: "group_chat_invited_pkey",
         unique: true,
         fields: [
           { name: "id" },
-        ]
-      },
-      {
-        name: "chat_room_history_user_id_4b684bcb",
-        fields: [
-          { name: "user_id" },
         ]
       },
     ]

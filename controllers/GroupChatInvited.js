@@ -3,63 +3,89 @@ const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
 const { body, validationResult } = require('express-validator');
 const Model             =      require("../models");
-const ThisModel         =      Model.PollUser
+const ThisModel         =      Model.GroupChatInvited
 
 const create = async (req, res) => {
-  // #swagger.tags = ['PollUser']
+  // #swagger.tags = ['GroupChatInvited']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["poll_id","poll_option_id"], 
+        "required": ["phonenumber","group_id"], 
         "properties": { 
-          "poll_id": { 
+          "phonenumber": { 
             "type": "number",
-            "type": "Take id from Poll",
           },
-          "poll_option_id": { 
+          "group_id": { 
             "type": "number",
-            "type": "Take id from PollOptions",
-          }
+            "description":"Take from Group"
+          },
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  req.body['is_viewed'] = false
-  req.body['user_id'] = req.user.id
-  return await ThisModel.create(req.body).then(async(doc) => {
-    await Helper.SuccessValidation(req,res,doc,'Added successfully')
-  }).catch( async (err) => {
-    return await Helper.ErrorValidation(req,res,err,'cache')
-  })
+  await body('phonenumber').isLength({min:10,max:10}).withMessage('Phone number should be 10 digits ').run(req)
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    let firstError = errors.errors.map(error => error.msg)[0];
+    return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
+  }else{
+    req.body['is_deleted']    = false
+    req.body['invited_by_id'] = req.user.id
+    return await ThisModel.create(req.body).then(async(doc) => {
+      await Helper.SuccessValidation(req,res,doc,'Added successfully')
+    }).catch( async (err) => {
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    })
+  }
 }
 
 const commonGet = async (req,res,whereInclude) => {
   return [
     {
-      model:Model.Poll,
+      model:Model.User,
+      attributes:["id","first_name","user_id"],
       required:true
     },
     {
-      model:Model.PollOption,
+      model:Model.Activity,
+      include:{
+        model:Model.MasterActivity,
+        attributes:["id","title","icon","is_active"],
+        required:true
+      },
       required:true
     }
   ]
 }
 
 const list = async (req, res) => {
-  // #swagger.tags = ['PollUser']
+  // #swagger.tags = ['GroupChatInvited']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
-  
+  //  #swagger.parameters['is_deleted'] = {in: 'query',type:'boolean'}
+  //  #swagger.parameters['phonenumber'] = {in: 'query',type:'number'}
+  //  #swagger.parameters['group_id'] = {in: 'query',type:'number','description':'Take from Group'}
+  //  #swagger.parameters['invited_by_user_id'] = {in: 'query',type:'number','description':'Take from User'}
 
   try{
       let pageSize = 0;
       let skip = 0;
       let query={}
       query['where'] = {}
-      query['include'] = await commonGet(req, res)
+      if(req.query.is_deleted){
+        query['where']['is_deleted']  = {$eq:req.query.is_deleted}
+      }
+      if(req.query.phonenumber){
+        query['where']['phonenumber']  = {$eq:req.query.phonenumber}
+      }
+      if(req.query.group_id){
+        query['where']['group_id']  = {$eq:req.query.group_id}
+      }
+      if(req.query.invited_by_user_id){
+        query['where']['invited_by_id']  = {$eq:req.query.invited_by_user_id}
+      }
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -78,9 +104,8 @@ const list = async (req, res) => {
 }
 
 const view = async (req, res) => {
-  // #swagger.tags = ['PollUser']
+  // #swagger.tags = ['GroupChatInvited']
   let query={}
-  query['include'] = await commonGet(req, res)
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
@@ -89,16 +114,19 @@ const view = async (req, res) => {
 }
 
 const update = async (req, res) => {
-  // #swagger.tags = ['PollUser']
+  // #swagger.tags = ['GroupChatInvited']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "first_name": { 
+          "title": { 
             "type": "string",
           },
-        }
+          "icon": { 
+            "type": "object",
+          }
+        } 
       } 
     }
   */
@@ -111,7 +139,7 @@ const update = async (req, res) => {
 }
 
 const remove = async (req, res) => {
-  // #swagger.tags = ['PollUser']
+  // #swagger.tags = ['GroupChatInvited']
   try{
     let record = await ThisModel.destroy({where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
@@ -121,8 +149,8 @@ const remove = async (req, res) => {
 }
 
 const bulkremove = async (req, res) => {
-  // #swagger.tags = ['PollUser']
-  // #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
+  // #swagger.tags = ['GroupChatInvited']
+  //  #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
     let theArray = req.params.ids 
     if(!Array.isArray(theArray)){theArray = theArray.split(",");}
     for (let index = 0; index < theArray.length; ++index) {

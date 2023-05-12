@@ -188,6 +188,14 @@ const view = async (req, res) => {
   if(!records){
     records = null
   }else{
+    try{
+      let GroupCheck = await Model.Group.count({where:{user_id:req.user.id,id:records.group_id}})
+      if(GroupCheck>0){
+        await Model.PollViewed.create({poll_id:req.params.id,user_id:req.user.id})
+      }
+    }catch(err){
+      console.log(err)
+    }
     records = JSON.parse(JSON.stringify(records))
     records['total'] = await Model.Group.findByPk(records.group_id,{
       include:[

@@ -38,6 +38,10 @@ class PollUser extends Sequelize.Model {
         key: 'id'
       },
       unique: "poll_users_poll_id_user_id_poll_option_id_f01c89bd_uniq"
+    },
+    is_viewed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
     }
   }, {
     sequelize,

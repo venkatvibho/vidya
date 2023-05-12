@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return ChatRoomHistory.init(sequelize, DataTypes);
+  return ChatRoomInvited.init(sequelize, DataTypes);
 }
 
-class ChatRoomHistory extends Sequelize.Model {
+class ChatRoomInvited extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   return super.init({
     id: {
@@ -12,19 +12,15 @@ class ChatRoomHistory extends Sequelize.Model {
       allowNull: false,
       primaryKey: true
     },
-    replied_chat_room_history_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    message: {
-      type: DataTypes.TEXT,
+    phonenumber: {
+      type: DataTypes.BIGINT,
       allowNull: false
     },
     is_deleted: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
     },
-    chatroom_id: {
+    chat_room_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       references: {
@@ -32,41 +28,37 @@ class ChatRoomHistory extends Sequelize.Model {
         key: 'id'
       }
     },
-    user_id: {
+    invited_by_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       references: {
         model: 'users',
         key: 'id'
       }
-    },
-    send_type: {
-      type: DataTypes.STRING(10),
-      allowNull: false
     }
   }, {
     sequelize,
-    tableName: 'chat_room_history',
+    tableName: 'chat_room_invited',
     schema: 'public',
-    timestamps: true,
+    timestamps: false,
     indexes: [
       {
-        name: "chat_room_history_chatroom_id_7c29bc51",
+        name: "chat_room_invited_group_chat_id_3c385a1f",
         fields: [
-          { name: "chatroom_id" },
+          { name: "chat_room_id" },
         ]
       },
       {
-        name: "chat_room_history_pkey",
+        name: "chat_room_invited_invited_by_id_cad2ed38",
+        fields: [
+          { name: "invited_by_id" },
+        ]
+      },
+      {
+        name: "chat_room_invited_pkey",
         unique: true,
         fields: [
           { name: "id" },
-        ]
-      },
-      {
-        name: "chat_room_history_user_id_4b684bcb",
-        fields: [
-          { name: "user_id" },
         ]
       },
     ]

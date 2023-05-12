@@ -4,11 +4,15 @@ const _ActivityGroup = require("./ActivityGroup");
 const _ActivityUser = require("./ActivityUser");
 const _ChatRoom = require("./ChatRoom");
 const _ChatRoomHistory = require("./ChatRoomHistory");
+const _ChatRoomHistoryViewed = require("./ChatRoomHistoryViewed");
+const _ChatRoomInvited = require("./ChatRoomInvited");
 const _ChatRoomParticipant = require("./ChatRoomParticipant");
 const _ChatroomUserReportReply = require("./ChatroomUserReportReply");
 const _ChatroomUserReport = require("./ChatroomUserReport");
 const _DjangoMigration = require("./DjangoMigration");
 const _GroupChat = require("./GroupChat");
+const _GroupChatInvited = require("./GroupChatInvited");
+const _GroupChatViewed = require("./GroupChatViewed");
 const _GroupChatroomUserReportReply = require("./GroupChatroomUserReportReply");
 const _GroupChatroomUserReport = require("./GroupChatroomUserReport");
 const _Group = require("./Group");
@@ -24,6 +28,7 @@ const _PollOption = require("./PollOption");
 const _PollUserReportReply = require("./PollUserReportReply");
 const _PollUserReport = require("./PollUserReport");
 const _PollUser = require("./PollUser");
+const _PollViewed = require("./PollViewed");
 const _Poll = require("./Poll");
 const _PostCommentReply = require("./PostCommentReply");
 const _PostComment = require("./PostComment");
@@ -46,11 +51,15 @@ function initModels(sequelize) {
   const ActivityUser = _ActivityUser(sequelize, DataTypes);
   const ChatRoom = _ChatRoom(sequelize, DataTypes);
   const ChatRoomHistory = _ChatRoomHistory(sequelize, DataTypes);
+  const ChatRoomHistoryViewed = _ChatRoomHistoryViewed(sequelize, DataTypes);
+  const ChatRoomInvited = _ChatRoomInvited(sequelize, DataTypes);
   const ChatRoomParticipant = _ChatRoomParticipant(sequelize, DataTypes);
   const ChatroomUserReportReply = _ChatroomUserReportReply(sequelize, DataTypes);
   const ChatroomUserReport = _ChatroomUserReport(sequelize, DataTypes);
   const DjangoMigration = _DjangoMigration(sequelize, DataTypes);
   const GroupChat = _GroupChat(sequelize, DataTypes);
+  const GroupChatInvited = _GroupChatInvited(sequelize, DataTypes);
+  const GroupChatViewed = _GroupChatViewed(sequelize, DataTypes);
   const GroupChatroomUserReportReply = _GroupChatroomUserReportReply(sequelize, DataTypes);
   const GroupChatroomUserReport = _GroupChatroomUserReport(sequelize, DataTypes);
   const Group = _Group(sequelize, DataTypes);
@@ -66,6 +75,7 @@ function initModels(sequelize) {
   const PollUserReportReply = _PollUserReportReply(sequelize, DataTypes);
   const PollUserReport = _PollUserReport(sequelize, DataTypes);
   const PollUser = _PollUser(sequelize, DataTypes);
+  const PollViewed = _PollViewed(sequelize, DataTypes);
   const Poll = _Poll(sequelize, DataTypes);
   const PostCommentReply = _PostCommentReply(sequelize, DataTypes);
   const PostComment = _PostComment(sequelize, DataTypes);
@@ -90,12 +100,18 @@ function initModels(sequelize) {
   Activity.hasMany(Post, { foreignKey: "activity_id"});
   ChatRoomHistory.belongsTo(ChatRoom, { foreignKey: "chatroom_id"});
   ChatRoom.hasMany(ChatRoomHistory, { foreignKey: "chatroom_id"});
+  ChatRoomInvited.belongsTo(ChatRoom, { foreignKey: "chat_room_id"});
+  ChatRoom.hasMany(ChatRoomInvited, { foreignKey: "chat_room_id"});
   ChatRoomParticipant.belongsTo(ChatRoom, { foreignKey: "chatroom_id"});
   ChatRoom.hasMany(ChatRoomParticipant, { foreignKey: "chatroom_id"});
   ChatroomUserReport.belongsTo(ChatRoom, { foreignKey: "chatroom_id"});
   ChatRoom.hasMany(ChatroomUserReport, { foreignKey: "chatroom_id"});
+  ChatRoomHistoryViewed.belongsTo(ChatRoomHistory, { foreignKey: "chat_room_history_id"});
+  ChatRoomHistory.hasMany(ChatRoomHistoryViewed, { foreignKey: "chat_room_history_id"});
   ChatroomUserReportReply.belongsTo(ChatroomUserReport, { foreignKey: "chatroomreport_id"});
   ChatroomUserReport.hasMany(ChatroomUserReportReply, { foreignKey: "chatroomreport_id"});
+  GroupChatViewed.belongsTo(GroupChat, { foreignKey: "group_chat_id"});
+  GroupChat.hasMany(GroupChatViewed, { foreignKey: "group_chat_id"});
   GroupChatroomUserReportReply.belongsTo(GroupChatroomUserReport, { foreignKey: "group_chat_report_id"});
   GroupChatroomUserReport.hasMany(GroupChatroomUserReportReply, { foreignKey: "group_chat_report_id"});
   ActivityGroup.belongsTo(Group, { foreignKey: "group_id"});
@@ -104,6 +120,8 @@ function initModels(sequelize) {
   Group.hasMany(ActivityUser, { foreignKey: "group_id"});
   GroupChat.belongsTo(Group, { foreignKey: "group_id"});
   Group.hasMany(GroupChat, { foreignKey: "group_id"});
+  GroupChatInvited.belongsTo(Group, { foreignKey: "group_id"});
+  Group.hasMany(GroupChatInvited, { foreignKey: "group_id"});
   GroupChatroomUserReport.belongsTo(Group, { foreignKey: "group_id"});
   Group.hasMany(GroupChatroomUserReport, { foreignKey: "group_id"});
   GroupsParticipant.belongsTo(Group, { foreignKey: "group_id"});
@@ -134,6 +152,8 @@ function initModels(sequelize) {
   Poll.hasMany(PollOption, { foreignKey: "poll_id"});
   PollUser.belongsTo(Poll, { foreignKey: "poll_id"});
   Poll.hasMany(PollUser, { foreignKey: "poll_id"});
+  PollViewed.belongsTo(Poll, { foreignKey: "poll_id"});
+  Poll.hasMany(PollViewed, { foreignKey: "poll_id"});
   PostCommentReply.belongsTo(PostComment, { foreignKey: "postcomment_id"});
   PostComment.hasMany(PostCommentReply, { foreignKey: "postcomment_id"});
   PostUserReportReply.belongsTo(PostUserReport, { foreignKey: "postuserreport_id"});
@@ -158,10 +178,18 @@ function initModels(sequelize) {
   User.hasMany(ChatRoom, { foreignKey: "user_id"});
   ChatRoomHistory.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(ChatRoomHistory, { foreignKey: "user_id"});
+  ChatRoomHistoryViewed.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(ChatRoomHistoryViewed, { foreignKey: "user_id"});
+  ChatRoomInvited.belongsTo(User, { foreignKey: "invited_by_id"});
+  User.hasMany(ChatRoomInvited, { foreignKey: "invited_by_id"});
   ChatRoomParticipant.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(ChatRoomParticipant, { foreignKey: "user_id"});
   GroupChat.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(GroupChat, { foreignKey: "user_id"});
+  GroupChatInvited.belongsTo(User, { foreignKey: "invited_by_id"});
+  User.hasMany(GroupChatInvited, { foreignKey: "invited_by_id"});
+  GroupChatViewed.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(GroupChatViewed, { foreignKey: "user_id"});
   GroupChatroomUserReport.belongsTo(User, { foreignKey: "reported_user_id"});
   User.hasMany(GroupChatroomUserReport, { foreignKey: "reported_user_id"});
   Group.belongsTo(User, { foreignKey: "user_id"});
@@ -170,6 +198,8 @@ function initModels(sequelize) {
   User.hasMany(GroupsParticipant, { foreignKey: "user_id"});
   PollUser.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(PollUser, { foreignKey: "user_id"});
+  PollViewed.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(PollViewed, { foreignKey: "user_id"});
   Poll.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(Poll, { foreignKey: "user_id"});
   PostCommentReply.belongsTo(User, { foreignKey: "user_id"});
@@ -208,11 +238,15 @@ function initModels(sequelize) {
     ActivityUser,
     ChatRoom,
     ChatRoomHistory,
+    ChatRoomHistoryViewed,
+    ChatRoomInvited,
     ChatRoomParticipant,
     ChatroomUserReportReply,
     ChatroomUserReport,
     DjangoMigration,
     GroupChat,
+    GroupChatInvited,
+    GroupChatViewed,
     GroupChatroomUserReportReply,
     GroupChatroomUserReport,
     Group,
@@ -228,6 +262,7 @@ function initModels(sequelize) {
     PollUserReportReply,
     PollUserReport,
     PollUser,
+    PollViewed,
     Poll,
     PostCommentReply,
     PostComment,

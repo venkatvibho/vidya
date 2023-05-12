@@ -54,7 +54,6 @@ const create = async (req, res) => {
     let firstError = errors.errors.map(error => error.msg)[0];
     return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
   }else{
-    req.body['is_viewed'] = false
     req.body['user_id'] = req.user.id
     req.body['is_deleted'] = false
     return await ThisModel.create(req.body).then(async(doc) => {

@@ -85,6 +85,12 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['attributes']= {}
+      query['attributes']['include'] = [
+        [
+          Sequelize.literal(`(SELECT COUNT(id) FROM public.chat_room_history WHERE chatroom_id="ChatRoom"."id" AND user_id!=${req.user.id})`),'unOpened'
+        ]
+      ]
       let ParticipantReq = false
       let ParticipantWhere = {}
       if(req.query.participant_user_id){
@@ -113,7 +119,7 @@ const list = async (req, res) => {
       }
       query['distinct'] = true
       query['order'] =[ ['id', 'DESC']]
-      const noOfRecord = await ThisModel.findAndCountAll(query)
+      const noOfRecord = await ThisModel.findAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)
   } catch (err) {
     return await Helper.ErrorValidation(req,res,err,'cache')

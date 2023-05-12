@@ -508,6 +508,26 @@ const loginwithotp = async (req, res) => {
     if(records){
       return jwt.sign({user:records}, 'abcdefg', {expiresIn:'10d'}, async (err,token) => {
         if(!err){
+          let CheckGroupCHatInvite = await Model.GroupChatInvited.findOne({where:{phonenumber:req.body.phonenumber,is_deleted:false}})
+          if(CheckGroupCHatInvite){
+            try{
+              await Model.GroupsParticipant.create({group_id:CheckRoomCHatInvite.id,user_id:records.id})
+              CheckGroupCHatInvite.is_deleted=true
+              CheckGroupCHatInvite.save()
+            }catch(err){
+              console.log(err)
+            }
+          }
+          let CheckRoomCHatInvite = await Model.ChatRoomInvited.findOne({where:{phonenumber:req.body.phonenumber,is_deleted:false}})
+          if(CheckRoomCHatInvite){
+            try{
+              await Model.ChatRoomParticipant.create({chatroom_id:CheckRoomCHatInvite.id,user_id:records.id})
+              CheckRoomCHatInvite.is_deleted=true
+              CheckRoomCHatInvite.save()
+            }catch(err){
+              console.log(err)
+            }
+          }
           let refreshToken = randtoken.generate(256)+records.id
           await ThisModel.update({refreshToken:refreshToken,otp:null},{where:{id:records.id}})
           records = {results:records,Token:token,refreshToken:refreshToken}

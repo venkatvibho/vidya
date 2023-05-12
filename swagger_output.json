@@ -3525,6 +3525,97 @@
         }
       }
     },
+    "/GroupChatInvited/create": {
+      "post": {
+        "tags": [
+          "GroupChatInvited"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "phonenumber",
+                "group_id"
+              ],
+              "properties": {
+                "phonenumber": {
+                  "type": "number"
+                },
+                "group_id": {
+                  "type": "number",
+                  "description": "Take from Group"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/GroupChatInvited/list": {
+      "get": {
+        "tags": [
+          "GroupChatInvited"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "is_deleted",
+            "in": "query",
+            "type": "boolean"
+          },
+          {
+            "name": "phonenumber",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "group_id",
+            "in": "query",
+            "type": "number",
+            "description": "Take from Group"
+          },
+          {
+            "name": "invited_by_user_id",
+            "in": "query",
+            "type": "number",
+            "description": "Take from User"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/Poll/create": {
       "post": {
         "tags": [
@@ -4586,6 +4677,96 @@
             "name": "authorization",
             "in": "header",
             "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/ChatRoomInvited/create": {
+      "post": {
+        "tags": [
+          "ChatRoomInvited"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "phonenumber",
+                "chat_room_id"
+              ],
+              "properties": {
+                "phonenumber": {
+                  "type": "number"
+                },
+                "chat_room_id": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/ChatRoomInvited/list": {
+      "get": {
+        "tags": [
+          "ChatRoomInvited"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "is_deleted",
+            "in": "query",
+            "type": "boolean"
+          },
+          {
+            "name": "phonenumber",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "chat_room_id",
+            "in": "query",
+            "type": "number",
+            "description": "Take from ChatRoom"
+          },
+          {
+            "name": "invited_by_user_id",
+            "in": "query",
+            "type": "number",
+            "description": "Take from User"
           }
         ],
         "responses": {

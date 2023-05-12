@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return ChatRoomHistory.init(sequelize, DataTypes);
+  return PollViewed.init(sequelize, DataTypes);
 }
 
-class ChatRoomHistory extends Sequelize.Model {
+class PollViewed extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   return super.init({
     id: {
@@ -12,25 +12,14 @@ class ChatRoomHistory extends Sequelize.Model {
       allowNull: false,
       primaryKey: true
     },
-    replied_chat_room_history_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false
-    },
-    is_deleted: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true
-    },
-    chatroom_id: {
+    poll_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       references: {
-        model: 'chat_room',
+        model: 'polls',
         key: 'id'
-      }
+      },
+      unique: "poll_viewed_poll_id_user_id_9e565596_uniq"
     },
     user_id: {
       type: DataTypes.BIGINT,
@@ -38,33 +27,38 @@ class ChatRoomHistory extends Sequelize.Model {
       references: {
         model: 'users',
         key: 'id'
-      }
-    },
-    send_type: {
-      type: DataTypes.STRING(10),
-      allowNull: false
+      },
+      unique: "poll_viewed_poll_id_user_id_9e565596_uniq"
     }
   }, {
     sequelize,
-    tableName: 'chat_room_history',
+    tableName: 'poll_viewed',
     schema: 'public',
     timestamps: true,
     indexes: [
       {
-        name: "chat_room_history_chatroom_id_7c29bc51",
-        fields: [
-          { name: "chatroom_id" },
-        ]
-      },
-      {
-        name: "chat_room_history_pkey",
+        name: "poll_viewed_pkey",
         unique: true,
         fields: [
           { name: "id" },
         ]
       },
       {
-        name: "chat_room_history_user_id_4b684bcb",
+        name: "poll_viewed_poll_id_cbe927b4",
+        fields: [
+          { name: "poll_id" },
+        ]
+      },
+      {
+        name: "poll_viewed_poll_id_user_id_9e565596_uniq",
+        unique: true,
+        fields: [
+          { name: "poll_id" },
+          { name: "user_id" },
+        ]
+      },
+      {
+        name: "poll_viewed_user_id_f45f3406",
         fields: [
           { name: "user_id" },
         ]

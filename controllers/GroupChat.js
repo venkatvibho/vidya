@@ -21,7 +21,6 @@ const create = async (req, res) => {
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  req.body['is_viewed'] = false
   return await ThisModel.create(req.body).then(async(doc) => {
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {

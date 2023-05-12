@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return ChatRoomHistory.init(sequelize, DataTypes);
+  return GroupChatViewed.init(sequelize, DataTypes);
 }
 
-class ChatRoomHistory extends Sequelize.Model {
+class GroupChatViewed extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   return super.init({
     id: {
@@ -12,25 +12,14 @@ class ChatRoomHistory extends Sequelize.Model {
       allowNull: false,
       primaryKey: true
     },
-    replied_chat_room_history_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false
-    },
-    is_deleted: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true
-    },
-    chatroom_id: {
+    group_chat_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       references: {
-        model: 'chat_room',
+        model: 'group_chat',
         key: 'id'
-      }
+      },
+      unique: "group_chat_viewed_group_chat_id_user_id_3054e193_uniq"
     },
     user_id: {
       type: DataTypes.BIGINT,
@@ -38,33 +27,38 @@ class ChatRoomHistory extends Sequelize.Model {
       references: {
         model: 'users',
         key: 'id'
-      }
-    },
-    send_type: {
-      type: DataTypes.STRING(10),
-      allowNull: false
+      },
+      unique: "group_chat_viewed_group_chat_id_user_id_3054e193_uniq"
     }
   }, {
     sequelize,
-    tableName: 'chat_room_history',
+    tableName: 'group_chat_viewed',
     schema: 'public',
     timestamps: true,
     indexes: [
       {
-        name: "chat_room_history_chatroom_id_7c29bc51",
+        name: "group_chat_viewed_group_chat_id_68e85cda",
         fields: [
-          { name: "chatroom_id" },
+          { name: "group_chat_id" },
         ]
       },
       {
-        name: "chat_room_history_pkey",
+        name: "group_chat_viewed_group_chat_id_user_id_3054e193_uniq",
+        unique: true,
+        fields: [
+          { name: "group_chat_id" },
+          { name: "user_id" },
+        ]
+      },
+      {
+        name: "group_chat_viewed_pkey",
         unique: true,
         fields: [
           { name: "id" },
         ]
       },
       {
-        name: "chat_room_history_user_id_4b684bcb",
+        name: "group_chat_viewed_user_id_8d183eb0",
         fields: [
           { name: "user_id" },
         ]
