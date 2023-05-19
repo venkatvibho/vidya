@@ -128,7 +128,7 @@ const list = async (req, res) => {
   //  #swagger.parameters['language_id'] = {in: 'query',type:'array','description':'Take ids from MasterLanguages'}
   //  #swagger.parameters['region'] = {in: 'query',type:'array'}
   //  #swagger.parameters['interest_id'] = {in: 'query',type:'array','description':'Take ids from MasterInterest'}
-  
+
   try{
       let pageSize = 0;
       let skip = 0;
@@ -696,4 +696,19 @@ const forgotpassword = async (req, res) => {
   }
 }
 
-module.exports = {create,list, view, update, remove, bulkremove, login, resetpassword, CheckUserId, GenerateUserId, forgotpassword, refreshToken, changePassword, loginwithotp};
+const sample = async (req, res) => {
+  const server = app.listen(1010, () => {
+      console.log(`Socket Connected`);
+  });
+
+  const io = socketio(server)
+  io.on('connection', (socket) => {
+      io.emit('chat message', { someProperty:socket.id, otherProperty: 'other value' });
+      socket.on('chat message', (msg) => {
+          console.log("Hi")
+          io.emit('chat message', msg);
+      });
+  });
+}
+
+module.exports = {sample,create,list, view, update, remove, bulkremove, login, resetpassword, CheckUserId, GenerateUserId, forgotpassword, refreshToken, changePassword, loginwithotp};

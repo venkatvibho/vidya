@@ -9,6 +9,7 @@ router.post("/Common/Upload",authorization,upload.single("singleFile"),CommonCon
 router.post("/Common/Indicators",authorization,CommonController.Indicators)
 
 const UserController          =  require('../controllers/User.js')
+// router.post("/sample",UserController.sample)
 router.post("/User/create",UserController.create)
 router.get("/User/list",authorization,UserController.list)
 router.get("/User/view/:id",authorization,UserController.view)
