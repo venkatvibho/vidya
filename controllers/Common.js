@@ -20,13 +20,14 @@ const Upload = async (req, res) => {
   try{
     // req.file['Location'] = req.headers.host+'/'+req.file.path
     // let UpFileData = uploadFile(req.file.path,req.file.originalname)
+    console.log(req.file)
     const s3      = new AWS.S3({ accessKeyId: "AKIAUQJSWLI32GQ45LPG",secretAccessKey: "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"});
     var fs        = require('fs');
     const file    = fs.readFileSync(req.file.path);
     const BUCKET  = 'sociobeats1';
     const uploadParams = {
       Bucket: BUCKET,
-      Key: req.file.originalname,
+      Key: req.file.filename,
       Body: file
     };
     return await s3.upload(uploadParams,async function (err, data) {
@@ -35,6 +36,11 @@ const Upload = async (req, res) => {
       }
       if (data) {
         console.log(data)
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (error) {
+          console.log(error);
+        }
         res.send(JSON.stringify(data))
       }
     });

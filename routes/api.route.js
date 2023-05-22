@@ -1,7 +1,7 @@
 const expres                    =   require('express')
 const router                    =   expres.Router()
 const authorization             =   require('../middleware/authentication')
-const valiDations             =   require('../middleware/valiDations')
+const valiDations               =   require('../middleware/valiDations')
 
 const CommonController          =  require('../controllers/Common.js')
 const upload = require('../middleware/fileUpload')
