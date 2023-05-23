@@ -7,7 +7,6 @@ const swaggerFile   = require('./swagger_output.json')
 const port          = 8000;
 app.use(cors({ origin: '*' }));
 app.use(bodyParser.json({limit: '50mb'}));
-//app.use(bodyParser.urlencoded( { extended : true } ));
 app.use('/uploads',express.static(__dirname + '/uploads'));
 const router = require('./routes');
 app.use("/api", router.api);
@@ -35,7 +34,7 @@ const formatMessage = require("./utils/messages");
 const botName = "ChatCord Bot";
 io.on("connection", (socket) => {
     socket.on("joinRoom", ({ username, room }) => {
-      console.log(socket.id, username, room)
+      // console.log("joinRoom",socket.id, username, room)
       const user = userJoin(socket.id, username, room);
       socket.join(user.room);
 
@@ -51,16 +50,52 @@ io.on("connection", (socket) => {
 
     // Listen for chatMessage
     socket.on("chatMessage", (msg) => {
-      const user = getCurrentUser(socket.id);
-      io.to(user.room).emit("message", formatMessage(user.username, msg));
+      let user = getCurrentUser(socket.id);
+      if(!user){
+        const user = userJoin(socket.id, msg.username, msg.room);
+        socket.join(user.room);
+      }
+      user = getCurrentUser(socket.id);
+      if(user){
+        io.to(user.room).emit("message", formatMessage(user.username, msg));
+      }
+    });
+
+    // Typing for chatMessage
+    socket.on("typing", (msg) => {
+      let user = getCurrentUser(socket.id);
+      // console.log("Typing",user,socket.id,msg,"===========")
+      if(!user){
+        const user = userJoin(socket.id, msg.username, msg.room);
+        socket.join(user.room);
+      }
+      user = getCurrentUser(socket.id);
+      if(user){
+        if(msg==false){
+          socket.broadcast.to(user.room).emit("typing",formatMessage(user.username,msg));
+        }else{
+          socket.broadcast.to(user.room).emit("typing",formatMessage(user.username,msg.status,msg.username));
+        }
+      }
+    });
+
+    // Check room user
+    socket.on("checkRoom", (msg) => {
+      let user = getCurrentUser(socket.id);
+      let st = false
+      if(!user){
+        st = msg
+        const user = userJoin(socket.id, msg.username, msg.room);
+        socket.join(user.room);
+      }
     });
 
     // Runs when client disconnects
     socket.on("disconnect", () => {
       const user = userLeave(socket.id);
+      console.log("Disconnect",user)
       if (user) {
-        io.to(user.room).emit("message",formatMessage(botName, `${user.username} has left the chat`)
-        );
+        io.to(user.room).emit("message",formatMessage(botName, `${user.username} has left the chat`));
         // Send users and room info
         io.to(user.room).emit("roomUsers", {room: user.room,users: getRoomUsers(user.room)});
       }
