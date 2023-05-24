@@ -34,7 +34,6 @@ const create = async (req, res) => {
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  await body('participants').isArray({min:1}).withMessage('Min of 1 participant required.').run(req)
   await body('send_type').isIn(["Sent","Share","Forward","Replay"]).withMessage('Marital Status must be Sent | Share | Forward | Replay').run(req)
   if(req.body.send_type=="Forward" || req.body.send_type=="Replay"){
     await body('replied_chat_room_history_id').notEmpty().withMessage('replied_chat_room_history_id is required').custom(async (value, req) => {
@@ -103,7 +102,7 @@ const list = async (req, res) => {
         query['limit'] = pageSize
       }
       query['distinct'] = true
-      query['order'] =[ ['id', 'DESC']]
+      query['order'] =[ ['id', 'ASC']]
       const noOfRecord = await ThisModel.findAndCountAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)
   } catch (err) {

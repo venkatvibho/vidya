@@ -162,6 +162,14 @@ router.get("/GroupChatInvited/list",authorization,GroupChatInvitedController.lis
 // router.delete("/GroupChatInvited/delete/:id",authorization,GroupChatInvitedController.remove)
 // router.delete("/GroupChatInvited/bulkdelete/:ids",authorization,GroupChatInvitedController.bulkremove)
 
+// const GroupChatController          =  require('../controllers/GroupChat.js')
+// router.post("/GroupChat/create",authorization,GroupChatController.create)
+// router.get("/GroupChat/list",authorization,GroupChatController.list)
+// router.get("/GroupChat/view/:id",authorization,GroupChatController.view)
+// router.patch("/GroupChat/update/:id",authorization,GroupChatController.update)
+// router.delete("/GroupChat/delete/:id",authorization,GroupChatController.remove)
+// router.delete("/GroupChat/bulkdelete/:ids",authorization,GroupChatController.bulkremove)
+
 const PollController          =  require('../controllers/Poll.js')
 router.post("/Poll/create",authorization,PollController.create)
 router.get("/Poll/list",authorization,PollController.list)
