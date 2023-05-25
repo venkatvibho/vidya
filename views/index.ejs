@@ -209,7 +209,10 @@
 	<body>
 		<div class="join-container">
 			<header class="join-header">
-				<h1><i class="fas fa-smile"></i> ChatCord</h1>
+				<h1>
+					<!-- <i class="fas fa-smile"></i>  -->
+					Sample
+				</h1>
 			</header>
 			<main class="join-main">
 				<form action="/samplechat" method="get">
@@ -217,8 +220,8 @@
 						<label for="type">Chat Type</label>
 						<select name="chattype" id="chattype" required onchange="GetRoom(this.value);">
 							<option value="">Select</option>
-							<option value="Group">Group</option>
 							<option value="Individual">Individual</option>
+							<option value="Group">Group</option>
 						</select>
 					</div>
 

@@ -170,16 +170,16 @@ const update = async (req, res) => {
     participants = req.body['participants']
     delete req.body['participants']
   }
-  return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
-    if(req.body.participants){
-      for (const part of participants) {  
-        try{
-          await Model.GroupsParticipant.create({group_id:doc.id,user_id:part})
-        }catch(err){
-          console.log(err)
-        }
+  if(participants){
+    for (const part of participants) {  
+      try{
+        await Model.GroupsParticipant.create({group_id:req.params.id,user_id:part})
+      }catch(err){
+        console.log(err)
       }
     }
+  }
+  return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
     records = await ThisModel.findByPk(req.params.id);
     await Helper.SuccessValidation(req,res,records,'Updated successfully')
   }).catch( async (err) => {

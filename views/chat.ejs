@@ -199,18 +199,33 @@
       display: none;
       }
       }
+      .mine {
+        display:flex !important;
+        flex-direction: column !important;
+        align-items:flex-end !important;
+      }
       </style>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <title>Socio Beats App</title>
   </head>
   <body>
     <div class="chat-container">
       <header class="chat-header">
-        <!-- <h1><i class="fas fa-smile"></i> ChatCord</h1> -->
+        <h1>
+          <!-- <i class="fas fa-smile"></i> -->
+           Sample</h1>
         <a id="leave-btn" class="btn">Leave Room</a>
       </header>
       <main class="chat-main">
         <div class="chat-sidebar">
-          <h3><i class="fas fa-comments"></i> Room Name:</h3>
+          <!-- 
+          <h3>
+            <i class="fas fa-comments"></i> 
+            Room Name:
+          </h3>
+          -->
           <h2 id="room-name"></h2>
           <h3><i class="fas fa-users"></i> Users</h3>
           <ul id="users"></ul>
@@ -261,12 +276,18 @@
     const socket = io('<%= hostlink %>');
 
     // Join chatroom
-    socket.emit('joinRoom', { username, room,chattype });
+    socket.emit('joinRoom', {username,room,chattype,user_id});
 
     // Get room and users
     socket.on('roomUsers', ({ room, users }) => {
       outputRoomName(room);
       outputUsers(users);
+    });
+
+    // Message from server
+    socket.on('refrshRemaining', (message) => {
+      $(".chat-messages").html("");
+      socket.emit('refrshRemaining',{username:username,chatroom_id:chatroom_id,room:room,user_id:user_id,chattype,chattype});
     });
 
     // Message from server
@@ -334,20 +355,73 @@
     // Output message to DOM
     function outputMessage(message) {
         socket.emit("typing", false);
+        console.log(message)
         const div = document.createElement('div');
         div.classList.add('message');
         const p = document.createElement('p');
         p.classList.add('meta');
-        p.innerText = message.username;
-        // p.innerHTML += `<span>${message.time}</span>`;
         div.appendChild(p);
         const para = document.createElement('p');
         para.classList.add('text');
-        console.log(message.text.message)
         if(message.text.message){
           para.innerText = message.text.message;
         }else{
           para.innerText = message.text;
+        }
+        if(message.text.user_id == user_id){
+          div.classList.add('mine');
+          let is_viewed = 'Delivered'
+          if(chattype!="Group"){
+            if(message.text.ChatRoom.ChatRoomParticipants.length==1){
+              if(message.text.ChatRoomHistoryVieweds[0].is_viewed == true){
+                  is_viewed = 'Read'
+              }
+              p.innerHTML += `<span>&nbsp ${is_viewed}</span>`;
+            }else if(message.text.ChatRoom.ChatRoomParticipants.length==0){
+              console.log(message.text.ChatRoom.ChatRoomParticipants.length)
+            }else{
+              p.innerHTML += `<span data-toggle="collapse" data-target="#demo${message.text.id}">&nbsp Info</span>`;
+              let info = '';
+              let Viewd = message.text.ChatRoomHistoryVieweds
+              for (let i = 0; i < Viewd.length; i++) {
+                if(Viewd[i].is_viewed == true){
+                  is_viewed = 'Read'
+                }else{
+                  is_viewed = 'Delivered'
+                }
+                info += Viewd[i].User.first_name +':'+ is_viewed +'<br>'
+              }
+              p.innerHTML += `<div id="demo${message.text.id}" class="collapse">${info}</div>`;
+            }
+          }else{
+            if(message.text.Group.GroupsParticipants.length==1){
+              if(message.text.GroupChatVieweds){
+                if(message.text.GroupChatVieweds[0].is_viewed == true){
+                    is_viewed = 'Read'
+                }else{
+                    is_viewed = 'Delivered'
+                }
+              }
+              p.innerHTML += `<span>&nbsp ${is_viewed}</span>`;
+            }else if(message.text.Group.GroupsParticipants.length==0){
+              console.log(message.text.Group.GroupsParticipants.length)
+            }else{
+              p.innerHTML += `<span data-toggle="collapse" data-target="#demo${message.text.id}">&nbsp Info</span>`;
+              let info = '';
+              let Viewd = message.text.GroupChatVieweds
+              for (let i = 0; i < Viewd.length; i++) {
+                if(Viewd[i].is_viewed == true){
+                  is_viewed = 'Read'
+                }else{
+                  is_viewed = 'Delivered'
+                }
+                info += Viewd[i].User.first_name +':'+ is_viewed +'<br>'
+              }
+              p.innerHTML += `<div id="demo${message.text.id}" class="collapse">${info}</div>`;
+            }
+          }
+        }else{
+          p.innerText = message.username;
         }
         div.appendChild(para);
         document.querySelector('.chat-messages').appendChild(div);
@@ -356,6 +430,7 @@
     // Add room name to DOM
     function outputRoomName(room) {
       roomName.innerText = room;
+      roomName.innerText =''
     }
 
     // Add users to DOM
@@ -379,7 +454,7 @@
     });
 
     function checkRoomUser() {
-      socket.emit('checkRoom',{username:username,room:room,chattype:chattype,status:true});
+      socket.emit('checkRoom',{username:username,room:room,chattype:chattype,user_id:user_id,status:true});
     }
     setInterval(checkRoomUser,2000);
   </script>

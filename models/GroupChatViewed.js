@@ -29,6 +29,10 @@ class GroupChatViewed extends Sequelize.Model {
         key: 'id'
       },
       unique: "group_chat_viewed_group_chat_id_user_id_3054e193_uniq"
+    },
+    is_viewed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
     }
   }, {
     sequelize,

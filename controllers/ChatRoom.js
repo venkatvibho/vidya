@@ -32,6 +32,7 @@ const create = async (req, res) => {
     let participants = req.body.participants
     delete req.body.participants
     return await ThisModel.create(req.body).then(async(doc) => {
+      await Model.ChatRoomParticipant.create({user_id:req.user.id,chatroom_id:doc.id})
       for (const uid of participants) {  
         try{
           await Model.ChatRoomParticipant.create({user_id:uid,chatroom_id:doc.id})

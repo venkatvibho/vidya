@@ -696,19 +696,4 @@ const forgotpassword = async (req, res) => {
   }
 }
 
-const sample = async (req, res) => {
-  const server = app.listen(1010, () => {
-      console.log(`Socket Connected`);
-  });
-
-  const io = socketio(server)
-  io.on('connection', (socket) => {
-      io.emit('chat message', { someProperty:socket.id, otherProperty: 'other value' });
-      socket.on('chat message', (msg) => {
-          console.log("Hi")
-          io.emit('chat message', msg);
-      });
-  });
-}
-
-module.exports = {sample,create,list, view, update, remove, bulkremove, login, resetpassword, CheckUserId, GenerateUserId, forgotpassword, refreshToken, changePassword, loginwithotp};
+module.exports = {create,list, view, update, remove, bulkremove, login, resetpassword, CheckUserId, GenerateUserId, forgotpassword, refreshToken, changePassword, loginwithotp};

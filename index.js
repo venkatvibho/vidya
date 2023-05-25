@@ -50,7 +50,7 @@ app.get('/sample1',async (req, res) => {
     ]
     groups = await GroupModel.findOne(gr_query)
     if(groups){
-      str += '<option value='+groups.User.id+'>'+groups.User.first_name+'</option>'
+      // str += '<option value='+groups.User.id+'>'+groups.User.first_name+'</option>'
       for (let i = 0; i < groups['GroupsParticipants'].length; i++) {
         if(groups.User.id!=groups['GroupsParticipants'][i].User.id){
           str += '<option value='+groups['GroupsParticipants'][i].User.id+'>'+groups['GroupsParticipants'][i].User.first_name+'</option>'
@@ -78,7 +78,7 @@ app.get('/sample1',async (req, res) => {
     ]
     rooms  = await ChatRoomModel.findOne(rm_query)
     if(rooms){
-      str += '<option value='+rooms.User.id+'>'+rooms.User.first_name+'</option>'
+      // str += '<option value='+rooms.User.id+'>'+rooms.User.first_name+'</option>'
       // console.log(rooms,rooms.ChatRoomParticipants.User)
       for (let i = 0; i < rooms.ChatRoomParticipants.length; i++) {
         str += '<option value='+rooms['ChatRoomParticipants'][i].User.id+'>'+rooms['ChatRoomParticipants'][i].User.first_name+'</option>'
@@ -108,16 +108,21 @@ const io = require("socket.io")(server, {
         origin: '*',
     }
 });
-const {userJoin,getCurrentUser,userLeave,getRoomUsers } = require("./utils/users");
+const {userJoin,getCurrentUser,userLeave,getRoomUsers,RoomUsersList,MessagesList } = require("./utils/users");
 const formatMessage = require("./utils/messages");
 const botName = "ChatCord Bot";
 
-let ChatRoomHistoryModel  =      Model.ChatRoomHistory
-let GroupChatModel        =      Model.GroupChat
+let ChatRoomHistoryModel        =      Model.ChatRoomHistory
+let GroupChatModel              =      Model.GroupChat
+let ChatRoomHistoryViewedModel  =      Model.ChatRoomHistoryViewed
+let ChatRoomParticipantModel    =      Model.ChatRoomParticipant
+let GroupsParticipantModel      =      Model.GroupsParticipant
+let GroupChatViewedModel        =      Model.GroupChatViewed
+
 io.on("connection", (socket) => {
-    socket.on("joinRoom", async ({ username, room ,chattype}) => {
+    socket.on("joinRoom", async ({ username, room ,chattype,user_id}) => {
       console.log( username, room ,chattype)
-      const user = userJoin(socket.id, username, room,chattype);
+      const user = userJoin(socket.id, username, room,chattype,user_id);
       socket.join(user.room);
 
       // Welcome current user
@@ -125,45 +130,126 @@ io.on("connection", (socket) => {
 
       let query={}
       query['where'] = {}
+      query['attributes']= {}
+      let chatroom = await room.split('_')
       if(chattype=="Individual"){
-        query['include'] = [
-            {
-              model:Model.User,
-              attributes:["id","first_name","user_id"],
-              required:true
-            }
-        ]
-        let History =  await ChatRoomHistoryModel.findAll(query)
+        query['where']['chatroom_id'] = chatroom[0]
+        try{
+          await ChatRoomHistoryViewedModel.update({is_viewed:true},{where:{is_viewed:false,user_id:user_id}})
+        }catch(err){
+          console.log(err)
+        }
+        let History =  await MessagesList(chattype,query,user_id)
         for (let i = 0; i < History.length; i++) {
-          socket.emit("message", formatMessage(History[i].User.first_name,History[i]));
+          socket.emit("message", formatMessage(History[i].User.first_name,History[i],null,0));
         }
       }else{
-        let History =  await GroupChatModel.findAll(query)
+        query['where']['group_id'] = chatroom[0]
+        try{
+          await GroupChatViewedModel.update({is_viewed:true},{where:{is_viewed:false,user_id:user_id}})
+        }catch(err){
+          console.log(err)
+        }
+        let History = await MessagesList(chattype,query,user_id)
+        // console.log(History)
         for (let i = 0; i < History.length; i++) {
-          socket.emit("message", formatMessage(History[i].User.first_name,History[i]));
+          socket.emit("message", formatMessage(History[i].User.first_name,History[i],null,0));
         }
       }
+
       // Broadcast when a user connects
       // socket.broadcast.to(user.room).emit("message",formatMessage(botName, `${user.username} has joined the chat`));
+      socket.broadcast.to(user.room).emit("refrshRemaining",true)
 
       // Send users and room info
       io.to(user.room).emit("roomUsers", {room: user.room,users: getRoomUsers(user.room)});
+    });
+
+    // Typing for refresh chatMessage
+    socket.on("refrshRemaining", async (udetails) => {
+      let username    = await udetails.username
+      let room = await udetails.room
+      let user_id = await udetails.user_id
+      let chattype = await udetails.chattype
+      let chatroom_id = await udetails.chatroom_id
+      let query={}
+      query['where'] = {}
+      query['attributes']= {}
+      if(chattype=="Individual"){
+        query['where']['chatroom_id'] = chatroom_id
+        try{
+          await ChatRoomHistoryViewedModel.update({is_viewed:true},{where:{is_viewed:false,user_id:user_id}})
+        }catch(err){
+          console.log(err)
+        }
+        let History =  await MessagesList(chattype,query,user_id)
+        for (let i = 0; i < History.length; i++) {
+          socket.emit("message", formatMessage(History[i].User.first_name,History[i],null,0));
+        }
+      }else{
+        query['where']['group_id'] = chatroom_id
+        try{
+          await GroupChatViewedModel.update({is_viewed:true},{where:{is_viewed:false,user_id:user_id}})
+        }catch(err){
+          console.log(err)
+        }
+        let History = await MessagesList(chattype,query,user_id)
+        for (let i = 0; i < History.length; i++) {
+          socket.emit("message", formatMessage(History[i].User.first_name,History[i],null,0));
+        }
+      }
     });
 
     // Listen for chatMessage
     socket.on("chatMessage", async (msg) => {
       // console.log(msg)
       let user = getCurrentUser(socket.id);
-      user = getCurrentUser(socket.id);
       if(user){
-        console.log("###",user)
         let resResp = null
+        let query={}
+        query['where'] = {}
+        query['attributes']= {}
+        let is_viewed = false
+        let AllRoomUsers = await RoomUsersList(user.room)
         if(user.chattype  ==  "Individual"){
           resResp = await ChatRoomHistoryModel.create(msg)
+          let Paricipants = await ChatRoomParticipantModel.findAll({where:{chatroom_id:msg.chatroom_id}},"id user_id")
+          for (let i = 0; i < Paricipants.length; i++){
+            if(user.user_id!=Paricipants[i].user_id){
+              try{
+                if(AllRoomUsers.includes(Paricipants[i].user_id)){ 
+                  is_viewed = true
+                }else{
+                  is_viewed = false 
+                }
+                await ChatRoomHistoryViewedModel.create({is_viewed:is_viewed,chat_room_history_id:resResp.id,user_id:Paricipants[i].user_id})
+              }catch(err){
+                console.log(err)
+              }
+            }
+          }
+          query['where']['id'] = resResp.id
         }else{
           resResp = await GroupChatModel.create(msg)
+          let Paricipants = await GroupsParticipantModel.findAll({where:{group_id:msg.group_id}},"id user_id")
+          for (let i = 0; i < Paricipants.length; i++){
+            if(user.user_id!=Paricipants[i].user_id){
+              try{
+                if(AllRoomUsers.includes(Paricipants[i].user_id)){ 
+                  is_viewed = true
+                }else{
+                  is_viewed = false 
+                }
+                await GroupChatViewedModel.create({is_viewed:is_viewed,group_chat_id:resResp.id,user_id:Paricipants[i].user_id})
+              }catch(err){
+                console.log(err)
+              }
+            }
+          }
+          query['where']['id'] = resResp.id
         }
-        io.to(user.room).emit("message", formatMessage(user.username,resResp));
+        resResp = await MessagesList(user.chattype,query,msg.user_id)
+        io.to(user.room).emit("message", formatMessage(user.username,resResp[0],null,0));
       }
     });
 
@@ -172,9 +258,9 @@ io.on("connection", (socket) => {
       let user = getCurrentUser(socket.id);
       if(user){
         if(msg==false){
-          socket.broadcast.to(user.room).emit("typing",formatMessage(user.username,msg));
+          socket.broadcast.to(user.room).emit("typing",formatMessage(user.username,msg,null,0));
         }else{
-          socket.broadcast.to(user.room).emit("typing",formatMessage(user.username,msg.status,msg.username));
+          socket.broadcast.to(user.room).emit("typing",formatMessage(user.username,msg.status,msg.username,0));
         }
       }
     });
@@ -185,7 +271,7 @@ io.on("connection", (socket) => {
       let st = false
       if(!user){
         st = msg
-        const user = userJoin(socket.id, msg.username, msg.room,msg.chattype);
+        const user = userJoin(socket.id, msg.username,msg.room,msg.chattype,msg.user_id);
         socket.join(user.room);
       }
     });

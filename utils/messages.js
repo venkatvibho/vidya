@@ -1,6 +1,6 @@
 const moment = require('moment');
 
-function formatMessage(username,text,from=null){
+function formatMessage(username,text,from,is_replace){
   // let time = null
   // if(text.createdAt){
   //   time = moment(text.createdAt).format('h:mm a')
@@ -9,6 +9,7 @@ function formatMessage(username,text,from=null){
     username,
     text,
     from,
+    is_replace
     // time: time
   };
 }

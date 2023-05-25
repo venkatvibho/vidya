@@ -29,6 +29,10 @@ class ChatRoomHistoryViewed extends Sequelize.Model {
         key: 'id'
       },
       unique: "chat_room_history_viewed_chat_room_history_id_use_a34ec21f_uniq"
+    },
+    is_viewed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
     }
   }, {
     sequelize,

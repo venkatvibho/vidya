@@ -67,17 +67,29 @@ const commonGet = async (req,res,whereInclude) => {
   return [
     {
       model:Model.User,
-      attributes:["id","first_name","user_id"],
+      attributes:["id","first_name"],
       required:true
     },
     {
-      model:Model.Activity,
+      model:Model.ChatRoom,
+      attributes:["id"],
       include:{
-        model:Model.MasterActivity,
-        attributes:["id","title","icon","is_active"],
+        model:Model.ChatRoomParticipant,
+        where:{user_id:{[Op.ne]:req.user.id}},
         required:true
       },
       required:true
+    },
+    {
+      model:Model.ChatRoomHistoryViewed,
+      attributes:["user_id","is_viewed"],
+      where:{user_id:{[Op.ne]:req.user.id}},
+      include:{
+        model:Model.User,
+        attributes:["id","first_name"],
+        required:true
+      },
+      required:false
     }
   ]
 }
@@ -86,13 +98,15 @@ const list = async (req, res) => {
   // #swagger.tags = ['ChatRoomHistory']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
+  //  #swagger.parameters['chatroom_id'] = {in: 'query',type:'number',required:true}
   
-
   try{
       let pageSize = 0;
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['where']['chatroom_id'] = req.query.chatroom_id
+      query['include'] = await commonGet(req, res,{})
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -101,7 +115,7 @@ const list = async (req, res) => {
         query['offset'] = skip
         query['limit'] = pageSize
       }
-      query['distinct'] = true
+      // query['distinct'] = true
       query['order'] =[ ['id', 'ASC']]
       const noOfRecord = await ThisModel.findAndCountAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)
