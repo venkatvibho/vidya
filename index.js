@@ -19,106 +19,38 @@ app.get('/sample',async (req, res) => {
     let GroupModel     =      Model.Group
     rooms  = await ChatRoomModel.findAll({})
     groups = await GroupModel.findAll({})
-    res.render(__dirname+'/views/index.ejs',{rooms:rooms,groups:groups});
+    res.render(__dirname+'/views/home.ejs',{rooms:rooms,groups:groups});
 });
+const {userJoin,getCurrentUser,userLeave,getRoomUsers,getOptionsList,RoomUsersList,MessagesList } = require("./utils/users");
+const formatMessage = require("./utils/messages");
 app.get('/sample1',async (req, res) => {
-  let type            =     req.query.type
-  let ChatRoomModel   =     Model.ChatRoom
-  let GroupModel      =     Model.Group
-  let chatroom_id     =     req.query.chatroom_id
-  // console.log("###",chatroom_id)
-  let str = '<option value="">Select</option>'
-  if(type=="Group"){
-    let gr_query={}
-    gr_query['where'] = {}
-    gr_query['where']['id'] = chatroom_id
-    gr_query['include'] = [
-      {
-        model:Model.User,
-        attributes:["id","first_name","user_id"],
-        required:true
-      },{
-        model:Model.GroupsParticipant,
-        attributes:["id","user_id"],
-        include:{
-          model:Model.User,
-          attributes:["id","user_id","first_name"],
-          required:true
-        },
-        required:false
-      }
-    ]
-    groups = await GroupModel.findOne(gr_query)
-    if(groups){
-      // str += '<option value='+groups.User.id+'>'+groups.User.first_name+'</option>'
-      for (let i = 0; i < groups['GroupsParticipants'].length; i++) {
-        if(groups.User.id!=groups['GroupsParticipants'][i].User.id){
-          str += '<option value='+groups['GroupsParticipants'][i].User.id+'>'+groups['GroupsParticipants'][i].User.first_name+'</option>'
-        }
-      }
-    }
-  }else{
-    let rm_query={}
-    rm_query['where'] = {}
-    rm_query['where']['id'] = chatroom_id
-    rm_query['include'] = [
-      {
-        model:Model.ChatRoomParticipant,
-        include:{
-          model:Model.User,
-          attributes:["id","first_name","user_id"],
-          required:true
-        },
-        required:true
-      },{
-        model:Model.User,
-        attributes:["id","first_name","user_id"],
-        required:true
-      }
-    ]
-    rooms  = await ChatRoomModel.findOne(rm_query)
-    if(rooms){
-      // str += '<option value='+rooms.User.id+'>'+rooms.User.first_name+'</option>'
-      // console.log(rooms,rooms.ChatRoomParticipants.User)
-      for (let i = 0; i < rooms.ChatRoomParticipants.length; i++) {
-        str += '<option value='+rooms['ChatRoomParticipants'][i].User.id+'>'+rooms['ChatRoomParticipants'][i].User.first_name+'</option>'
-      }
-    }
-  }
-  response = {'data':str}
+  let response = await getOptionsList(req)
   res.send(response);
 });
 app.get('/samplechat',async (req, res) => {
   let UserModel   =     Model.User
   let hostlink = swaggerFile.host
-  // console.log(req.query.user_id)
   let username = await UserModel.findOne({where:{id:req.query.user_id}})
-  res.render(__dirname+'/views/chat.ejs',{data:req.query,hostlink:hostlink,username:username.first_name});
+  res.render(__dirname+'/views/sample.ejs',{data:req.query,hostlink:hostlink,username:username.first_name});
 });
-let Model                 =      require("./models");
 const server = app.listen(port, () => {
     console.log(`Server is running on http://${swaggerFile.host}/swagger`);
 });
-  
 // socket io intregate
-
 const io = require("socket.io")(server, {
     pingTimeout: 60000,
     cors: {
         origin: '*',
     }
 });
-const {userJoin,getCurrentUser,userLeave,getRoomUsers,RoomUsersList,MessagesList } = require("./utils/users");
-const formatMessage = require("./utils/messages");
-const botName = "ChatCord Bot";
-
+let Model                       =      require("./models");
+let botName                     =      "ChatCord Bot";
 let ChatRoomHistoryModel        =      Model.ChatRoomHistory
 let GroupChatModel              =      Model.GroupChat
 let ChatRoomHistoryViewedModel  =      Model.ChatRoomHistoryViewed
 let ChatRoomParticipantModel    =      Model.ChatRoomParticipant
 let GroupsParticipantModel      =      Model.GroupsParticipant
 let GroupChatViewedModel        =      Model.GroupChatViewed
-
 io.on("connection", (socket) => {
     socket.on("joinRoom", async ({ username, room ,chattype,user_id}) => {
       console.log( username, room ,chattype)
@@ -202,7 +134,6 @@ io.on("connection", (socket) => {
 
     // Listen for chatMessage
     socket.on("chatMessage", async (msg) => {
-      // console.log(msg)
       let user = getCurrentUser(socket.id);
       if(user){
         let resResp = null
