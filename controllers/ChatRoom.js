@@ -58,7 +58,7 @@ const commonGet = async (req,res,whereInclude) => {
       where:(poll_created_for_me)?{user_id:poll_created_for_me}:{},
       include:{
         model:Model.User,
-        attributes:["id","first_name","user_id"],
+        attributes:["id","first_name","user_id","photo_1"],
         required:true
       },
       required:true
