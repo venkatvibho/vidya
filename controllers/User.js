@@ -571,7 +571,7 @@ const loginwithotp = async (req, res) => {
           let CheckGroupCHatInvite = await Model.GroupChatInvited.findOne({where:{phonenumber:req.body.phonenumber,is_deleted:false}})
           if(CheckGroupCHatInvite){
             try{
-              await Model.GroupsParticipant.create({group_id:CheckRoomCHatInvite.id,user_id:records.id})
+              await Model.GroupsParticipant.create({group_id:CheckRoomCHatInvite.group_id,user_id:records.id})
               CheckGroupCHatInvite.is_deleted=true
               CheckGroupCHatInvite.save()
             }catch(err){
@@ -581,7 +581,7 @@ const loginwithotp = async (req, res) => {
           let CheckRoomCHatInvite = await Model.ChatRoomInvited.findOne({where:{phonenumber:req.body.phonenumber,is_deleted:false}})
           if(CheckRoomCHatInvite){
             try{
-              await Model.ChatRoomParticipant.create({chatroom_id:CheckRoomCHatInvite.id,user_id:records.id})
+              await Model.ChatRoomParticipant.create({chatroom_id:CheckRoomCHatInvite.chat_room_id,user_id:records.id})
               CheckRoomCHatInvite.is_deleted=true
               CheckRoomCHatInvite.save()
             }catch(err){

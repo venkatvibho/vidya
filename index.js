@@ -53,6 +53,7 @@ let GroupsParticipantModel      =      Model.GroupsParticipant
 let GroupChatViewedModel        =      Model.GroupChatViewed
 io.on("connection", (socket) => {
     socket.on("joinRoom", async ({ username, room ,chattype,user_id}) => {
+      console.log("#######refrshRemaining",username)
       console.log( username, room ,chattype)
       const user = userJoin(socket.id, username, room,chattype,user_id);
       socket.join(user.room);

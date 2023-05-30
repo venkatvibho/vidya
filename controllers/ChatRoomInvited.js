@@ -33,6 +33,16 @@ const create = async (req, res) => {
     req.body['is_deleted']    = false
     req.body['invited_by_id'] = req.user.id
     return await ThisModel.create(req.body).then(async(doc) => {
+      let CheckRoomCHatInvite = await Model.ChatRoomInvited.findOne({where:{phonenumber:req.body.phonenumber,is_deleted:false}})
+      if(CheckRoomCHatInvite){
+        try{
+          await Model.ChatRoomParticipant.create({chatroom_id:CheckRoomCHatInvite.chat_room_id,user_id:req.user.id})
+          CheckRoomCHatInvite.is_deleted=true
+          CheckRoomCHatInvite.save()
+        }catch(err){
+          console.log(err)
+        }
+      }
       await Helper.SuccessValidation(req,res,doc,'Added successfully')
     }).catch( async (err) => {
       return await Helper.ErrorValidation(req,res,err,'cache')

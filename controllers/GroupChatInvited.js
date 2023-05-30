@@ -34,6 +34,16 @@ const create = async (req, res) => {
     req.body['is_deleted']    = false
     req.body['invited_by_id'] = req.user.id
     return await ThisModel.create(req.body).then(async(doc) => {
+      let CheckGroupCHatInvite = await Model.GroupChatInvited.findOne({where:{phonenumber:req.body.phonenumber,is_deleted:false}})
+      if(CheckGroupCHatInvite){
+        try{
+          await Model.GroupsParticipant.create({group_id:CheckRoomCHatInvite.group_id,user_id:req.user.id})
+          CheckGroupCHatInvite.is_deleted=true
+          CheckGroupCHatInvite.save()
+        }catch(err){
+          console.log(err)
+        }
+      }
       await Helper.SuccessValidation(req,res,doc,'Added successfully')
     }).catch( async (err) => {
       return await Helper.ErrorValidation(req,res,err,'cache')
