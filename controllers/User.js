@@ -35,6 +35,7 @@ const create = async (req, res) => {
   }else{
     req.body['user_id'] = await Helper.GenerateUid(req,res)
     req.body['password'] = 'test123'
+    req.body['status'] = 'Active'
     req.body['otp_at'] = await Helper.IncrementSeconds()
     // const opts = { runValidators: false , upsert: true };
     return await ThisModel.create(req.body).then(async(doc) => {
@@ -312,6 +313,11 @@ const update = async (req, res) => {
             "enum":["Single","Married","Divorced"],
             "default":"Single"
           },
+          "status": { 
+            "type": "string",
+            "enum":["Single","Married","Divorced"],
+            "default":"Single"
+          },
           "about_us": { 
             "type": "string"
           },
@@ -400,10 +406,50 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   // #swagger.tags = ['User']
   try{
-    let record = await ThisModel.destroy({where:{id:req.params.id}})
-    return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
+    let record = await ThisModel.update({status:'Deleted'},{where:{id:req.params.id}})
+    return await Helper.SuccessValidation(req,res,record,"Account Deleted successfully")
   } catch (err) {
     return await Helper.ErrorValidation(req,res,err,'cache')
+  }
+}
+
+const logout = async (req, res) => {
+  // #swagger.tags = ['User']
+  try{
+    let record = await ThisModel.update({status:'Logout'},{where:{id:req.params.id}})
+    return await Helper.SuccessValidation(req,res,{message:"Logout successfully"},[])
+  } catch (err) {
+    return await Helper.ErrorValidation(req,res,err,'cache')
+  }
+}
+
+const hibernate = async (req, res) => {
+  // #swagger.tags = ['User']
+  /*
+    #swagger.parameters['body'] = {
+      in: 'body', 
+      '@schema': { 
+        "required": ["content"], 
+        "properties": { 
+          "content": { 
+            "type": "string",
+          }
+        } 
+      } 
+    }
+  */
+  await body('content').notEmpty().withMessage('content is required').run(req)
+  const errors = validationResult(req);
+  if (!errors.isEmpty()){
+    let firstError = errors.errors.map(error => error.msg)[0];
+    return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
+  }else{
+    try{
+      let record = await ThisModel.update({status:'Hibernate',hibernate_content:req.body.content},{where:{id:req.params.id}})
+      return await Helper.SuccessValidation(req,res,{message:"Updated successfully"},[])
+    } catch (err) {
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    }
   }
 }
 
@@ -438,46 +484,51 @@ const login = async (req, res) => {
   try{
     let records = await ThisModel.findOne({where:{phonenumber:req.body.phonenumber}});
     if(records){
-      if(is_with_otp == false || is_with_otp == "false"){
-        let PwdStatus = true
-        if(req.body.password && req.body.password!=null){
-          PwdStatus = await bcrypt.compare(req.body.password, records.password);
-        }
-        if(PwdStatus){
-          return jwt.sign({user:records}, 'abcdefg', {expiresIn:'10d'}, async (err,token) => {
-            if(!err){
-              let refreshToken = randtoken.generate(256)+records.id
-              await ThisModel.update({refreshToken:refreshToken},{where:{id:records.id}})
-              records = {results:records,Token:token,refreshToken:refreshToken}
-              await Helper.SuccessValidation(req,res,records)
-            }else{
-              return await Helper.ErrorValidation(req,res,err,'cache')
-            }
-          });
+      let is_deleted = await (records.status=="Deleted")?true:false
+      if(is_deleted == false){
+        if(is_with_otp == false || is_with_otp == "false"){
+          let PwdStatus = true
+          if(req.body.password && req.body.password!=null){
+            PwdStatus = await bcrypt.compare(req.body.password, records.password);
+          }
+          if(PwdStatus){
+            return jwt.sign({user:records}, 'abcdefg', {expiresIn:'10d'}, async (err,token) => {
+              if(!err){
+                let refreshToken = randtoken.generate(256)+records.id
+                await ThisModel.update({refreshToken:refreshToken},{where:{id:records.id}})
+                records = {results:records,Token:token,refreshToken:refreshToken}
+                await Helper.SuccessValidation(req,res,records)
+              }else{
+                return await Helper.ErrorValidation(req,res,err,'cache')
+              }
+            });
+          }else{
+            return await Helper.ErrorValidation(req,res,{message:"Invalid password"},'cache')
+          }
         }else{
-          return await Helper.ErrorValidation(req,res,{message:"Invalid password"},'cache')
+          let IsValid = 10
+          if(["/User/resendotp"].includes(req.route.path)){
+            let DateCheck= await Helper.CurrentDate()
+            console.log(DateCheck)
+            IsValid = await ThisModel.count({where:{id:records.id,otp_at:{[Op.lte]:DateCheck}}})
+          }
+          if(IsValid>0){
+            let otp      = await Helper.Otp(req,res)
+            let otp_at   = await Helper.IncrementSeconds()
+            await ThisModel.update({otp:otp,otp_at:otp_at},{where:{id:records.id}})
+            let msg = ""
+            await Helper.Sms_Otp_Details(req,res,msg,req.body.phonenumber)
+            let query = {}
+            query['attributes'] = {}
+            query['attributes']['exclude'] = await commonExclude()
+            records = await ThisModel.findByPk(records.id,query);
+            await Helper.SuccessValidation(req,res,records,"Please login with otp")
+          }else{
+            return await Helper.ErrorValidation(req,res,{message:"Wait and try after 1 minute"},'cache')
+          }
         }
       }else{
-        let IsValid = 10
-        if(["/User/resendotp"].includes(req.route.path)){
-          let DateCheck= await Helper.CurrentDate()
-          console.log(DateCheck)
-          IsValid = await ThisModel.count({where:{id:records.id,otp_at:{[Op.lte]:DateCheck}}})
-        }
-        if(IsValid>0){
-          let otp      = await Helper.Otp(req,res)
-          let otp_at   = await Helper.IncrementSeconds()
-          await ThisModel.update({otp:otp,otp_at:otp_at},{where:{id:records.id}})
-          let msg = ""
-          await Helper.Sms_Otp_Details(req,res,msg,req.body.phonenumber)
-          let query = {}
-          query['attributes'] = {}
-          query['attributes']['exclude'] = await commonExclude()
-          records = await ThisModel.findByPk(records.id,query);
-          await Helper.SuccessValidation(req,res,records,"Please login with otp")
-        }else{
-          return await Helper.ErrorValidation(req,res,{message:"Wait and try after 1 minute"},'cache')
-        }
+        return await Helper.ErrorValidation(req,res,{message:"Invalid credentials"},'cache')
       }
     }else{
       return await Helper.ErrorValidation(req,res,{message:"Invalid phonemumber"},'cache')
@@ -498,6 +549,9 @@ const loginwithotp = async (req, res) => {
         "properties": { 
           "phonenumber": { 
             "type": "number",
+          },
+          "device_id": { 
+            "type": "string",
           }
         } 
       } 
@@ -506,7 +560,13 @@ const loginwithotp = async (req, res) => {
   try{
     let records = await ThisModel.findOne({where:{phonenumber:req.body.phonenumber,otp:req.query.otp}});
     if(records){
-      return jwt.sign({user:records}, 'abcdefg', {expiresIn:'10d'}, async (err,token) => {
+      let device_id = null
+      if(req.body.device_id){
+        device_id = req.body.device_id
+        let UserLoginHistoryModel = await Model.UserLoginHistory
+        await UserLoginHistoryModel.create({user_id:records.id,device_id:device_id})
+      }
+      return jwt.sign({user:records,device_id:device_id}, 'abcdefg', {expiresIn:'10d'}, async (err,token) => {
         if(!err){
           let CheckGroupCHatInvite = await Model.GroupChatInvited.findOne({where:{phonenumber:req.body.phonenumber,is_deleted:false}})
           if(CheckGroupCHatInvite){
@@ -696,4 +756,4 @@ const forgotpassword = async (req, res) => {
   }
 }
 
-module.exports = {create,list, view, update, remove, bulkremove, login, resetpassword, CheckUserId, GenerateUserId, forgotpassword, refreshToken, changePassword, loginwithotp};
+module.exports = {create,list, view, update, remove, bulkremove, login, resetpassword, CheckUserId, GenerateUserId, forgotpassword, refreshToken, changePassword, loginwithotp, hibernate, logout};

@@ -11,12 +11,16 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["type_of_activity","location","latitude","longitude","start_date","start_time","end_date","end_time","description","activity_id","group_id"], 
+        "required": ["type_of_badge","type_of_activity","location","latitude","longitude","start_date","start_time","end_date","end_time","description","activity_id"], 
         "properties": {
           "type_of_activity": { 
             "type": "string",
             "enum":["Private","Public","Self"],
             "default":"Private"
+          },
+          "type_of_badge": { 
+            "type": "string",
+            "enum":['General','Honour']
           },
           "location": { 
             "type": "string",
@@ -63,8 +67,10 @@ const create = async (req, res) => {
     }
   */
   if(req.body.type_of_activity){
-    
     await body('type_of_activity').isIn(["Private","Public","Self"]).withMessage('Marital Status must be Private | Public | Self').run(req)
+    if(req.body.type_of_activity == "Private"){
+      await body('group_id').notEmpty().withMessage('group_id is required').run(req)
+    }
   }
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -237,6 +243,10 @@ const update = async (req, res) => {
             "enum":["Private","Public","Self"],
             "default":"Private"
           },
+          "type_of_badge": { 
+            "type": "string",
+            "enum":['General','Honour']
+          },
           "location": { 
             "type": "string",
           },
@@ -283,6 +293,9 @@ const update = async (req, res) => {
   */
   if(req.body.type_of_activity){
     await body('type_of_activity').isIn(["Private","Public","Self"]).withMessage('Marital Status must be Private | Public | Self').run(req)
+    if(req.body.type_of_activity == "Private"){
+      await body('group_id').notEmpty().withMessage('group_id is required').run(req)
+    }
   }
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

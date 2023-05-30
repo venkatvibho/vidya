@@ -43,6 +43,10 @@ class GroupChat extends Sequelize.Model {
     send_type: {
       type: DataTypes.STRING(10),
       allowNull: false
+    },
+    is_image: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
     }
   }, {
     sequelize,

@@ -20,7 +20,9 @@ router.post("/User/loginwithotp",UserController.loginwithotp)
 router.get("/User/refreshToken/:refreshToken",UserController.refreshToken)
 router.get("/User/CheckUserId/:user_id",authorization,UserController.CheckUserId)
 router.get("/User/GenerateUserId",authorization,UserController.GenerateUserId)
-// router.delete("/User/delete/:id",UserController.remove)
+router.get("/User/logout/:id",authorization,UserController.logout)
+router.delete("/User/delete/:id",authorization,UserController.remove)
+router.post("/User/hibernate/:id",authorization,UserController.hibernate)
 // router.delete("/User/bulkdelete/:ids",UserController.bulkremove)
 // router.get("/User/forgotpassword/:email", UserController.forgotpassword)
 // router.patch("/User/resetpassword/:id/:resetPawordToken",UserController.resetpassword)
@@ -297,5 +299,8 @@ router.get("/MasterBeatQuestion/view/:id",authorization,MasterBeatQuestionContro
 router.patch("/MasterBeatQuestion/update/:id",authorization,MasterBeatQuestionController.update)
 router.delete("/MasterBeatQuestion/delete/:id",authorization,MasterBeatQuestionController.remove)
 router.delete("/MasterBeatQuestion/bulkdelete/:ids",authorization,MasterBeatQuestionController.bulkremove)
+
+const SettingsController          =  require('../controllers/Settings.js')
+router.post("/Settings/helpsupport",authorization,SettingsController.helpsupport)
 
 module.exports = router

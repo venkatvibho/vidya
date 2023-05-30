@@ -63,6 +63,10 @@ class Activity extends Sequelize.Model {
         model: 'users',
         key: 'id'
       }
+    },
+    type_of_badge: {
+      type: DataTypes.STRING(15),
+      allowNull: false
     }
   }, {
     sequelize,

@@ -40,6 +40,8 @@ const _SlambookBeatQuestion = require("./SlambookBeatQuestion");
 const _SlambookBeat = require("./SlambookBeat");
 const _UserFollowing = require("./UserFollowing");
 const _UserInterest = require("./UserInterest");
+const _UserLoginHistory = require("./UserLoginHistory");
+const _UserNotificationSetting = require("./UserNotificationSetting");
 const _UserReportReply = require("./UserReportReply");
 const _UserReport = require("./UserReport");
 const _User = require("./User");
@@ -87,6 +89,8 @@ function initModels(sequelize) {
   const SlambookBeat = _SlambookBeat(sequelize, DataTypes);
   const UserFollowing = _UserFollowing(sequelize, DataTypes);
   const UserInterest = _UserInterest(sequelize, DataTypes);
+  const UserLoginHistory = _UserLoginHistory(sequelize, DataTypes);
+  const UserNotificationSetting = _UserNotificationSetting(sequelize, DataTypes);
   const UserReportReply = _UserReportReply(sequelize, DataTypes);
   const UserReport = _UserReport(sequelize, DataTypes);
   const User = _User(sequelize, DataTypes);
@@ -216,6 +220,10 @@ function initModels(sequelize) {
   User.hasMany(UserFollowing, { foreignKey: "user_to_id"});
   UserInterest.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(UserInterest, { foreignKey: "user_id"});
+  UserLoginHistory.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(UserLoginHistory, { foreignKey: "user_id"});
+  UserNotificationSetting.belongsTo(User, { foreignKey: "user_id"});
+  User.hasOne(UserNotificationSetting, { foreignKey: "user_id"});
   UserReportReply.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(UserReportReply, { foreignKey: "user_id"});
   UserReport.belongsTo(User, { foreignKey: "from_user_id"});
@@ -274,6 +282,8 @@ function initModels(sequelize) {
     SlambookBeat,
     UserFollowing,
     UserInterest,
+    UserLoginHistory,
+    UserNotificationSetting,
     UserReportReply,
     UserReport,
     User,

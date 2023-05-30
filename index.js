@@ -99,6 +99,7 @@ io.on("connection", (socket) => {
 
     // Typing for refresh chatMessage
     socket.on("refrshRemaining", async (udetails) => {
+      console.log("#######refrshRemaining",udetails)
       let username    = await udetails.username
       let room = await udetails.room
       let user_id = await udetails.user_id
@@ -134,6 +135,14 @@ io.on("connection", (socket) => {
 
     // Listen for chatMessage
     socket.on("chatMessage", async (msg) => {
+      console.log("#######chatMessage",msg)
+      try{
+        if(!msg.is_image){
+          msg['is_image'] = false
+        }
+      }catch(err){
+        msg['is_image'] = false
+      }
       let user = getCurrentUser(socket.id);
       if(user){
         let resResp = null

@@ -141,6 +141,10 @@ class User extends Sequelize.Model {
         model: 'master_professions',
         key: 'id'
       }
+    },
+    hibernate_content: {
+      type: DataTypes.TEXT,
+      allowNull: true
     }
   }, {
     sequelize,
