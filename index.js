@@ -218,7 +218,7 @@ io.on("connection", (socket) => {
     });
 
     // Runs when client disconnects
-    socket.on("disconnect", () => {
+    socket.on("RemoveUser", () => {
       const user = userLeave(socket.id);
       console.log("Disconnect",user)
       if (user) {

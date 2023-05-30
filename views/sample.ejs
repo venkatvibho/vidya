@@ -452,7 +452,8 @@
       //   window.location = '<%= hostlink %>/sample';
       // } else {
       // }
-      window.location = 'http://<%= hostlink %>/sample';
+      // window.location = 'http://<%= hostlink %>/sample';
+      socket.emit('RemoveUser',{})
     });
 
     function checkRoomUser() {
