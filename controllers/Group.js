@@ -59,6 +59,7 @@ const commonGet = async (req,res,whereInclude) => {
       model:Model.GroupsParticipant,
       as:"Groups_Participant",
       attributes:["id","user_id"],
+      where : (whereInclude)?whereInclude.ParticipantWhere:{},
       required:(whereInclude)?whereInclude.ParticipantReq:false
     },
     {
@@ -66,8 +67,6 @@ const commonGet = async (req,res,whereInclude) => {
       include:{
         model:Model.User,
         attributes:["id","user_id","first_name","phonenumber","photo_1"],
-        where : (whereInclude)?whereInclude.ParticipantWhere:{},
-        required:(whereInclude)?whereInclude.ParticipantReq:false
       },
       required:(whereInclude)?whereInclude.ParticipantReq:false
     },
@@ -115,7 +114,6 @@ const list = async (req, res) => {
       if(req.query.created_by_user_id){
         query['where']['user_id'] = req.query.created_by_user_id
       }
-      console.log(query)
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -124,8 +122,9 @@ const list = async (req, res) => {
         query['offset'] = skip
         query['limit'] = pageSize
       }
-      query['distinct'] = true
+      // query['distinct'] = true
       query['order'] =[ ['id', 'DESC']]
+      // console.log(query)
       const noOfRecord = await ThisModel.findAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)
   } catch (err) {
