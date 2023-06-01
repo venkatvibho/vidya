@@ -3,8 +3,21 @@ const users = [];
 // Join user to chat
 function userJoin(id, username, room ,chattype,user_id) {
   const user = { id, username, room ,chattype,user_id};
+  // try{
+  //   users = userLeaveBasedOnUid(user_id,room)
+  // }catch(err){
+  //   // console.log("#### Remove User",err)
+  // }
   users.push(user);
   return user;
+}
+
+// User leaves chat
+function userLeaveBasedOnUid(user_id,room) {
+  const index = users.findIndex(user => user.user_id === user_id && user.room === room);
+  if (index !== -1) {
+    return users.splice(index, 1)[0];
+  }
 }
 
 // Get current user
