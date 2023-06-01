@@ -5,7 +5,7 @@ const authenticationToken = (req, res , next) => {
         const Token = req.headers.authorization.replace("Bearer ","");
         if(typeof Token !=='undefined'){
             jwt.verify(Token, 'abcdefg' ,(err, user) => {
-                console.log("####TOKEN####",user)
+                // console.log("####TOKEN####",user)
                 if(!err){
                     if(user.user){
                         req.user = user.user;

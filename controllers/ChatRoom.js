@@ -59,7 +59,13 @@ const commonGet = async (req,res,whereInclude) => {
   return [
     {
       model:Model.ChatRoomParticipant,
+      as:"ChatRoom_Participant",
       where:(poll_created_for_me)?{user_id:poll_created_for_me}:{},
+      attributes:["id","user_id"],
+      required:true
+    },
+    {
+      model:Model.ChatRoomParticipant,
       include:{
         model:Model.User,
         attributes:["id","first_name","user_id","photo_1"],

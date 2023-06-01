@@ -57,6 +57,12 @@ const commonGet = async (req,res,whereInclude) => {
   return [
     {
       model:Model.GroupsParticipant,
+      as:"Groups_Participant",
+      attributes:["id","user_id"],
+      required:(whereInclude)?whereInclude.ParticipantReq:false
+    },
+    {
+      model:Model.GroupsParticipant,
       include:{
         model:Model.User,
         attributes:["id","user_id","first_name","phonenumber","photo_1"],
