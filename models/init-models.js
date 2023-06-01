@@ -106,6 +106,8 @@ function initModels(sequelize) {
   Activity.hasMany(Post, { foreignKey: "activity_id"});
   ChatRoomHistory.belongsTo(ChatRoom, { foreignKey: "chatroom_id"});
   ChatRoom.hasMany(ChatRoomHistory, { foreignKey: "chatroom_id"});
+  ChatRoomHistoryViewed.belongsTo(ChatRoom, { foreignKey: "chatroom_id"});
+  ChatRoom.hasMany(ChatRoomHistoryViewed, { foreignKey: "chatroom_id"});
   ChatRoomInvited.belongsTo(ChatRoom, { foreignKey: "chat_room_id"});
   ChatRoom.hasMany(ChatRoomInvited, { foreignKey: "chat_room_id"});
   ChatRoomParticipant.belongsTo(ChatRoom, { foreignKey: "chatroom_id"});

@@ -163,7 +163,7 @@ io.on("connection", (socket) => {
                 }else{
                   is_viewed = false 
                 }
-                await ChatRoomHistoryViewedModel.create({is_viewed:is_viewed,chat_room_history_id:resResp.id,user_id:Paricipants[i].user_id})
+                await ChatRoomHistoryViewedModel.create({is_viewed:is_viewed,chatroom_id:msg.chatroom_id,chat_room_history_id:resResp.id,user_id:Paricipants[i].user_id})
               }catch(err){
                 console.log(err)
               }

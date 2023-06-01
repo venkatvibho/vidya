@@ -92,7 +92,7 @@ const list = async (req, res) => {
       query['attributes']= {}
       query['attributes']['include'] = [
         [
-          Sequelize.literal(`(SELECT COUNT(id) FROM public.chat_room_history WHERE is_viewed=false AND chatroom_id="ChatRoom"."id" AND user_id!=${req.user.id})`),'unOpened'
+          Sequelize.literal(`(SELECT COUNT(id) FROM public.chat_room_history_viewed WHERE is_viewed=false AND chatroom_id="ChatRoom"."id" AND user_id!=${req.user.id})`),'unOpened'
         ]
       ]
       if(req.query.poll_created_by_me){

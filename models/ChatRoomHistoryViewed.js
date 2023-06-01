@@ -33,6 +33,14 @@ class ChatRoomHistoryViewed extends Sequelize.Model {
     is_viewed: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
+    },
+    chatroom_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: 'chat_room',
+        key: 'id'
+      }
     }
   }, {
     sequelize,
@@ -52,6 +60,12 @@ class ChatRoomHistoryViewed extends Sequelize.Model {
         fields: [
           { name: "chat_room_history_id" },
           { name: "user_id" },
+        ]
+      },
+      {
+        name: "chat_room_history_viewed_chatroom_id_caebef23",
+        fields: [
+          { name: "chatroom_id" },
         ]
       },
       {
