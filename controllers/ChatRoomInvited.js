@@ -14,7 +14,8 @@ const create = async (req, res) => {
         "required": ["phonenumber","chat_room_id"], 
         "properties": { 
           "phonenumber": { 
-            "type": "number",
+            "type": "array",
+            "description":"Array format"
           },
           "chat_room_id": { 
             "type": "number",
@@ -24,29 +25,44 @@ const create = async (req, res) => {
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  await body('phonenumber').isLength({min:10,max:10}).withMessage('Phone number should be 10 digits ').run(req)
+  await body('phonenumber').isArray({min:1}).withMessage('Minimum 1 number required').run(req)
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     let firstError = errors.errors.map(error => error.msg)[0];
     return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
   }else{
-    req.body['is_deleted']    = false
-    req.body['invited_by_id'] = req.user.id
-    return await ThisModel.create(req.body).then(async(doc) => {
-      let CheckRoomCHatInvite = await Model.ChatRoomInvited.findOne({where:{phonenumber:req.body.phonenumber,is_deleted:false}})
-      if(CheckRoomCHatInvite){
+    let qallobj = []
+    let phonenos = await req.body.phonenumber
+    for (let i = 0; i < phonenos.length; i++) {
+      let phone = await phonenos[i]
+      let BodyParams = {}
+      BodyParams['is_deleted']    = false
+      BodyParams['invited_by_id'] = req.user.id
+      BodyParams['phonenumber'] = phone
+      BodyParams['chat_room_id'] = req.body.chat_room_id
+      let Where  = {}
+      Where['where'] = BodyParams
+      let checkAlready = await ThisModel.count(Where)
+      if(checkAlready==0){
         try{
-          await Model.ChatRoomParticipant.create({chatroom_id:CheckRoomCHatInvite.chat_room_id,user_id:req.user.id})
-          CheckRoomCHatInvite.is_deleted=true
-          CheckRoomCHatInvite.save()
+          let doc = await ThisModel.create(BodyParams)
+          let CheckRoomCHatInvite = await Model.User.findOne({where:{phonenumber:req.body.phonenumber}})
+          if(CheckRoomCHatInvite){
+            try{
+              await Model.ChatRoomParticipant.create({chatroom_id:doc.chat_room_id,user_id:CheckRoomCHatInvite.id})
+              CheckRoomCHatInvite.is_deleted=true
+              CheckRoomCHatInvite.save()
+            }catch(err){
+              console.log(err)
+            }
+          }
+          if(doc){  qallobj.push(doc) }
         }catch(err){
           console.log(err)
         }
       }
-      await Helper.SuccessValidation(req,res,doc,'Added successfully')
-    }).catch( async (err) => {
-      return await Helper.ErrorValidation(req,res,err,'cache')
-    })
+    }
+    return await Helper.SuccessValidation(req,res,qallobj,'Added successfully')
   }
 }
 

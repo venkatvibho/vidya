@@ -1916,6 +1916,7 @@
               "slambook",
               "following",
               "followers",
+              "addparticipant",
               "--"
             ]
           },
@@ -3617,6 +3618,42 @@
         }
       }
     },
+    "/Group/{medialinksid}": {
+      "get": {
+        "tags": [
+          "Group"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "medialinksid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/Group/delete/{id}": {
       "delete": {
         "tags": [
@@ -3692,10 +3729,12 @@
               ],
               "properties": {
                 "group_id": {
-                  "type": "Take id from Group"
+                  "type": "string",
+                  "description": "Take id from Group"
                 },
                 "user_id": {
-                  "type": "Take id from User"
+                  "type": "string",
+                  "description": "Take id from User"
                 }
               }
             }
@@ -3788,10 +3827,12 @@
             "schema": {
               "properties": {
                 "group_id": {
-                  "type": "Take id from Group"
+                  "type": "string",
+                  "description": "Take id from Group"
                 },
                 "user_id": {
-                  "type": "Take id from User"
+                  "type": "string",
+                  "description": "Take id from User"
                 }
               }
             }
@@ -3879,7 +3920,8 @@
               ],
               "properties": {
                 "phonenumber": {
-                  "type": "number"
+                  "type": "array",
+                  "description": "Array format"
                 },
                 "group_id": {
                   "type": "number",
@@ -4002,6 +4044,11 @@
           },
           {
             "name": "page",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "group_id",
             "in": "query",
             "type": "number"
           }
@@ -5017,9 +5064,6 @@
             "name": "body",
             "in": "body",
             "schema": {
-              "required": [
-                "participants"
-              ],
               "properties": {
                 "participants": {
                   "type": "array",
@@ -5184,7 +5228,8 @@
               ],
               "properties": {
                 "phonenumber": {
-                  "type": "number"
+                  "type": "array",
+                  "description": "Array format"
                 },
                 "chat_room_id": {
                   "type": "number"
@@ -5442,7 +5487,7 @@
                   "deascription": "Take id from ChatRoomHistoryList"
                 },
                 "send_type": {
-                  "type": "array",
+                  "type": "string",
                   "enum": [
                     "Sent",
                     "Share",
@@ -6964,6 +7009,355 @@
       "delete": {
         "tags": [
           "MasterBeatQuestion"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "path",
+            "required": true,
+            "type": "array",
+            "description": "Enter multiple ids"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserPrivacySetting/create": {
+      "post": {
+        "tags": [
+          "UserPrivacySetting"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "tag": {
+                  "type": "string",
+                  "enum": [
+                    "Allow from anyone",
+                    "People you follow",
+                    "No one"
+                  ]
+                },
+                "connect": {
+                  "type": "string",
+                  "enum": [
+                    "Allow from anyone",
+                    "People with same belief",
+                    "Age group",
+                    "No one"
+                  ]
+                },
+                "profile_lock": {
+                  "type": "string",
+                  "enum": [
+                    "Yes",
+                    "No"
+                  ]
+                },
+                "block_user": {
+                  "type": "string",
+                  "enum": [
+                    "Yes",
+                    "No"
+                  ]
+                },
+                "message": {
+                  "type": "string",
+                  "enum": [
+                    "Allow from anyone",
+                    "No one"
+                  ]
+                },
+                "group_request": {
+                  "type": "string",
+                  "enum": [
+                    "People you follow",
+                    "No one"
+                  ]
+                },
+                "schedules": {
+                  "type": "string",
+                  "enum": [
+                    "Allow from anyone",
+                    "People you follow",
+                    "No one"
+                  ]
+                },
+                "location": {
+                  "type": "string",
+                  "enum": [
+                    "Yes",
+                    "No"
+                  ]
+                },
+                "post_comments": {
+                  "type": "string",
+                  "enum": [
+                    "Allow from anyone",
+                    "People you follow",
+                    "No one"
+                  ]
+                },
+                "reaction_pref": {
+                  "type": "string",
+                  "enum": [
+                    "Yes",
+                    "No"
+                  ]
+                },
+                "profile_info": {
+                  "type": "string",
+                  "enum": [
+                    "Yes",
+                    "No"
+                  ]
+                },
+                "review_taggings": {
+                  "type": "string",
+                  "enum": [
+                    "Yes",
+                    "No"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserPrivacySetting/list": {
+      "get": {
+        "tags": [
+          "UserPrivacySetting"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserPrivacySetting/view/{id}": {
+      "get": {
+        "tags": [
+          "UserPrivacySetting"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserPrivacySetting/update/{id}": {
+      "patch": {
+        "tags": [
+          "UserPrivacySetting"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "tag": {
+                  "type": "string",
+                  "enum": [
+                    "Allow from anyone",
+                    "People you follow",
+                    "No one"
+                  ]
+                },
+                "connect": {
+                  "type": "string",
+                  "enum": [
+                    "Allow from anyone",
+                    "People with same belief",
+                    "Age group",
+                    "No one"
+                  ]
+                },
+                "profile_lock": {
+                  "type": "string",
+                  "enum": [
+                    "Yes",
+                    "No"
+                  ]
+                },
+                "block_user": {
+                  "type": "string",
+                  "enum": [
+                    "Yes",
+                    "No"
+                  ]
+                },
+                "message": {
+                  "type": "string",
+                  "enum": [
+                    "Allow from anyone",
+                    "No one"
+                  ]
+                },
+                "group_request": {
+                  "type": "string",
+                  "enum": [
+                    "People you follow",
+                    "No one"
+                  ]
+                },
+                "schedules": {
+                  "type": "string",
+                  "enum": [
+                    "Allow from anyone",
+                    "People you follow",
+                    "No one"
+                  ]
+                },
+                "location": {
+                  "type": "string",
+                  "enum": [
+                    "Yes",
+                    "No"
+                  ]
+                },
+                "post_comments": {
+                  "type": "string",
+                  "enum": [
+                    "Allow from anyone",
+                    "People you follow",
+                    "No one"
+                  ]
+                },
+                "reaction_pref": {
+                  "type": "string",
+                  "enum": [
+                    "Yes",
+                    "No"
+                  ]
+                },
+                "profile_info": {
+                  "type": "string",
+                  "enum": [
+                    "Yes",
+                    "No"
+                  ]
+                },
+                "review_taggings": {
+                  "type": "string",
+                  "enum": [
+                    "Yes",
+                    "No"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserPrivacySetting/delete/{id}": {
+      "delete": {
+        "tags": [
+          "UserPrivacySetting"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserPrivacySetting/bulkdelete/{ids}": {
+      "delete": {
+        "tags": [
+          "UserPrivacySetting"
         ],
         "description": "",
         "parameters": [

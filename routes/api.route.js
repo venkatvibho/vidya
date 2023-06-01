@@ -153,6 +153,7 @@ router.post("/Group/create",authorization,GroupController.create)
 router.get("/Group/list",authorization,GroupController.list)
 router.get("/Group/view/:id",authorization,GroupController.view)
 router.patch("/Group/update/:id",authorization,GroupController.update)
+router.get("/Group/medialinks:id",authorization,GroupController.medialinks)
 router.delete("/Group/delete/:id",authorization,GroupController.remove)
 router.delete("/Group/bulkdelete/:ids",authorization,GroupController.bulkremove)
 
@@ -307,6 +308,14 @@ router.get("/MasterBeatQuestion/view/:id",authorization,MasterBeatQuestionContro
 router.patch("/MasterBeatQuestion/update/:id",authorization,MasterBeatQuestionController.update)
 router.delete("/MasterBeatQuestion/delete/:id",authorization,MasterBeatQuestionController.remove)
 router.delete("/MasterBeatQuestion/bulkdelete/:ids",authorization,MasterBeatQuestionController.bulkremove)
+
+const UserPrivacySettingController          =  require('../controllers/UserPrivacySetting.js')
+router.post("/UserPrivacySetting/create",authorization,UserPrivacySettingController.create)
+router.get("/UserPrivacySetting/list",authorization,UserPrivacySettingController.list)
+router.get("/UserPrivacySetting/view/:id",authorization,UserPrivacySettingController.view)
+router.patch("/UserPrivacySetting/update/:id",authorization,UserPrivacySettingController.update)
+router.delete("/UserPrivacySetting/delete/:id",authorization,UserPrivacySettingController.remove)
+router.delete("/UserPrivacySetting/bulkdelete/:ids",authorization,UserPrivacySettingController.bulkremove)
 
 const SettingsController          =  require('../controllers/Settings.js')
 router.post("/Settings/helpsupport",authorization,SettingsController.helpsupport)

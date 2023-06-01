@@ -33,6 +33,14 @@ class GroupChatViewed extends Sequelize.Model {
     is_viewed: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
+    },
+    group_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: 'groups',
+        key: 'id'
+      }
     }
   }, {
     sequelize,
@@ -52,6 +60,12 @@ class GroupChatViewed extends Sequelize.Model {
         fields: [
           { name: "group_chat_id" },
           { name: "user_id" },
+        ]
+      },
+      {
+        name: "group_chat_viewed_group_id_d658874d",
+        fields: [
+          { name: "group_id" },
         ]
       },
       {

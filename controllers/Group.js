@@ -59,14 +59,15 @@ const commonGet = async (req,res,whereInclude) => {
       model:Model.GroupsParticipant,
       include:{
         model:Model.User,
-        attributes:["id","user_id","first_name","phonenumber"],
+        attributes:["id","user_id","first_name","phonenumber","photo_1"],
         where : (whereInclude)?whereInclude.ParticipantWhere:{},
         required:(whereInclude)?whereInclude.ParticipantReq:false
       },
       required:(whereInclude)?whereInclude.ParticipantReq:false
-    },{
-      Model:Model.GroupChat,
-      as:Group_Chat,
+    },
+    {
+      model:Model.GroupChat,
+      as:"Group_Chat",
       order: [ ['id', 'desc'] ],
       required:false
     }
@@ -88,7 +89,7 @@ const list = async (req, res) => {
       query['attributes']= {}
       query['attributes']['include'] = [
         [
-          Sequelize.literal(`(SELECT COUNT(id) FROM public.chat_room_history WHERE chatroom_id="ChatRoom"."id" AND user_id!=${req.user.id})`),'unOpened'
+          Sequelize.literal(`(SELECT COUNT(id) FROM public.group_chat_viewed WHERE is_viewed=false AND group_id="Group"."id" AND user_id=${req.user.id})`),'unOpened'
         ]
       ]
       let ParticipantReq = false
@@ -121,6 +122,43 @@ const list = async (req, res) => {
       query['order'] =[ ['id', 'DESC']]
       const noOfRecord = await ThisModel.findAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)
+  } catch (err) {
+    return await Helper.ErrorValidation(req,res,err,'cache')
+  }
+}
+
+const medialinks = async (req, res) => {
+  // #swagger.tags = ['Group']
+  //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
+  //  #swagger.parameters['page'] = {in: 'query',type:'number'}
+
+  let GroupChatModel         =      Model.GroupChat
+  try{
+    let pageSize = 0;
+    let skip = 0;
+    let query={}
+    query['where'] = {}
+    query['where']['is_image'] = true
+    aquery['attributes'] = ['id', 'user_id','message','send_type']
+    if(req.query.page && req.query.page_size){
+    if (req.query.page >= 0 && req.query.page_size > 0) {
+    pageSize = req.query.page_size;
+    skip = req.query.page * req.query.page_size;
+    }
+    query['offset'] = skip
+    query['limit'] = pageSize
+    }
+    query['include']= [
+      {
+        model:Model.User,
+        attributes:["id","user_id","first_name","phonenumber","photo_1"],
+        required:true
+      }
+    ]
+    // query['distinct'] = true
+    query['order'] =[ ['id', 'ASC']]
+    const noOfRecord = await GroupChatModel.findAndCountAll(query)
+    return await Helper.SuccessValidation(req,res,noOfRecord)
   } catch (err) {
     return await Helper.ErrorValidation(req,res,err,'cache')
   }
@@ -210,4 +248,4 @@ const bulkremove = async (req, res) => {
 }
 
 
-module.exports = {create,list, view, update, remove, bulkremove};
+module.exports = {create,list, view, update, remove, bulkremove, medialinks};

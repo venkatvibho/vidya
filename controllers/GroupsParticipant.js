@@ -14,10 +14,12 @@ const create = async (req, res) => {
         "required": ["group_id","user_id"], 
         "properties": { 
           "group_id": { 
-            "type": "Take id from Group",
+            "type":"string",
+            "description": "Take id from Group",
           },
           "user_id": { 
-            "type": "Take id from User",
+            "type":"string",
+            "description": "Take id from User",
           }
         }
       } 
@@ -89,10 +91,12 @@ const update = async (req, res) => {
       '@schema': { 
         "properties": { 
           "group_id": { 
-            "type": "Take id from Group",
+            "type":"string",
+            "description": "Take id from Group",
           },
           "user_id": { 
-            "type": "Take id from User",
+            "type":"string",
+            "description": "Take id from User",
           }
         }
       } 

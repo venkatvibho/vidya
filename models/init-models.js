@@ -42,6 +42,7 @@ const _UserFollowing = require("./UserFollowing");
 const _UserInterest = require("./UserInterest");
 const _UserLoginHistory = require("./UserLoginHistory");
 const _UserNotificationSetting = require("./UserNotificationSetting");
+const _UserPrivacySetting = require("./UserPrivacySetting");
 const _UserReportReply = require("./UserReportReply");
 const _UserReport = require("./UserReport");
 const _User = require("./User");
@@ -91,6 +92,7 @@ function initModels(sequelize) {
   const UserInterest = _UserInterest(sequelize, DataTypes);
   const UserLoginHistory = _UserLoginHistory(sequelize, DataTypes);
   const UserNotificationSetting = _UserNotificationSetting(sequelize, DataTypes);
+  const UserPrivacySetting = _UserPrivacySetting(sequelize, DataTypes);
   const UserReportReply = _UserReportReply(sequelize, DataTypes);
   const UserReport = _UserReport(sequelize, DataTypes);
   const User = _User(sequelize, DataTypes);
@@ -126,6 +128,8 @@ function initModels(sequelize) {
   Group.hasMany(GroupChat, { foreignKey: "group_id"});
   GroupChatInvited.belongsTo(Group, { foreignKey: "group_id"});
   Group.hasMany(GroupChatInvited, { foreignKey: "group_id"});
+  GroupChatViewed.belongsTo(Group, { foreignKey: "group_id"});
+  Group.hasMany(GroupChatViewed, { foreignKey: "group_id"});
   GroupChatroomUserReport.belongsTo(Group, { foreignKey: "group_id"});
   Group.hasMany(GroupChatroomUserReport, { foreignKey: "group_id"});
   GroupsParticipant.belongsTo(Group, { foreignKey: "group_id"});
@@ -224,6 +228,8 @@ function initModels(sequelize) {
   User.hasMany(UserLoginHistory, { foreignKey: "user_id"});
   UserNotificationSetting.belongsTo(User, { foreignKey: "user_id"});
   User.hasOne(UserNotificationSetting, { foreignKey: "user_id"});
+  UserPrivacySetting.belongsTo(User, { foreignKey: "user_id"});
+  User.hasOne(UserPrivacySetting, { foreignKey: "user_id"});
   UserReportReply.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(UserReportReply, { foreignKey: "user_id"});
   UserReport.belongsTo(User, { foreignKey: "from_user_id"});
@@ -284,6 +290,7 @@ function initModels(sequelize) {
     UserInterest,
     UserLoginHistory,
     UserNotificationSetting,
+    UserPrivacySetting,
     UserReportReply,
     UserReport,
     User,

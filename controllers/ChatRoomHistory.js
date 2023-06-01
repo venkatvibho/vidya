@@ -26,7 +26,7 @@ const create = async (req, res) => {
             "deascription":"Take id from ChatRoomHistoryList"
           },
           "send_type": { 
-            "type": "array",
+            "type": "string",
             "enum":["Sent","Share","Forward","Replay"]
           }
         } 

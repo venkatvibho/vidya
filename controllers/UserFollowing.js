@@ -54,13 +54,13 @@ const commonGet = async (req,res,whereInclude) => {
     {
       model:Model.User,
       as: "FollowingFrom",
-      attributes:["id","first_name","user_id"],
+      attributes:["id","first_name","user_id","photo_1"],
       required:true
     },
     {
       model:Model.User,
       foreignKey: 'user_to_id',
-      attributes:["id","first_name","user_id"],
+      attributes:["id","first_name","user_id","photo_1"],
       required:true
     }
   ]
@@ -69,7 +69,7 @@ const commonGet = async (req,res,whereInclude) => {
 
 const list = async (req, res) => {
   //  #swagger.tags = ['UserFollowing']
-  //  #swagger.parameters['is_screen_for'] = {in: 'query',type:'string','enum':["notifications","slambook","following","followers","--"]}
+  //  #swagger.parameters['is_screen_for'] = {in: 'query',type:'string','enum':["notifications","slambook","following","followers","addparticipant","--"]}
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   //  #swagger.parameters['followed_by_me'] = {in: 'query',type:'number',"description":"Select id From Users"}
@@ -81,11 +81,19 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      let addparticipant = false
       if(req.query.followed_by_me){
         query['where']['user_from_id'] = req.query.followed_by_me
       }
       if(req.query.followed_to_me){
         query['where']['user_to_id'] = req.query.followed_to_me
+      }
+      if(req.query.is_screen_for=="addparticipant"){
+        if(req.user){
+          delete query['where']['user_from_id']
+          delete query['where']['user_to_id'] 
+          query['where']['user_from_id'] = {[Op.or]:[{user_from_id: req.user.id},{user_to_id: req.user.id}]}
+        }
       }
       let UserFollowingOrder = null
       let UserFollwerOrder   = null

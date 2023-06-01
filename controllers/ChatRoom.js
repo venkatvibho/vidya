@@ -11,7 +11,6 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["participants"], 
         "properties": { 
           "participants": { 
             "type": "array",
@@ -22,22 +21,27 @@ const create = async (req, res) => {
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  await body('participants').isArray({min:1}).withMessage('Min of 1 participant required.').run(req)
+  // await body('participants').isArray({min:1}).withMessage('Min of 1 participant required.').run(req)
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     let firstError = errors.errors.map(error => error.msg)[0];
     return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
   }else{
     req.body['user_id'] = req.user.id
-    let participants = req.body.participants
-    delete req.body.participants
+    let participants = []
+    if(req.body.participants){
+      participants = req.body.participants
+      delete req.body.participants
+    }
     return await ThisModel.create(req.body).then(async(doc) => {
       await Model.ChatRoomParticipant.create({user_id:req.user.id,chatroom_id:doc.id})
-      for (const uid of participants) {  
-        try{
-          await Model.ChatRoomParticipant.create({user_id:uid,chatroom_id:doc.id})
-        }catch(err){
-          console.log(err)
+      if(participants){
+        for (const uid of participants) {  
+          try{
+            await Model.ChatRoomParticipant.create({user_id:uid,chatroom_id:doc.id})
+          }catch(err){
+            console.log(err)
+          }
         }
       }
       await Helper.SuccessValidation(req,res,doc,'Added successfully')
@@ -88,7 +92,7 @@ const list = async (req, res) => {
       query['attributes']= {}
       query['attributes']['include'] = [
         [
-          Sequelize.literal(`(SELECT COUNT(id) FROM public.chat_room_history WHERE chatroom_id="ChatRoom"."id" AND user_id!=${req.user.id})`),'unOpened'
+          Sequelize.literal(`(SELECT COUNT(id) FROM public.chat_room_history WHERE is_viewed=false AND chatroom_id="ChatRoom"."id" AND user_id!=${req.user.id})`),'unOpened'
         ]
       ]
       if(req.query.poll_created_by_me){
@@ -111,7 +115,7 @@ const list = async (req, res) => {
         query['limit'] = pageSize
       }
       query['distinct'] = true
-      query['order'] =[ ['id', 'DESC']]
+      query['order'] =[ ['id', 'ASC']]
       const noOfRecord = await ThisModel.findAndCountAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)
   } catch (err) {

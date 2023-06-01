@@ -29,20 +29,32 @@ const create = async (req, res) => {
 }
 
 const commonGet = async (req,res,whereInclude) => {
-  return [
+  return  [
     {
       model:Model.User,
-      attributes:["id","first_name","user_id","photo_1"],
+      attributes:["id","first_name","photo_1"],
       required:true
     },
     {
-      model:Model.Activity,
+      model:Model.Group,
+      attributes:["id","title"],
       include:{
-        model:Model.MasterActivity,
-        attributes:["id","title","icon","is_active"],
-        required:true
+        model:Model.GroupsParticipant,
+        where:{user_id:{[Op.ne]:req.user.id}},
+        required:false
       },
       required:true
+    },
+    {
+      model:Model.GroupChatViewed,
+      attributes:["user_id","is_viewed"],
+      where:{user_id:{[Op.ne]:req.user.id}},
+      include:{
+        model:Model.User,
+        attributes:["id","first_name"],
+        required:false
+      },
+      required:false
     }
   ]
 }
@@ -51,13 +63,22 @@ const list = async (req, res) => {
   // #swagger.tags = ['GroupChat']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
+  //  #swagger.parameters['group_id'] = {in: 'query',type:'number'}
   
-
   try{
       let pageSize = 0;
       let skip = 0;
       let query={}
       query['where'] = {}
+      if(req.query.group_id){
+        query['where']['group_id']  = req.query.group_id
+      }
+      query['attributes']= {}
+      // query['attributes']['include'] = [
+      //   [
+      //       Sequelize.literal(`(SELECT COUNT(id) FROM public.group_chat_viewed WHERE is_viewed=false AND group_chat_id="GroupChatViewed"."id" AND user_id=${req.user.id})`),'unOpened'
+      //   ]
+      // ]
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -66,8 +87,9 @@ const list = async (req, res) => {
         query['offset'] = skip
         query['limit'] = pageSize
       }
-      query['distinct'] = true
-      query['order'] =[ ['id', 'DESC']]
+      query['include'] = await commonGet(req, res,{query:query})
+      // query['distinct'] = true
+      query['order'] =[ ['id', 'ASC']]
       const noOfRecord = await ThisModel.findAndCountAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)
   } catch (err) {

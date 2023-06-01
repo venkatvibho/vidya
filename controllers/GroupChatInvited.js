@@ -14,7 +14,8 @@ const create = async (req, res) => {
         "required": ["phonenumber","group_id"], 
         "properties": { 
           "phonenumber": { 
-            "type": "number",
+            "type": "array",
+            "description":"Array format"
           },
           "group_id": { 
             "type": "number",
@@ -25,29 +26,44 @@ const create = async (req, res) => {
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  await body('phonenumber').isLength({min:10,max:10}).withMessage('Phone number should be 10 digits ').run(req)
+  await body('phonenumber').isArray({min:1}).withMessage('Minimum 1 number required').run(req)
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     let firstError = errors.errors.map(error => error.msg)[0];
     return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
   }else{
-    req.body['is_deleted']    = false
-    req.body['invited_by_id'] = req.user.id
-    return await ThisModel.create(req.body).then(async(doc) => {
-      let CheckGroupCHatInvite = await Model.GroupChatInvited.findOne({where:{phonenumber:req.body.phonenumber,is_deleted:false}})
-      if(CheckGroupCHatInvite){
+    let qallobj = []
+    let phonenos = await req.body.phonenumber
+    for (let i = 0; i < phonenos.length; i++) {
+      let phone = await phonenos[i]
+      let BodyParams = {}
+      BodyParams['is_deleted']    = false
+      BodyParams['invited_by_id'] = req.user.id
+      BodyParams['phonenumber'] = phone
+      BodyParams['group_id'] = req.body.group_id
+      let Where  = {}
+      Where['where'] = BodyParams
+      let checkAlready = await ThisModel.count(Where)
+      if(checkAlready==0){
         try{
-          await Model.GroupsParticipant.create({group_id:CheckRoomCHatInvite.group_id,user_id:req.user.id})
-          CheckGroupCHatInvite.is_deleted=true
-          CheckGroupCHatInvite.save()
+          let doc = await ThisModel.create(BodyParams)
+          let CheckGroupCHatInvite = await Model.User.findOne({where:{phonenumber:phone}})
+          if(CheckGroupCHatInvite){
+            try{
+              await Model.GroupsParticipant.create({group_id:doc.group_id,user_id:CheckGroupCHatInvite.id})
+              CheckGroupCHatInvite.is_deleted=true
+              CheckGroupCHatInvite.save()
+            }catch(err){
+              console.log(err)
+            }
+          }
+          if(doc){  qallobj.push(doc) }
         }catch(err){
           console.log(err)
         }
       }
-      await Helper.SuccessValidation(req,res,doc,'Added successfully')
-    }).catch( async (err) => {
-      return await Helper.ErrorValidation(req,res,err,'cache')
-    })
+    }
+    return await Helper.SuccessValidation(req,res,qallobj,'Added successfully')
   }
 }
 

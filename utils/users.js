@@ -123,7 +123,7 @@ const MessagesList = async (chattype,query,user_id)=> {
     query['include'] = [
         {
           model:Model.User,
-          attributes:["id","first_name"],
+          attributes:["id","first_name","photo_1"],
           required:true
         },
         {

@@ -181,7 +181,7 @@ io.on("connection", (socket) => {
                 }else{
                   is_viewed = false 
                 }
-                await GroupChatViewedModel.create({is_viewed:is_viewed,group_chat_id:resResp.id,user_id:Paricipants[i].user_id})
+                await GroupChatViewedModel.create({is_viewed:is_viewed,group_id:msg.group_id,group_chat_id:resResp.id,user_id:Paricipants[i].user_id})
               }catch(err){
                 console.log(err)
               }
