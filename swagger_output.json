@@ -583,6 +583,176 @@
         }
       }
     },
+    "/UserGiftsReward/home": {
+      "get": {
+        "tags": [
+          "UserGiftsReward"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserGiftsReward/create": {
+      "post": {
+        "tags": [
+          "UserGiftsReward"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "totalpoints"
+              ],
+              "properties": {
+                "totalpoints": {
+                  "type": "number"
+                },
+                "coupon_type": {
+                  "type": "string",
+                  "enum": [
+                    "Flipcart",
+                    "Myntra"
+                  ]
+                },
+                "coupon_code": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserGiftsReward/list": {
+      "get": {
+        "tags": [
+          "UserGiftsReward"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserGiftsReward/view/{id}": {
+      "get": {
+        "tags": [
+          "UserGiftsReward"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/UserGiftsReward/update/{id}": {
+      "patch": {
+        "tags": [
+          "UserGiftsReward"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "totalpoints": {
+                  "type": "number"
+                },
+                "coupon_type": {
+                  "type": "string",
+                  "enum": [
+                    "Flipcart",
+                    "Myntra"
+                  ]
+                },
+                "coupon_code": {
+                  "type": "string"
+                },
+                "isRedeemed": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/UserNotificationSetting/create": {
       "post": {
         "tags": [
@@ -7358,6 +7528,263 @@
       "delete": {
         "tags": [
           "UserPrivacySetting"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "path",
+            "required": true,
+            "type": "array",
+            "description": "Enter multiple ids"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterGiftsReward/create": {
+      "post": {
+        "tags": [
+          "MasterGiftsReward"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "users_count_from",
+                "users_count_to",
+                "r1_gift_value",
+                "r1_users_count",
+                "r2_gift_value",
+                "r2_users_count",
+                "r3_gift_value",
+                "r3_users_count",
+                "r4_gift_value",
+                "r4_users_count",
+                "r5_gift_value",
+                "r5_users_count"
+              ],
+              "properties": {
+                "users_count_from": {
+                  "type": "number"
+                },
+                "users_count_to": {
+                  "type": "number"
+                },
+                "r1_gift_value": {
+                  "type": "number"
+                },
+                "r1_users_count": {
+                  "type": "number"
+                },
+                "r2_gift_value": {
+                  "type": "number"
+                },
+                "r2_users_count": {
+                  "type": "number"
+                },
+                "r3_gift_value": {
+                  "type": "number"
+                },
+                "r3_users_count": {
+                  "type": "number"
+                },
+                "r4_gift_value": {
+                  "type": "number"
+                },
+                "r4_users_count": {
+                  "type": "number"
+                },
+                "r5_gift_value": {
+                  "type": "number"
+                },
+                "r5_users_count": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterGiftsReward/list": {
+      "get": {
+        "tags": [
+          "MasterGiftsReward"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterGiftsReward/view/{id}": {
+      "get": {
+        "tags": [
+          "MasterGiftsReward"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterGiftsReward/update/{id}": {
+      "patch": {
+        "tags": [
+          "MasterGiftsReward"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "users_count_from": {
+                  "type": "number"
+                },
+                "users_count_to": {
+                  "type": "number"
+                },
+                "r1_gift_value": {
+                  "type": "number"
+                },
+                "r1_users_count": {
+                  "type": "number"
+                },
+                "r2_gift_value": {
+                  "type": "number"
+                },
+                "r2_users_count": {
+                  "type": "number"
+                },
+                "r3_gift_value": {
+                  "type": "number"
+                },
+                "r3_users_count": {
+                  "type": "number"
+                },
+                "r4_gift_value": {
+                  "type": "number"
+                },
+                "r4_users_count": {
+                  "type": "number"
+                },
+                "r5_gift_value": {
+                  "type": "number"
+                },
+                "r5_users_count": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterGiftsReward/delete/{id}": {
+      "delete": {
+        "tags": [
+          "MasterGiftsReward"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/MasterGiftsReward/bulkdelete/{ids}": {
+      "delete": {
+        "tags": [
+          "MasterGiftsReward"
         ],
         "description": "",
         "parameters": [

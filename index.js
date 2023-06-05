@@ -18,7 +18,7 @@ app.get('/sample',async (req, res) => {
     let ChatRoomModel  =      Model.ChatRoom
     let GroupModel     =      Model.Group
     rooms  = await ChatRoomModel.findAll({})
-    groups = await GroupModel.findAll({})
+    groups = await GroupModel.findAll({where:{is_deleted:false}})
     res.render(__dirname+'/views/home.ejs',{rooms:rooms,groups:groups});
 });
 const {userJoin,getCurrentUser,userLeave,getRoomUsers,getOptionsList,RoomUsersList,MessagesList } = require("./utils/users");
@@ -228,4 +228,4 @@ io.on("connection", (socket) => {
         io.to(user.room).emit("roomUsers", {room: user.room,users: getRoomUsers(user.room)});
       }
     });
-  });  
+  });

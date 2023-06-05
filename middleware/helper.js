@@ -349,8 +349,12 @@ const StringToSingleCOde = async (str)=> {
 const GetRoutePath = async (req)=> {
     return req.route.path
 }
-
+const IslastDayOfMonth = async (req)=> {
+    let today = new Date()
+    return Date(today.getTime() + 86400000).getDate() === 1
+}
 const helper = {};
+helper.IslastDayOfMonth     =   IslastDayOfMonth
 helper.SuccessValidation    =   SuccessValidation 
 helper.Sms_Otp_Details      =   Sms_Otp_Details
 helper.ExpairyDate          =   ExpairyDate

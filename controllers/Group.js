@@ -36,16 +36,21 @@ const create = async (req, res) => {
   */
   // const opts = { runValidators: false , upsert: true };
   req.body['user_id'] = req.user.id
+  req.body['is_deleted'] = true
   let participants = req.body['participants']
   delete req.body['participants']
   return await ThisModel.create(req.body).then(async(doc) => {
-    await Model.GroupsParticipant.create({group_id:doc.id,user_id:req.user.id})
-    for (const part of participants) {  
-      try{
-        await Model.GroupsParticipant.create({group_id:doc.id,user_id:part})
-      }catch(err){
-        console.log(err)
+    try{
+      await Model.GroupsParticipant.create({group_id:doc.id,user_id:req.user.id})
+      for (const part of participants) {  
+        try{
+          await Model.GroupsParticipant.create({group_id:doc.id,user_id:part})
+        }catch(err){
+          console.log(err)
+        }
       }
+    }catch(err){
+      console.log(err)
     }
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
@@ -91,6 +96,7 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['where']['is_deleted'] = true
       query['attributes']= {}
       query['attributes']['include'] = [
         [
@@ -233,7 +239,14 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   // #swagger.tags = ['Group']
   try{
-    let record = await ThisModel.destroy({where:{id:req.params.id}})
+    // Model.GroupsParticipant.destroy({group_id:req.params.id})
+    // Model.GroupChat.destroy({group_id:req.params.id})
+    // Model.GroupChatViewed.destroy({group_id:req.params.id})
+    // Model.GroupChatInvited.destroy({group_id:req.params.id})
+    // Model.GroupChatRoomReport.destroy({group_id:req.params.id})
+
+    // let record = await ThisModel.destroy({where:{id:req.params.id}})
+    await ThisModel.update({is_deleted:false},{where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
   } catch (err) {
     return await Helper.ErrorValidation(req,res,err,'cache')
@@ -247,7 +260,8 @@ const bulkremove = async (req, res) => {
     if(!Array.isArray(theArray)){theArray = theArray.split(",");}
     for (let index = 0; index < theArray.length; ++index) {
       const rowid = theArray[index];
-      await ThisModel.destroy({where:{id:rowid}}).then((response) => {}).catch((err) => {});
+      // await ThisModel.destroy({where:{id:rowid}}).then((response) => {}).catch((err) => {});
+      await ThisModel.update({is_deleted:false},{where:{id:rowid}})
     }
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
 }

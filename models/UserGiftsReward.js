@@ -1,9 +1,9 @@
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  return Group.init(sequelize, DataTypes);
+  return UserGiftsReward.init(sequelize, DataTypes);
 }
 
-class Group extends Sequelize.Model {
+class UserGiftsReward extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   return super.init({
     id: {
@@ -12,18 +12,21 @@ class Group extends Sequelize.Model {
       allowNull: false,
       primaryKey: true
     },
-    title: {
+    totalpoints: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    coupon_type: {
       type: DataTypes.STRING(250),
-      allowNull: false,
-      unique: "groups_title_f2ab20c3_uniq"
+      allowNull: false
     },
-    icon: {
-      type: DataTypes.JSONB,
-      allowNull: true
+    coupon_code: {
+      type: DataTypes.STRING(250),
+      allowNull: false
     },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: true
+    isRedeemed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
     },
     user_id: {
       type: DataTypes.BIGINT,
@@ -32,39 +35,22 @@ class Group extends Sequelize.Model {
         model: 'users',
         key: 'id'
       }
-    },
-    is_deleted: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true
     }
   }, {
     sequelize,
-    tableName: 'groups',
+    tableName: 'user_gifts_rewards',
     schema: 'public',
     timestamps: true,
     indexes: [
       {
-        name: "groups_pkey",
+        name: "user_gifts_rewards_pkey",
         unique: true,
         fields: [
           { name: "id" },
         ]
       },
       {
-        name: "groups_title_f2ab20c3_like",
-        fields: [
-          { name: "title" },
-        ]
-      },
-      {
-        name: "groups_title_f2ab20c3_uniq",
-        unique: true,
-        fields: [
-          { name: "title" },
-        ]
-      },
-      {
-        name: "groups_user_id_55017db9",
+        name: "user_gifts_rewards_user_id_e68226f9",
         fields: [
           { name: "user_id" },
         ]

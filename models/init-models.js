@@ -19,6 +19,7 @@ const _Group = require("./Group");
 const _GroupsParticipant = require("./GroupsParticipant");
 const _MasterActivity = require("./MasterActivity");
 const _MasterBeatQuestion = require("./MasterBeatQuestion");
+const _MasterGiftsReward = require("./MasterGiftsReward");
 const _MasterIndustry = require("./MasterIndustry");
 const _MasterInterest = require("./MasterInterest");
 const _MasterLanguage = require("./MasterLanguage");
@@ -39,6 +40,7 @@ const _Post = require("./Post");
 const _SlambookBeatQuestion = require("./SlambookBeatQuestion");
 const _SlambookBeat = require("./SlambookBeat");
 const _UserFollowing = require("./UserFollowing");
+const _UserGiftsReward = require("./UserGiftsReward");
 const _UserInterest = require("./UserInterest");
 const _UserLoginHistory = require("./UserLoginHistory");
 const _UserNotificationSetting = require("./UserNotificationSetting");
@@ -69,6 +71,7 @@ function initModels(sequelize) {
   const GroupsParticipant = _GroupsParticipant(sequelize, DataTypes);
   const MasterActivity = _MasterActivity(sequelize, DataTypes);
   const MasterBeatQuestion = _MasterBeatQuestion(sequelize, DataTypes);
+  const MasterGiftsReward = _MasterGiftsReward(sequelize, DataTypes);
   const MasterIndustry = _MasterIndustry(sequelize, DataTypes);
   const MasterInterest = _MasterInterest(sequelize, DataTypes);
   const MasterLanguage = _MasterLanguage(sequelize, DataTypes);
@@ -89,6 +92,7 @@ function initModels(sequelize) {
   const SlambookBeatQuestion = _SlambookBeatQuestion(sequelize, DataTypes);
   const SlambookBeat = _SlambookBeat(sequelize, DataTypes);
   const UserFollowing = _UserFollowing(sequelize, DataTypes);
+  const UserGiftsReward = _UserGiftsReward(sequelize, DataTypes);
   const UserInterest = _UserInterest(sequelize, DataTypes);
   const UserLoginHistory = _UserLoginHistory(sequelize, DataTypes);
   const UserNotificationSetting = _UserNotificationSetting(sequelize, DataTypes);
@@ -224,6 +228,8 @@ function initModels(sequelize) {
   User.hasMany(UserFollowing, { foreignKey: "user_from_id"});
   UserFollowing.belongsTo(User, { foreignKey: "user_to_id"});
   User.hasMany(UserFollowing, { foreignKey: "user_to_id"});
+  UserGiftsReward.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(UserGiftsReward, { foreignKey: "user_id"});
   UserInterest.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(UserInterest, { foreignKey: "user_id"});
   UserLoginHistory.belongsTo(User, { foreignKey: "user_id"});
@@ -271,6 +277,7 @@ function initModels(sequelize) {
     GroupsParticipant,
     MasterActivity,
     MasterBeatQuestion,
+    MasterGiftsReward,
     MasterIndustry,
     MasterInterest,
     MasterLanguage,
@@ -291,6 +298,7 @@ function initModels(sequelize) {
     SlambookBeatQuestion,
     SlambookBeat,
     UserFollowing,
+    UserGiftsReward,
     UserInterest,
     UserLoginHistory,
     UserNotificationSetting,
