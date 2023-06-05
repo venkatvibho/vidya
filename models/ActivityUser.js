@@ -73,6 +73,14 @@ class ActivityUser extends Sequelize.Model {
     sentBy: {
       type: DataTypes.BIGINT,
       allowNull: true
+    },
+    f2: {
+      type: DataTypes.BIGINT,
+      allowNull: true
+    },
+    general: {
+      type: DataTypes.BIGINT,
+      allowNull: true
     }
   }, {
     sequelize,

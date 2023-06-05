@@ -3,6 +3,7 @@ const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
 const { body, validationResult } = require('express-validator');
 const Model             =      require("../models");
+const Activity = require("../models/Activity");
 const ThisModel         =      Model.ActivityUser
 
 const create = async (req, res) => {
@@ -143,6 +144,15 @@ const update = async (req, res) => {
     let firstError = errors.errors.map(error => error.msg)[0];
     return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
   }else{
+    try{
+      let getPoints = await Model.Activity.findByPk(req.params.id,"activity_id")
+      let getMsterPoints = await Model.MasterActivity.findByPk(getPoints.activity_id)
+      req.body['f2'] = getMsterPoints.f2_points
+      req.body['honour'] = getMsterPoints.honor_points
+      req.body['general'] = getMsterPoints.general_points
+    }catch(err){
+      console.log(err)
+    }
     if(req.query.status=="Sent"){
       req.body["sentBy"] = req.user.id
     }

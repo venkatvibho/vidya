@@ -14,8 +14,7 @@ class Group extends Sequelize.Model {
     },
     title: {
       type: DataTypes.STRING(250),
-      allowNull: false,
-      unique: "groups_title_f2ab20c3_uniq"
+      allowNull: false
     },
     icon: {
       type: DataTypes.JSONB,
@@ -48,19 +47,6 @@ class Group extends Sequelize.Model {
         unique: true,
         fields: [
           { name: "id" },
-        ]
-      },
-      {
-        name: "groups_title_f2ab20c3_like",
-        fields: [
-          { name: "title" },
-        ]
-      },
-      {
-        name: "groups_title_f2ab20c3_uniq",
-        unique: true,
-        fields: [
-          { name: "title" },
         ]
       },
       {

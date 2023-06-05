@@ -35,6 +35,10 @@ class UserGiftsReward extends Sequelize.Model {
         model: 'users',
         key: 'id'
       }
+    },
+    category: {
+      type: DataTypes.STRING(250),
+      allowNull: false
     }
   }, {
     sequelize,
