@@ -209,7 +209,7 @@ const ExpairyDate = (CurrentDate) => {
 const DT_Y_M_D = (now) => {
     var now = new Date(now);
     let date = require('date-and-time')
-    let today = date.format(now, 'YYYY-MM-DD');
+    let today = date.format(now,'YYYY-MM-DD');
     return today
 }
 
@@ -349,12 +349,28 @@ const StringToSingleCOde = async (str)=> {
 const GetRoutePath = async (req)=> {
     return req.route.path
 }
-const IslastDayOfMonth = async (req)=> {
+const IslastAndFirstDayOfMonth = async (givenDate='')=> {
     let today = new Date()
-    return Date(today.getTime() + 86400000).getDate() === 1
+    if(givenDate!=''){
+        today = givenDate
+        today = new Date(today)
+    }
+    let day       = today.getDate()
+    let month     = today.getMonth()
+    let year      = today.getFullYear()
+    let PrevDate  = new Date(year,month)
+    month         = parseInt(month)+1
+    let lastDate  = new Date(year,month).getUTCDate()
+    let CurrLastDate  = new Date(year,month)
+    return {
+        first : PrevDate,
+        last  : CurrLastDate,
+        curr  : day,
+        islastDay : await (lastDate==day)?1:0
+    }
 }
 const helper = {};
-helper.IslastDayOfMonth     =   IslastDayOfMonth
+helper.IslastAndFirstDayOfMonth =   IslastAndFirstDayOfMonth
 helper.SuccessValidation    =   SuccessValidation 
 helper.Sms_Otp_Details      =   Sms_Otp_Details
 helper.ExpairyDate          =   ExpairyDate

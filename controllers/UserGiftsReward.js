@@ -7,6 +7,7 @@ const Model             =      require("../models");
 const MasterGiftsReward = require("../models/MasterGiftsReward");
 const ActivityUser = require("../models/ActivityUser");
 const ThisModel         =      Model.UserGiftsReward
+const { uuid }  = require('uuidv4');
 
 const create = async (req, res) => {
   // #swagger.tags = ['UserGiftsReward']
@@ -38,49 +39,65 @@ const create = async (req, res) => {
   CurrentDate     = await new Date(CurrentDate)
   toDate          = await moment(CurrentDate).add(1, 'days');
   toDate          = await new Date(toDate)
-  query['createdAt']  = {$gte:CurrentDate,$lt:toDate}
+  query['createdAt']  = {[Op.gte]:CurrentDate,$lt:toDate}
   let checkThisMonthStatus = await ThisModel.count(query)
+  let curCheck = {}
+  curCheck['where'] = {}
+  curCheck['where']['user_id'] = req.user.id
+  let IslastDayOfMonth = await Helper.IslastAndFirstDayOfMonth()
+  curCheck['where']['createdAt']  = {
+    [Op.gte]:IslastDayOfMonth.first,
+    [Op.lt]:IslastDayOfMonth.last
+  }
   if(checkThisMonthStatus == 0){
     let Is_Eligible = []
     let totalIUsers = await Model.User.count()
     let giftCode  = 0
     let giftVlaue = 0
     GiftQuery = {}
-    GiftQuery['users_count_from'] = {$gte:totalIUsers}
-    GiftQuery['users_count_to']   = {$lte:totalIUsers}
-    let GiftAlogrytm = await MasterGiftsReward.findOne(GiftQuery)
+    GiftQuery['where'] = {}
+    GiftQuery['where']['users_count_from'] = {[Op.lte]:totalIUsers}
+    GiftQuery['where']['users_count_to']   = {[Op.gte]:totalIUsers}
+    GiftQuery['order'] =[ ['id','ASC']]
+    let GiftAlogrytm = await Model.MasterGiftsReward.findOne(GiftQuery)
     if(GiftAlogrytm){
-      let All_Usr_List =  await ActivityUser.findAll({
+      let All_Usr_List =  await Model.ActivityUser.findAll({
         attributes: [
           'user_id',
-          [sequelize.fn('sum', sequelize.col('honor')), 'total'],
+          [Sequelize.fn('sum', Sequelize.col('honour')), 'total'],
         ],
-        group: ['user_id'],
-        order:["total","DESC"]
+        group:['user_id'],
+        order:["total"]
       });
       if(All_Usr_List){
         let J = 0;
-        if(J<All_Usr_List.lengh){
-          for (let i=1; i <= 5; i++) {
+        if(J<All_Usr_List.length){
+          for (let i=1; i <= 1; i++) {
             gift_value = GiftAlogrytm['r'+i+'_gift_value']
             users_count = GiftAlogrytm['r'+i+'_users_count']
-            query['user_id'] = {$gt:0}
+            query['user_id'] = {[Op.gt]:0}
             query['category'] = 'R'+i
             let usedcnt =  await ThisModel.count(query)
+            // console.log("$$$$$$$","usedcnt",usedcnt,"users_count",users_count)
             if(users_count>usedcnt){
               let available = parseInt(users_count)-parseInt(usedcnt)
+              // console.log("$$$$$$$","available",available)
               if(available>0){
                 for (let i = 0; i < users_count; i++) {
+                  // console.log("$$$$$$$","available",All_Usr_List[J])
                   if(All_Usr_List[J]){
                     if(All_Usr_List[J]['user_id'] = req.user.id){
-                      req.body['isRedeemed'] = false
-                      req.body['user_id'] = req.user.id
-                      req.body['category'] = query['category']
-                      req.body['coupon_type'] = 'Flipkart'
-                      req.body['coupon_code'] = '1234'
-                      await ThisModel.create(req.body)
-                      Is_Eligible.push({category:req.body['category'],coupon_type:req.body['coupon_type'],coupon_code:req.body['coupon_code']})
-                      break;
+                      let checkAdded =  await ThisModel.count(curCheck)
+                      if(checkAdded==0){
+                        req.body['isRedeemed'] = false
+                        req.body['user_id'] = req.user.id
+                        req.body['category'] = query['category']
+                        req.body['coupon_type'] = 'Flipkart'
+                        req.body['coupon_code'] =  await uuid()
+                        await ThisModel.create(req.body)
+                        Is_Eligible.push({category:req.body['category'],coupon_type:req.body['coupon_type'],coupon_code:req.body['coupon_code']})
+                       }
+                       break;
                     }
                   }
                   J += 1
@@ -90,47 +107,8 @@ const create = async (req, res) => {
           }
         }
       }
-
-      // r1_gift_value = GiftAlogrytm.r1_gift_value
-      // r1_users_count = GiftAlogrytm.r1_users_count
-      // if(r1_users_count>0){
-      //   for (let i = 0; i < r1_users_count; i++) {
-
-      //   }
-      // } 
-
-      // r2_gift_value = GiftAlogrytm.r2_gift_value
-      // r2_users_count = GiftAlogrytm.r2_users_count
-      // if(r2_users_count>0){
-
-      // }
-
-      // r3_gift_value = GiftAlogrytm.r3_gift_value
-      // r3_users_count = GiftAlogrytm.r3_users_count
-      // if(r3_users_count>0){
-
-      // }
-
-      // r4_gift_value = GiftAlogrytm.r4_gift_value
-      // r4_users_count = GiftAlogrytm.r4_users_count
-      // if(r4_users_count>0){
-
-      // }
-
-      // r5_gift_value = GiftAlogrytm.r5_gift_value
-      // r5_users_count = GiftAlogrytm.r5_users_count
-      // if(r5_users_count>0){
-
-      // }
     }
-    // req.body['isRedeemed'] = false
-    // req.body['user_id'] = req.user.id
-    // return await ThisModel.create(req.body).then(async(doc) => {
-    //   await Helper.SuccessValidation(req,res,doc,'Added successfully')
-    // }).catch( async (err) => {
-    //   return await Helper.ErrorValidation(req,res,err,'cache')
-    // })
-    if(Is_Eligible.lengh>0){
+    if(Is_Eligible.length>0){
       await Helper.SuccessValidation(req,res,Is_Eligible,'Scrach card generated successfully')
     }else{
       return await Helper.ErrorValidation(req,res,{message:"You have not eligible"},'cache')
@@ -233,54 +211,50 @@ const home = async (req, res) => {
   // #swagger.tags = ['UserGiftsReward']
   let honour = 0
   let query={}
-  query['user_id'] = req.user.id
-  let CurrentDate = await Helper.CurrentDate()
-  CurrentDate     = await Helper.DT_Y_M_D(CurrentDate)
-  CurrentDate     = await new Date(CurrentDate)
-  toDate          = await moment(CurrentDate).add(1, 'days');
-  toDate          = await new Date(toDate)
-  query['createdAt']  = {$gte:CurrentDate,$lt:toDate}
-  let checkThisMonthStatus = await ThisModel.count(query)
-  console.log("111111",query)
-  query['status'] = 'Joined'
-  query['include'] ={
-    model:Model.Activity,
-    where : {type_of_badge:'Honour'},
-    required:true
+  query['where'] = {}
+  query['where']['user_id'] = req.user.id
+  let IslastDayOfMonth = await Helper.IslastAndFirstDayOfMonth()
+  console.log(IslastDayOfMonth)
+  // let CurrentDate = await Helper.CurrentDate()
+  // CurrentDate     = await Helper.DT_Y_M_D(CurrentDate)
+  // CurrentDate     = await new Date(CurrentDate)
+  // let CalcDate     = await Helper.DT_Y_M_D(IslastDayOfMonth.last)
+  // CalcDate     = await new Date(CalcDate)
+  query['where']['createdAt']  = {
+    [Op.gte]:IslastDayOfMonth.first,
+    [Op.lt]:IslastDayOfMonth.last
   }
-  console.log("2222222",query)
-  let checkHonorStatus = await Model.ActivityUser.count(query)
+  let checkThisMonthStatus = await ThisModel.count(query)
+  console.log("111111",query,checkThisMonthStatus)
+  query['where']['status'] = 'Joined'
   query['include'] = {
     model:Model.Activity,
+    attributes:['id','type_of_badge'],
     where : {type_of_badge:'General'},
     required:true
   }
   let checkGenerralStatus = await Model.ActivityUser.count(query)
-  console.log("3333333",query)
-  if(checkThisMonthStatus==0 && checkHonorStatus>0 && checkGenerralStatus>0){
-    let where_total_revenue = {}
-    where_total_revenue['user_id'] = req.user.id
-    let total_revenue = await ActivityUser.aggregate(
-      [
-        { "$match": where_total_revenue },
-        {
-          $group:
-            {
-              _id: {},
-              totalAmount: { $sum:"$honor"}
-            }
-        }
-      ]
-    )
-    try{
-      honour = total_revenue[0].totalAmount
-    }catch(err){
-      honour = 0
+  console.log("2222222",query,checkGenerralStatus)
+  query['include'] ={
+    model:Model.Activity,
+    attributes:['id','type_of_badge'],
+    where : {type_of_badge:'Honour'},
+    required:true
+  }
+  let checkHonorStatus = await Model.ActivityUser.count(query)
+  console.log("3333333",query,checkHonorStatus)
+  query['attributes'] = ["id","honour"]
+  honourData = await Model.ActivityUser.findAll(query)
+  if(honourData){
+    for (let i = 0; i < honourData.length; i++) {
+      if(honourData[i]['honour']){
+        honour += parseInt(honourData[i]['honour'])
+      }
     }
   }
   records = {
     honour:{
-      is_scratched:await (checkThisMonthStatus==1)?true:false,
+      is_scratched_available:await (checkThisMonthStatus==0 && IslastDayOfMonth.islastDay==1)?true:false,
       points:honour
     }
   }

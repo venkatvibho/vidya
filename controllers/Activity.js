@@ -156,9 +156,9 @@ const list = async (req, res) => {
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   //  #swagger.parameters['date'] = {in: 'query',type:'string','description':"YY-MM-DD"}
   //  #swagger.parameters['type_of_activity'] = {in: 'query',type:'string','enum':['Private','Public','Self']}
+  //  #swagger.parameters['type_of_badge'] = {in: 'query',type:'string','enum':['General','Honour']}
   //  #swagger.parameters['created_by_user_id'] = {in: 'query',type:'number','description':"Invited By me"}
   //  #swagger.parameters['participant_user_id'] = {in: 'query',type:'number','description':"Invited For me"}
-
   try{
       let pageSize = 0;
       let skip = 0;
@@ -201,6 +201,9 @@ const list = async (req, res) => {
             ActivityUserRequired = true
           }
         }
+      }
+      if(req.query.type_of_badge){
+        query['where']['type_of_badge'] = req.query.type_of_badge
       }
       query['include'] = await commonGet(req, res,{ActivityUserRequired:ActivityUserRequired,ActivityUserWhere:ActivityUserWhere})
       if(req.query.page && req.query.page_size){

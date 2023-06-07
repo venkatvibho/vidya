@@ -509,7 +509,7 @@ const login = async (req, res) => {
           let IsValid = 10
           if(["/User/resendotp"].includes(req.route.path)){
             let DateCheck= await Helper.CurrentDate()
-            console.log(DateCheck)
+            // console.log(DateCheck)
             IsValid = await ThisModel.count({where:{id:records.id,otp_at:{[Op.lte]:DateCheck}}})
           }
           if(IsValid>0){

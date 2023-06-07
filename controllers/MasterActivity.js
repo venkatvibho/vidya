@@ -92,6 +92,9 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      if(req.query.type_of_badge){
+        query['where']['type_of_badge'] = req.query.type_of_badge
+      }
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
