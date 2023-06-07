@@ -21,7 +21,7 @@ const authenticationToken = (req, res , next) => {
             res.status(401).send({message:"Unauthorized"});
         }
     }else{
-        let defaultKey = true
+        let defaultKey = false
         if(defaultKey){
             req.user = {id:2};
             next();

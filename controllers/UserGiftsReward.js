@@ -131,7 +131,7 @@ const create = async (req, res) => {
     //   return await Helper.ErrorValidation(req,res,err,'cache')
     // })
     if(Is_Eligible.lengh>0){
-      await Helper.SuccessValidation(req,res,doc,'Scrach card generated successfully')
+      await Helper.SuccessValidation(req,res,Is_Eligible,'Scrach card generated successfully')
     }else{
       return await Helper.ErrorValidation(req,res,{message:"You have not eligible"},'cache')
     }
