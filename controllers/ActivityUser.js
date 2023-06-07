@@ -22,6 +22,9 @@ const create = async (req, res) => {
             "type": "string",
             "enum":["Sent","Accepted","Rejected"]
           },
+          "user_id":{ 
+            "type": "number",
+          },
           "rejectedReason": { 
             "type": "string",
           }
@@ -38,17 +41,22 @@ const create = async (req, res) => {
     let firstError = errors.errors.map(error => error.msg)[0];
     return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
   }else{
-    req.body['user_id'] = req.user.id
+    if(req.body['user_id']){
+      req.body['user_id'] = req.body['user_id']
+    }else{
+      req.body['user_id'] = req.user.id
+    }
+    let uid = req.body['user_id']
     if(req.query.status=="Sent"){
-      req.body["sentBy"] = req.user.id
+      req.body["sentBy"] = uid
     }
     if(req.body.status=="Accepted"){
       req.body["acceptedAt"] = await Helper.CurrentDate()
-      req.body["acceptedBy"] = req.user.id
+      req.body["acceptedBy"] = uid
     }
     if(req.body.status=="Rejected"){
       req.body["rejectedAt"] = await Helper.CurrentDate()
-      req.body["rejectedBy"] = req.user.id
+      req.body["rejectedBy"] = uid
     }
     return await ThisModel.create(req.body).then(async(doc) => {
       await Helper.SuccessValidation(req,res,doc,'Added successfully')

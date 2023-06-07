@@ -81,7 +81,7 @@ const ActivityUserController          =  require('../controllers/ActivityUser.js
 router.post("/ActivityUser/publicActivityAccess",authorization,ActivityUserController.create)
 router.get("/ActivityUser/list",authorization,ActivityUserController.list)
 router.get("/ActivityUser/view/:id",authorization,ActivityUserController.view)
-router.patch("/ActivityUser/update/:id",authorization,ActivityController.update)
+router.patch("/ActivityUser/update/:id",authorization,ActivityUserController.update)
 router.delete("/ActivityUser/delete/:id",authorization,ActivityUserController.remove)
 router.delete("/ActivityUser/bulkdelete/:ids",authorization,ActivityUserController.bulkremove)
 

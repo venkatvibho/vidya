@@ -134,6 +134,11 @@ const create = async (req, res) => {
 const commonGet = async (req,res,whereInclude) => {
   return [
     {
+      model:Model.User,
+      attributes:["id","first_name","user_id","photo_1"],
+      required:true
+    },
+    {
       model:Model.ActivityGroup,
       required:false
     },
@@ -144,8 +149,21 @@ const commonGet = async (req,res,whereInclude) => {
     {
       model:Model.ActivityUser,
       as:"PrivateUser",
-      where:whereInclude.ActivityUserWhere,
-      required:whereInclude.ActivityUserRequired
+      include:{
+        model:Model.User,
+        attributes:["id","first_name","user_id","photo_1"],
+        required:false
+      },
+      required:false
+    },
+    {
+      model:Model.ActivityUser,
+      include:{
+        model:Model.User,
+        attributes:["id","first_name","user_id","photo_1"],
+        required:false
+      },
+      required:false
     }
   ]
 }
@@ -197,7 +215,7 @@ const list = async (req, res) => {
       if(req.query.participant_user_id){
         if(req.query.type_of_activity){
           if(req.query.type_of_activity=="Private"){
-            ActivityUserRequired['user_id'] = req.query.participant_user_id
+            ActivityUserWhere['user_id'] = req.query.participant_user_id
             ActivityUserRequired = true
           }
         }
@@ -226,7 +244,7 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['Activity']
   let query={}
-  query['include'] = query['include'] = await commonGet(req, res,{ActivityUserRequired:false,ActivityUserWhere:{}})
+  query['include'] = await commonGet(req, res,{ActivityUserRequired:false,ActivityUserWhere:{user_id:req.user.id}})
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
