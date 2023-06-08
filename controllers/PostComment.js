@@ -78,6 +78,16 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      if(req.query.post_id){
+          query['include'] = [
+          {
+            model:Model.PostUser,
+            attributes:["id","post_id","user_id"],
+            where:{post_id:req.query.post_id},
+            required:true
+          }
+        ] 
+      }
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;

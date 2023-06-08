@@ -3298,6 +3298,11 @@
             "name": "page",
             "in": "query",
             "type": "number"
+          },
+          {
+            "name": "post_id",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {

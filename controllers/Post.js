@@ -128,6 +128,18 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['attributes']= {}
+      query['attributes']['include'] = [
+        [
+          Sequelize.literal(`(SELECT COUNT(id) FROM public.post_users WHERE is_viewed=true AND post_id="Post"."id")`),'viewed_counts'
+        ],
+        [
+          Sequelize.literal(`(SELECT COUNT(id) FROM public.post_users WHERE is_liked=true AND post_id="Post"."id")`),'liked_counts'
+        ],
+        [
+          Sequelize.literal(`(SELECT COUNT(id) FROM public.post_comments WHERE post_id="Post"."id")`),'comments_count'
+        ]
+      ]
       query['include'] = await commonGet(req, res,{})
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
@@ -149,6 +161,16 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['Post']
   let query={}
+  query['where'] = {}
+  query['attributes']= {}
+  query['attributes']['include'] = [
+    [
+      Sequelize.literal(`(SELECT COUNT(id) FROM public.post_users WHERE is_viewed=true AND post_id="Post"."id")`),'viewed_counts'
+    ],
+    [
+      Sequelize.literal(`(SELECT COUNT(id) FROM public.post_users WHERE is_liked=true AND post_id="Post"."id")`),'liked_counts'
+    ],
+  ]
   query['include'] = await commonGet(req, res,{})
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
