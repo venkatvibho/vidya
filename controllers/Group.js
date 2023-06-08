@@ -59,29 +59,40 @@ const create = async (req, res) => {
 }
 
 const commonGet = async (req,res,whereInclude) => {
-  return [
+  let includearr = [ 
     {
       model:Model.GroupsParticipant,
       as:"Groups_Participant",
       attributes:["id","user_id"],
       where : (whereInclude)?whereInclude.ParticipantWhere:{},
       required:(whereInclude)?whereInclude.ParticipantReq:false
-    },
-    {
-      model:Model.GroupsParticipant,
-      include:{
-        model:Model.User,
-        attributes:["id","user_id","first_name","phonenumber","photo_1"],
-      },
-      required:(whereInclude)?whereInclude.ParticipantReq:false
-    },
-    {
-      model:Model.GroupChat,
-      as:"Group_Chat",
-      order: [ ['id', 'desc'] ],
-      required:false
     }
   ]
+  let titles_only = true
+  if(req.query.is_screen_for){
+    if(req.query.is_screen_for=='titles_only'){
+      titles_only = false
+    }
+  }
+  if(titles_only==true){
+      includearr.push(
+        {
+          model:Model.GroupsParticipant,
+          include:{
+            model:Model.User,
+            attributes:["id","user_id","first_name","phonenumber","photo_1"],
+          },
+          required:(whereInclude)?whereInclude.ParticipantReq:false
+        },
+        {
+          model:Model.GroupChat,
+          as:"Group_Chat",
+          order: [ ['id', 'desc'] ],
+          required:false
+        }
+      )
+  }
+  return includearr
 }
 
 const list = async (req, res) => {
@@ -90,6 +101,7 @@ const list = async (req, res) => {
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   //  #swagger.parameters['created_by_user_id'] = {in: 'query',type:'number','description':"Created By me"}
   //  #swagger.parameters['participant_user_id'] = {in: 'query',type:'number','description':"Invited For me"}
+  //  #swagger.parameters['is_screen_for'] = {in: 'query',type:'string','enum':['titles_only']}
 
   try{
       let pageSize = 0;
@@ -116,6 +128,11 @@ const list = async (req, res) => {
           Sequelize.literal('"Group_Chat"."message" LIKE '+quote_str)
         ]
       } 
+      if(req.query.is_screen_for){
+        if(req.query.is_screen_for=='titles_only'){
+          query['attributes'] = ['id','title']
+        }
+      }
       query['include'] = await commonGet(req, res,{ParticipantWhere:ParticipantWhere,ParticipantReq:ParticipantReq})
       if(req.query.created_by_user_id){
         query['where']['user_id'] = req.query.created_by_user_id

@@ -82,54 +82,66 @@ const commonGet = async (req,res,whereInclude) => {
   let UserInterestBooLn = false
   let UsersLanguageArr = {}
   let UserInterestArr = {}
+  let includearr = []
   if(req.query.language_id){
     UsersLanguageBooLn = true
     UsersLanguageArr['languages_id'] = {[Op.in]:req.query.language_id.split(',')}
+    includearr.push(
+      {
+        model:Model.UserInterest,
+        include:{
+          model:Model.MasterInterest,
+          required:false
+        },
+        where:UserInterestArr,
+        required:UserInterestBooLn
+      }
+    )
   }
   if(req.query.interest_id){
     UserInterestBooLn = true
     UserInterestArr['interest_id'] = {[Op.in]:req.query.interest_id.split(',')}
+    includearr.push(
+      {
+        model:Model.UsersLanguage,
+        where:UsersLanguageArr,
+        include:{
+          model:Model.MasterLanguage,
+          attributes:["id","title"],
+          required:false
+        },
+        required:UsersLanguageBooLn
+      }
+    )
   }
-  console.log(UserInterestArr)
-  return [
-    {
-      model:Model.UserFollowing,
-      // as:"UserFollowing",
-      attributes:["id","status"],
-      where:{user_from_id:req.user.id},
-      required:false,
-      duplicate: false
-    },
-    {
-      model:Model.UserInterest,
-      include:{
-        model:Model.MasterInterest,
-        required:false
+  let titles_only = true
+  if(req.query.is_screen_for){
+    if(req.query.is_screen_for=='titles_only'){
+      titles_only = false
+    }
+  }
+  if(titles_only==true){
+    includearr.push(
+      {
+        model:Model.UserFollowing,
+        attributes:["id","status"],
+        where:{user_from_id:req.user.id},
+        required:false,
+        duplicate: false
       },
-      where:UserInterestArr,
-      required:UserInterestBooLn
-    },
-    {
-      model:Model.UsersLanguage,
-      where:UsersLanguageArr,
-      include:{
-        model:Model.MasterLanguage,
+      {
+        model:Model.MasterProfession,
         attributes:["id","title"],
         required:false
       },
-      required:UsersLanguageBooLn
-    },
-    {
-      model:Model.MasterProfession,
-      attributes:["id","title"],
-      required:false
-    },
-    {
-      model:Model.MasterIndustry,
-      attributes:["id","title"],
-      required:false
-    },
-  ]
+      {
+        model:Model.MasterIndustry,
+        attributes:["id","title"],
+        required:false
+      },
+    )
+  }
+  return includearr
 }
 
 const list = async (req, res) => {
@@ -144,6 +156,7 @@ const list = async (req, res) => {
   //  #swagger.parameters['language_id'] = {in: 'query',type:'array','description':'Take ids from MasterLanguages'}
   //  #swagger.parameters['region'] = {in: 'query',type:'array'}
   //  #swagger.parameters['interest_id'] = {in: 'query',type:'array','description':'Take ids from MasterInterest'}
+  //  #swagger.parameters['is_screen_for'] = {in: 'query',type:'string','enum':['titles_only']}
 
   try{
       let pageSize = 0;
@@ -185,6 +198,11 @@ const list = async (req, res) => {
         query['where']['region'] = {[Op.in]:req.query.region.split(',')}
       }
       let is_whereHide = {}
+      if(req.query.is_screen_for){
+        if(req.query.is_screen_for=='titles_only'){
+          query['attributes'] = ["id","first_name","user_id","photo_1"]
+        }
+      }
       query['include'] = await commonGet(req, res,{is_whereHide:is_whereHide})
       console.log(query)
       if(req.query.page && req.query.page_size){

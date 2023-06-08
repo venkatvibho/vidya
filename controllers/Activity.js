@@ -132,40 +132,51 @@ const create = async (req, res) => {
 }
 
 const commonGet = async (req,res,whereInclude) => {
-  return [
-    {
-      model:Model.User,
-      attributes:["id","first_name","user_id","photo_1"],
-      required:true
-    },
-    {
-      model:Model.ActivityGroup,
-      required:false
-    },
+  let includearr = [    
     {
       model:Model.MasterActivity,
       required:false
-    },
-    {
-      model:Model.ActivityUser,
-      as:"PrivateUser",
-      include:{
-        model:Model.User,
-        attributes:["id","first_name","user_id","photo_1"],
-        required:false
-      },
-      required:false
-    },
-    {
-      model:Model.ActivityUser,
-      include:{
-        model:Model.User,
-        attributes:["id","first_name","user_id","photo_1"],
-        required:false
-      },
-      required:false
     }
   ]
+  let titles_only = true
+  if(req.query.is_screen_for){
+    if(req.query.is_screen_for=='titles_only'){
+      titles_only = false
+    }
+  }
+  if(titles_only==true){
+    includearr.push(
+      {
+        model:Model.User,
+        attributes:["id","first_name","user_id","photo_1"],
+        required:true
+      },
+      {
+        model:Model.ActivityGroup,
+        required:false
+      },
+      {
+        model:Model.ActivityUser,
+        as:"PrivateUser",
+        include:{
+          model:Model.User,
+          attributes:["id","first_name","user_id","photo_1"],
+          required:false
+        },
+        required:false
+      },
+      {
+        model:Model.ActivityUser,
+        include:{
+          model:Model.User,
+          attributes:["id","first_name","user_id","photo_1"],
+          required:false
+        },
+        required:false
+      }
+    )
+  }
+  return includearr
 }
 
 const list = async (req, res) => {
@@ -177,6 +188,7 @@ const list = async (req, res) => {
   //  #swagger.parameters['type_of_badge'] = {in: 'query',type:'string','enum':['General','Honour']}
   //  #swagger.parameters['created_by_user_id'] = {in: 'query',type:'number','description':"Invited By me"}
   //  #swagger.parameters['participant_user_id'] = {in: 'query',type:'number','description':"Invited For me"}
+  //  #swagger.parameters['is_screen_for'] = {in: 'query',type:'string','enum':['titles_only']}
   try{
       let pageSize = 0;
       let skip = 0;
@@ -222,6 +234,11 @@ const list = async (req, res) => {
       }
       if(req.query.type_of_badge){
         query['where']['type_of_badge'] = req.query.type_of_badge
+      }
+      if(req.query.is_screen_for){
+        if(req.query.is_screen_for=='titles_only'){
+          query['attributes'] = ['id','type_of_activity','activity_id']
+        }
       }
       query['include'] = await commonGet(req, res,{ActivityUserRequired:ActivityUserRequired,ActivityUserWhere:ActivityUserWhere})
       if(req.query.page && req.query.page_size){

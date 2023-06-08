@@ -175,6 +175,14 @@
             "in": "query",
             "type": "array",
             "description": "Take ids from MasterInterest"
+          },
+          {
+            "name": "is_screen_for",
+            "in": "query",
+            "type": "string",
+            "enum": [
+              "titles_only"
+            ]
           }
         ],
         "responses": {
@@ -1593,6 +1601,14 @@
             "in": "query",
             "type": "number",
             "description": "Invited For me"
+          },
+          {
+            "name": "is_screen_for",
+            "in": "query",
+            "type": "string",
+            "enum": [
+              "titles_only"
+            ]
           }
         ],
         "responses": {
@@ -3671,6 +3687,14 @@
             "in": "query",
             "type": "number",
             "description": "Invited For me"
+          },
+          {
+            "name": "is_screen_for",
+            "in": "query",
+            "type": "string",
+            "enum": [
+              "titles_only"
+            ]
           },
           {
             "name": "keyword",
