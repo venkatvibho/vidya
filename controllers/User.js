@@ -112,8 +112,23 @@ const commonGet = async (req,res,whereInclude) => {
     {
       model:Model.UsersLanguage,
       where:UsersLanguageArr,
+      include:{
+        model:Model.MasterLanguage,
+        attributes:["id","title"],
+        required:false
+      },
       required:UsersLanguageBooLn
-    }
+    },
+    {
+      model:Model.MasterProfession,
+      attributes:["id","title"],
+      required:false
+    },
+    {
+      model:Model.MasterIndustry,
+      attributes:["id","title"],
+      required:false
+    },
   ]
 }
 

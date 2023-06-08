@@ -253,7 +253,18 @@ const home = async (req, res) => {
     }
   }
   records = {
+    honour_poins : 0,
+    fe_poins : 0,
+    general_poins : 0,
     honour:{
+      is_scratched_available:await (checkThisMonthStatus==0 && IslastDayOfMonth.islastDay==1)?true:false,
+      points:honour
+    },
+    general:{
+      is_scratched_available:await (checkThisMonthStatus==0 && IslastDayOfMonth.islastDay==1)?true:false,
+      points:honour
+    },
+    f2:{
       is_scratched_available:await (checkThisMonthStatus==0 && IslastDayOfMonth.islastDay==1)?true:false,
       points:honour
     }
