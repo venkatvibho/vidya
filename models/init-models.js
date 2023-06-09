@@ -176,6 +176,8 @@ function initModels(sequelize) {
   PostUser.hasMany(PostComment, { foreignKey: "postuser_id"});
   PostUserReport.belongsTo(PostUser, { foreignKey: "postuser_id"});
   PostUser.hasMany(PostUserReport, { foreignKey: "postuser_id"});
+  PostComment.belongsTo(Post, { foreignKey: "post_id"});
+  Post.hasMany(PostComment, { foreignKey: "post_id"});
   PostUser.belongsTo(Post, { foreignKey: "post_id"});
   Post.hasMany(PostUser, { foreignKey: "post_id"});
   SlambookBeatQuestion.belongsTo(SlambookBeat, { foreignKey: "user_following_id"});
