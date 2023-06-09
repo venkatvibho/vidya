@@ -168,15 +168,25 @@ const commonGet = async (req,res,whereInclude) => {
       },
       {
         model:Model.ActivityUser,
-        where:(whereInclude.ActivityUserWhere)?whereInclude.ActivityUserWhere:{},
         include:{
           model:Model.User,
           attributes:["id","first_name","user_id","photo_1"],
           required:true
         },
-        required:(whereInclude.ActivityUserRequired==true)?true:false
+        required:false
       }
     )
+  }
+  if(whereInclude.ActivityUserWhere){
+    if(whereInclude.ActivityUserWhere==true){
+      includearr.push({
+        model:Model.ActivityUser,
+        as:'IsParticipant',
+        where:(whereInclude.ActivityUserWhere)?whereInclude.ActivityUserWhere:{},
+        attributes:["id"],
+        required:(whereInclude.ActivityUserRequired==true)?true:false
+      })
+    }
   }
   return includearr
 }
