@@ -177,8 +177,8 @@ const commonGet = async (req,res,whereInclude) => {
       }
     )
   }
-  if(whereInclude.ActivityUserWhere){
-    if(whereInclude.ActivityUserWhere==true){
+  if(whereInclude.ActivityUserRequired){
+    if(whereInclude.ActivityUserRequired==true){
       includearr.push({
         model:Model.ActivityUser,
         as:'IsParticipant',
@@ -236,13 +236,23 @@ const list = async (req, res) => {
       }
       let ActivityUserWhere = {}
       let ActivityUserRequired = false
-      if(req.query.participant_user_id){
-        if(req.query.type_of_activity){
-          if(req.query.type_of_activity=="Private"){
-            ActivityUserWhere['user_id'] = req.query.participant_user_id
-            ActivityUserRequired = true
-          }
+      // if(req.query.participant_user_id){
+      //   if(req.query.type_of_activity){
+      //     if(req.query.type_of_activity=="Private"){
+      //       ActivityUserWhere['user_id'] = req.query.participant_user_id
+      //       ActivityUserRequired = true
+      //     }
+      //   }
+      //   ActivityUserWhere['user_id'] = req.query.participant_user_id
+      //   ActivityUserRequired = true
+      // }
+      if(req.query.type_of_activity=="Private"){
+        let uid = req.user.id
+        if(req.query.participant_user_id){
+          uid = req.query.participant_user_id
         }
+        ActivityUserWhere['user_id'] = uid
+        ActivityUserRequired = true
       }
       if(req.query.type_of_badge){
         query['where']['type_of_badge'] = req.query.type_of_badge
