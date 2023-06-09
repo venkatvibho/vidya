@@ -158,6 +158,7 @@ const commonGet = async (req,res,whereInclude) => {
       {
         model:Model.ActivityUser,
         as:"PrivateUser",
+        where:{user_id:req.user.id},
         include:{
           model:Model.User,
           attributes:["id","first_name","user_id","photo_1"],
@@ -167,12 +168,13 @@ const commonGet = async (req,res,whereInclude) => {
       },
       {
         model:Model.ActivityUser,
+        where:(whereInclude.ActivityUserWhere)?whereInclude.ActivityUserWhere:{},
         include:{
           model:Model.User,
           attributes:["id","first_name","user_id","photo_1"],
-          required:false
+          required:true
         },
-        required:false
+        required:(whereInclude.ActivityUserRequired==true)?true:false
       }
     )
   }
