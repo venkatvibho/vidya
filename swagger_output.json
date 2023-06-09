@@ -1873,12 +1873,7 @@
             "name": "status",
             "in": "query",
             "type": "array",
-            "description": [
-              "Sent",
-              "Accepted",
-              "Rejected",
-              "Joined"
-            ]
+            "description": "Sent,Accepted,Rejected,Joined"
           },
           {
             "name": "activity_id",
