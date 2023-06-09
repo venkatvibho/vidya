@@ -90,7 +90,7 @@ const list = async (req, res) => {
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   //  #swagger.parameters['is_notification_screen'] = {in: 'query',type:'boolean'}
-  //  #swagger.parameters['status'] = {in: 'array',type:["Sent","Accepted","Rejected","Joined"]}
+  //  #swagger.parameters['status'] = {in: 'query',type:'array','description':["Sent","Accepted","Rejected","Joined"]}
 
   try{
       let pageSize = 0;
