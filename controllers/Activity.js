@@ -217,10 +217,10 @@ const list = async (req, res) => {
         query['where']['type_of_activity'] = req.query.type_of_activity
       }
       if(req.query.date){
-        let date  = require('date-and-time');
-        let current_date = await Helper.CurrentDate()
-        let today =  date.format(current_date, 'YYYY-MM-DD');
-        query['where']['start_date'] = today
+        // let date  = require('date-and-time');
+        // let current_date = await Helper.CurrentDate()
+        // let today =  date.format(current_date, 'YYYY-MM-DD');
+        query['where']['start_date'] = req.query.date
       }
       let ActivityUserWhere = {}
       let ActivityUserRequired = false

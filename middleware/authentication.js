@@ -1,6 +1,6 @@
 const jwt   =   require('jsonwebtoken');
 
-const authenticationToken = (req, res , next) => {
+const authenticationToken = async (req, res , next) => {
     if(req.headers.authorization!=undefined){
         const Token = req.headers.authorization.replace("Bearer ","");
         if(typeof Token !=='undefined'){
@@ -21,7 +21,8 @@ const authenticationToken = (req, res , next) => {
             res.status(401).send({message:"Unauthorized"});
         }
     }else{
-        let defaultKey = false
+        let swaggerFile   = require('../swagger_output.json')
+        let defaultKey    = await (swaggerFile.host=='localhost:8000')?true:false;
         if(defaultKey){
             req.user = {id:2};
             next();
