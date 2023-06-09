@@ -1868,6 +1868,26 @@
             "name": "is_notification_screen",
             "in": "query",
             "type": "boolean"
+          },
+          {
+            "name": "status",
+            "in": "array",
+            "type": [
+              "Sent",
+              "Accepted",
+              "Rejected",
+              "Joined"
+            ]
+          },
+          {
+            "name": "activity_id",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {

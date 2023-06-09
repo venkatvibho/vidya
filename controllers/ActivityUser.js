@@ -90,6 +90,7 @@ const list = async (req, res) => {
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   //  #swagger.parameters['is_notification_screen'] = {in: 'query',type:'boolean'}
+  //  #swagger.parameters['status'] = {in: 'array',type:["Sent","Accepted","Rejected","Joined"]}
 
   try{
       let pageSize = 0;
@@ -98,6 +99,14 @@ const list = async (req, res) => {
       query['where'] = {}
       if(req.query.is_notification_screen){
         query['where']['status'] = {[Sequelize.Op.notIn]:['Rejected']}
+      }
+      if(req.query.activity_id){
+        query['where']['activity_id'] = req.query.activity_id
+      }
+      if(req.query.status){
+      let theArray = req.query.status 
+        if(!Array.isArray(theArray)){theArray = theArray.split(",");}
+        query['where']['status'] = {[Sequelize.In]:theArray}
       }
       query['include'] = await commonGet(req, res,{})
       if(req.query.page && req.query.page_size){

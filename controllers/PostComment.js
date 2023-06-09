@@ -55,15 +55,6 @@ const commonGet = async (req,res,whereInclude) => {
       attributes:["id","first_name","user_id"],
       required:true
     },
-    {
-      model:Model.Activity,
-      include:{
-        model:Model.MasterActivity,
-        attributes:["id","title","icon","is_active"],
-        required:true
-      },
-      required:true
-    }
   ]
 }
 
@@ -83,6 +74,11 @@ const list = async (req, res) => {
           {
             model:Model.PostUser,
             attributes:["id","post_id","user_id"],
+            include:{
+              model:Model.User,
+              attributes:["id","first_name","user_id","photo_1"],
+              required:true
+            },
             where:{post_id:req.query.post_id},
             required:true
           }
