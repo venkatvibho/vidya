@@ -106,7 +106,7 @@ const list = async (req, res) => {
       if(req.query.status){
       let theArray = req.query.status 
         if(!Array.isArray(theArray)){theArray = theArray.split(",");}
-        query['where']['status'] = {[Sequelize.In]:theArray}
+        query['where']['status'] = {[Sequelize.Op.In]:theArray}
       }
       query['include'] = await commonGet(req, res,{})
       if(req.query.page && req.query.page_size){
