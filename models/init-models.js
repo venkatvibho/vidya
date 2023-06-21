@@ -31,6 +31,8 @@ const _PollUserReport = require("./PollUserReport");
 const _PollUser = require("./PollUser");
 const _PollViewed = require("./PollViewed");
 const _Poll = require("./Poll");
+const _PostCommentLike = require("./PostCommentLike");
+const _PostCommentReplayLike = require("./PostCommentReplayLike");
 const _PostCommentReply = require("./PostCommentReply");
 const _PostComment = require("./PostComment");
 const _PostUserReportReply = require("./PostUserReportReply");
@@ -83,6 +85,8 @@ function initModels(sequelize) {
   const PollUser = _PollUser(sequelize, DataTypes);
   const PollViewed = _PollViewed(sequelize, DataTypes);
   const Poll = _Poll(sequelize, DataTypes);
+  const PostCommentLike = _PostCommentLike(sequelize, DataTypes);
+  const PostCommentReplayLike = _PostCommentReplayLike(sequelize, DataTypes);
   const PostCommentReply = _PostCommentReply(sequelize, DataTypes);
   const PostComment = _PostComment(sequelize, DataTypes);
   const PostUserReportReply = _PostUserReportReply(sequelize, DataTypes);
@@ -168,6 +172,10 @@ function initModels(sequelize) {
   Poll.hasMany(PollUser, { foreignKey: "poll_id"});
   PollViewed.belongsTo(Poll, { foreignKey: "poll_id"});
   Poll.hasMany(PollViewed, { foreignKey: "poll_id"});
+  PostCommentReplayLike.belongsTo(PostCommentReply, { foreignKey: "postcommentreplay_id"});
+  PostCommentReply.hasMany(PostCommentReplayLike, { foreignKey: "postcommentreplay_id"});
+  PostCommentLike.belongsTo(PostComment, { foreignKey: "postcomment_id"});
+  PostComment.hasMany(PostCommentLike, { foreignKey: "postcomment_id"});
   PostCommentReply.belongsTo(PostComment, { foreignKey: "postcomment_id"});
   PostComment.hasMany(PostCommentReply, { foreignKey: "postcomment_id"});
   PostUserReportReply.belongsTo(PostUserReport, { foreignKey: "postuserreport_id"});
@@ -218,6 +226,10 @@ function initModels(sequelize) {
   User.hasMany(PollViewed, { foreignKey: "user_id"});
   Poll.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(Poll, { foreignKey: "user_id"});
+  PostCommentLike.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(PostCommentLike, { foreignKey: "user_id"});
+  PostCommentReplayLike.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(PostCommentReplayLike, { foreignKey: "user_id"});
   PostCommentReply.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(PostCommentReply, { foreignKey: "user_id"});
   PostUserReportReply.belongsTo(User, { foreignKey: "user_id"});
@@ -292,6 +304,8 @@ function initModels(sequelize) {
     PollUser,
     PollViewed,
     Poll,
+    PostCommentLike,
+    PostCommentReplayLike,
     PostCommentReply,
     PostComment,
     PostUserReportReply,

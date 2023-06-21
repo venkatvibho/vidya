@@ -149,6 +149,14 @@ router.patch("/PostComment/update/:id",authorization,PostCommentController.updat
 router.delete("/PostComment/delete/:id",authorization,PostCommentController.remove)
 router.delete("/PostComment/bulkdelete/:ids",authorization,PostCommentController.bulkremove)
 
+const PostCommentLikeController          =  require('../controllers/PostCommentLike.js')
+router.post("/PostCommentLike/create",authorization,PostCommentLikeController.create)
+router.get("/PostCommentLike/list",authorization,PostCommentLikeController.list)
+router.get("/PostCommentLike/view/:id",authorization,PostCommentLikeController.view)
+router.patch("/PostCommentLike/update/:id",authorization,PostCommentLikeController.update)
+router.delete("/PostCommentLike/delete/:id",authorization,PostCommentLikeController.remove)
+router.delete("/PostCommentLike/bulkdelete/:ids",authorization,PostCommentLikeController.bulkremove)
+
 const PostCommentReplyController          =  require('../controllers/PostCommentReply.js')
 router.post("/PostCommentReply/create",authorization,PostCommentReplyController.create)
 router.get("/PostCommentReply/list",authorization,PostCommentReplyController.list)
@@ -156,6 +164,14 @@ router.get("/PostCommentReply/view/:id",authorization,PostCommentReplyController
 router.patch("/PostCommentReply/update/:id",authorization,PostCommentReplyController.update)
 router.delete("/PostCommentReply/delete/:id",authorization,PostCommentReplyController.remove)
 router.delete("/PostCommentReply/bulkdelete/:ids",authorization,PostCommentReplyController.bulkremove)
+
+const PostCommentReplayLikeController          =  require('../controllers/PostCommentReplayLike.js')
+router.post("/PostCommentReplayLike/create",authorization,PostCommentReplayLikeController.create)
+router.get("/PostCommentReplayLike/list",authorization,PostCommentReplayLikeController.list)
+router.get("/PostCommentReplayLike/view/:id",authorization,PostCommentReplayLikeController.view)
+router.patch("/PostCommentReplayLike/update/:id",authorization,PostCommentReplayLikeController.update)
+router.delete("/PostCommentReplayLike/delete/:id",authorization,PostCommentReplayLikeController.remove)
+router.delete("/PostCommentReplayLike/bulkdelete/:ids",authorization,PostCommentReplayLikeController.bulkremove)
 
 const GroupController          =  require('../controllers/Group.js')
 router.post("/Group/create",authorization,GroupController.create)

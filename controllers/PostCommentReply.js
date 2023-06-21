@@ -56,13 +56,21 @@ const list = async (req, res) => {
   // #swagger.tags = ['PostCommentReply']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
-  
 
   try{
       let pageSize = 0;
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['attributes']= {}
+      query['attributes']['include'] = [
+        [
+          Sequelize.literal(`(SELECT COUNT(id) FROM public.post_comment_replay_likes WHERE user_id=${req.user.id} AND postcommentreplay_id="PostCommentReply"."id")`),'is_like'
+        ],
+        [
+          Sequelize.literal(`(SELECT COUNT(id) FROM public.post_comment_replay_likes WHERE postcommentreplay_id="PostCommentReply"."id")`),'likes_count'
+        ],
+      ]
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;

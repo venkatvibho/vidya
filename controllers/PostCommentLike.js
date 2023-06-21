@@ -3,49 +3,27 @@ const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
 const { body, validationResult } = require('express-validator');
 const Model             =      require("../models");
-const ThisModel         =      Model.PostComment
+const ThisModel         =      Model.PostCommentLike
 
 const create = async (req, res) => {
-  // #swagger.tags = ['PostComment']
+  // #swagger.tags = ['PostCommentLike']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["comment","post_id"], 
+        "required": ["postcomment_id","user_id"], 
         "properties": { 
-          "comment": { 
-            "type": "string",
-          },
-          "postuser_id": { 
+          "postcomment_id": { 
             "type": "number",
-            "description":"IF is_post is true means it is public POST so share id off the POST Object here ELSE share id of the PostUser Object",
           },
-          "post_id": { 
+          "user_id": { 
             "type": "number",
-            "description":"From Post",
-          },
-          "is_post": { 
-            "type": "boolean",
-            "default":false
           }
         } 
       } 
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  if(req.body.is_post==true){
-    let checkPost = await Model.Post.count({id:req.body.post_id})
-    if(checkPost>0){
-      try{
-        let NewPostUser = await Model.PostUser.create({post_id:req.body.postuser_id,user_id:req.user.id,status:'Sent'})
-        req.body['postuser_id'] = NewPostUser.id
-        req.body['post_id'] = NewPostUser.id
-      }catch(error){
-        console.log(error)
-      }
-    }
-  }
-  delete req.body['is_post']
   return await ThisModel.create(req.body).then(async(doc) => {
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
@@ -57,60 +35,32 @@ const commonGet = async (req,res,whereInclude) => {
   return [
     {
       model:Model.User,
-      attributes:["id","first_name","user_id","photo_1"],
+      attributes:["id","first_name","user_id"],
       required:true
     },
+    {
+      model:Model.Activity,
+      include:{
+        model:Model.MasterActivity,
+        attributes:["id","title","icon","is_active"],
+        required:true
+      },
+      required:true
+    }
   ]
 }
 
 const list = async (req, res) => {
-  // #swagger.tags = ['PostComment']
+  // #swagger.tags = ['PostCommentLike']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   
+
   try{
       let pageSize = 0;
       let skip = 0;
       let query={}
       query['where'] = {}
-      query['attributes']= {}
-      query['attributes']['include'] = [
-        [
-          Sequelize.literal(`(SELECT COUNT(id) FROM public.post_comment_likes WHERE user_id=${req.user.id} AND postcomment_id="PostComment"."id")`),'is_liked'
-        ],
-        [
-          Sequelize.literal(`(SELECT COUNT(id) FROM public.post_comment_likes WHERE postcomment_id="PostComment"."id")`),'likes_count'
-        ],
-      ]
-      if(req.query.post_id){
-          query['include'] = [
-          {
-            model:Model.PostUser,
-            attributes:["id","post_id","user_id"],
-            include:{
-              model:Model.User,
-              attributes:["id","first_name","user_id","photo_1"],
-              required:true
-            },
-            where:{post_id:req.query.post_id},
-            required:true
-          },
-          {
-            model:Model.PostCommentReply,
-            include:{
-              model:Model.User,
-              attributes:["id","first_name","user_id","photo_1"],
-              required:true
-            },
-            required:false
-          },
-          {
-            model:Model.PostCommentLike,
-            where:{user_id:req.user.id},
-            required:false
-          }
-        ] 
-      }
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -121,7 +71,6 @@ const list = async (req, res) => {
       }
       query['distinct'] = true
       query['order'] =[ ['id', 'DESC']]
-      // query['include'] = await commonGet(req, res,{is_whereHide:is_whereHide})
       const noOfRecord = await ThisModel.findAndCountAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)
   } catch (err) {
@@ -130,7 +79,7 @@ const list = async (req, res) => {
 }
 
 const view = async (req, res) => {
-  // #swagger.tags = ['PostComment']
+  // #swagger.tags = ['PostCommentLike']
   let query={}
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
@@ -140,16 +89,19 @@ const view = async (req, res) => {
 }
 
 const update = async (req, res) => {
-  // #swagger.tags = ['PostComment']
+  // #swagger.tags = ['PostCommentLike']
   /*
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "comment": { 
-            "type": "string",
+          "postcomment_id": { 
+            "type": "number",
           },
-        }
+          "user_id": { 
+            "type": "number",
+          }
+        } 
       } 
     }
   */
@@ -162,7 +114,7 @@ const update = async (req, res) => {
 }
 
 const remove = async (req, res) => {
-  // #swagger.tags = ['PostComment']
+  // #swagger.tags = ['PostCommentLike']
   try{
     let record = await ThisModel.destroy({where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
@@ -172,8 +124,8 @@ const remove = async (req, res) => {
 }
 
 const bulkremove = async (req, res) => {
-  // #swagger.tags = ['PostComment']
-  // #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
+  // #swagger.tags = ['PostCommentLike']
+  //  #swagger.parameters['ids'] = { description: 'Enter multiple ids',type: 'array',required: true,}
     let theArray = req.params.ids 
     if(!Array.isArray(theArray)){theArray = theArray.split(",");}
     for (let index = 0; index < theArray.length; ++index) {
