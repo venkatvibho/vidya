@@ -3266,7 +3266,7 @@
             "schema": {
               "required": [
                 "comment",
-                "postuser_id"
+                "post_id"
               ],
               "properties": {
                 "comment": {
@@ -3275,6 +3275,10 @@
                 "postuser_id": {
                   "type": "number",
                   "description": "IF is_post is true means it is public POST so share id off the POST Object here ELSE share id of the PostUser Object"
+                },
+                "post_id": {
+                  "type": "number",
+                  "description": "From Post"
                 },
                 "is_post": {
                   "type": "boolean",
