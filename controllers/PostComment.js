@@ -11,7 +11,7 @@ const create = async (req, res) => {
     #swagger.parameters['body'] = {
       in: 'body', 
       '@schema': { 
-        "required": ["comment","postuser_id"], 
+        "required": ["comment","post_id"], 
         "properties": { 
           "comment": { 
             "type": "string",
@@ -19,6 +19,10 @@ const create = async (req, res) => {
           "postuser_id": { 
             "type": "number",
             "description":"IF is_post is true means it is public POST so share id off the POST Object here ELSE share id of the PostUser Object",
+          },
+          "post_id": { 
+            "type": "number",
+            "description":"From Post",
           },
           "is_post": { 
             "type": "boolean",
@@ -30,11 +34,12 @@ const create = async (req, res) => {
   */
   // const opts = { runValidators: false , upsert: true };
   if(req.body.is_post==true){
-    let checkPost = await Model.Post.count({id:req.body.postuser_id})
+    let checkPost = await Model.Post.count({id:req.body.post_id})
     if(checkPost>0){
       try{
         let NewPostUser = await Model.PostUser.create({post_id:req.body.postuser_id,user_id:req.user.id,status:'Sent'})
         req.body['postuser_id'] = NewPostUser.id
+        req.body['post_id'] = NewPostUser.id
       }catch(error){
         console.log(error)
       }
