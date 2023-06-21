@@ -49,10 +49,22 @@ const create = async (req, res) => {
 }
 
 const commonGet = async (req,res,whereInclude) => {
+  let where = {}
+  if(req.query.followed_by_me){
+    where['user_to_id'] = req.query.followed_by_me
+  }else if(req.query.followed_to_me){
+    where['user_from_id'] = req.query.followed_to_me
+  }else{
+    where[Op.or] = [{user_from_id:req.user.id},{user_to_id:req.user.id}]
+  }
   return [
     {
       model:Model.SlambookBeatQuestion,
       required:false
+    },{
+      model:Model.UserFollowing,
+      where:where,
+      required:true
     }
   ]
 }

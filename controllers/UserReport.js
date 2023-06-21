@@ -41,13 +41,13 @@ const commonGet = async (req,res,whereInclude) => {
     {
       model:Model.User,
       as: "ReportFrom",
-      attributes:["id","user_id","first_name","phonenumber"],
+      attributes:["id","user_id","first_name","phonenumber","photo_1"],
       required:true
     },
     {
       model:Model.User,
       foreignKey: 'to_user_id',
-      attributes:["id","user_id","first_name","phonenumber"],
+      attributes:["id","user_id","first_name","phonenumber","photo_1"],
       required:true
     },
     {

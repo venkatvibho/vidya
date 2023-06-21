@@ -103,15 +103,16 @@ const commonGet = async (req,res,whereInclude) => {
       required:false
     },{
       model:Model.PostUser,
+      where : {user_id:req.user.id},
       include:{
         model:Model.User,
-        attributes:["id","user_id","first_name","phonenumber"],
+        attributes:["id","user_id","first_name","phonenumber","photo_1"],
         required:false
       },
       required:false
     },{
       model:Model.User,
-      attributes:["id","user_id","first_name","phonenumber"],
+      attributes:["id","user_id","first_name","phonenumber","photo_1"],
       required:false
     },
   ]
@@ -138,7 +139,10 @@ const list = async (req, res) => {
         ],
         [
           Sequelize.literal(`(SELECT COUNT(id) FROM public.post_comments WHERE post_id="Post"."id")`),'comments_count'
-        ]
+        ],
+        [
+          Sequelize.literal(`(SELECT COUNT(id) FROM public.post_users WHERE is_liked=true AND post_id="Post"."id" AND user_id=${req.user.id})`),'is_liked_or_not'
+        ],
       ]
       query['include'] = await commonGet(req, res,{})
       if(req.query.page && req.query.page_size){

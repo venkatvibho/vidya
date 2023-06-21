@@ -54,7 +54,7 @@ const commonGet = async (req,res,whereInclude) => {
       model:Model.ChatRoomParticipant,
       include:{
         model:Model.User,
-        attributes:["id","first_name","user_id"],
+        attributes:["id","first_name","user_id","photo_1"],
         required:false
       },
       required:false

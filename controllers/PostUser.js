@@ -62,7 +62,7 @@ const commonGet = async (req,res,whereInclude) => {
     },
     {
       model:Model.User,
-      attributes:["id","user_id","first_name","phonenumber"],
+      attributes:["id","user_id","first_name","phonenumber","photo_1"],
       required:false
     }
   ]

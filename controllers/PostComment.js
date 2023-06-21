@@ -52,7 +52,7 @@ const commonGet = async (req,res,whereInclude) => {
   return [
     {
       model:Model.User,
-      attributes:["id","first_name","user_id"],
+      attributes:["id","first_name","user_id","photo_1"],
       required:true
     },
   ]
@@ -81,6 +81,10 @@ const list = async (req, res) => {
             },
             where:{post_id:req.query.post_id},
             required:true
+          },
+          {
+            model:Model.PostCommentReply,
+            required:false
           }
         ] 
       }
@@ -94,6 +98,7 @@ const list = async (req, res) => {
       }
       query['distinct'] = true
       query['order'] =[ ['id', 'DESC']]
+      // query['include'] = await commonGet(req, res,{is_whereHide:is_whereHide})
       const noOfRecord = await ThisModel.findAndCountAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)
   } catch (err) {

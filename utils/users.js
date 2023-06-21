@@ -73,7 +73,7 @@ const getOptionsList = async (req)=> {
         attributes:["id","user_id"],
         include:{
           model:Model.User,
-          attributes:["id","user_id","first_name"],
+          attributes:["id","user_id","first_name","photo_1"],
           required:true
         },
         required:false

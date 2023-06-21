@@ -84,9 +84,9 @@ const list = async (req, res) => {
       query['attributes']= {}
       let addparticipant = false
       if(req.query.followed_by_me){
-        query['where']['user_from_id'] = req.query.followed_by_me
+        query['where']['user_to_id'] = req.query.followed_by_me
       }else if(req.query.followed_to_me){
-        query['where']['user_to_id'] = req.query.followed_to_me
+        query['where']['user_from_id'] = req.query.followed_to_me
       }else{
         query['where'][Op.or] = [{user_from_id:req.user.id},{user_to_id:req.user.id}]
       }
