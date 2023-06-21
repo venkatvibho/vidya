@@ -81,18 +81,21 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['attributes']= {}
       let addparticipant = false
       if(req.query.followed_by_me){
         query['where']['user_from_id'] = req.query.followed_by_me
-      }
-      if(req.query.followed_to_me){
+      }else if(req.query.followed_to_me){
         query['where']['user_to_id'] = req.query.followed_to_me
+      }else{
+        query['where'][Op.or] = [{user_from_id:req.user.id},{user_to_id:req.user.id}]
       }
       if(req.query.is_screen_for=="addparticipant"){
         if(req.user){
           delete query['where']['user_from_id']
           delete query['where']['user_to_id'] 
-          query['where']['user_from_id'] = {[Op.or]:[{user_from_id: req.user.id},{user_to_id: req.user.id}]}
+          // query['where']['user_from_id'] = {[Op.or]:[{user_from_id: req.user.id},{user_to_id: req.user.id}]}
+          query['where'][Op.or] = [{user_from_id:req.user.id},{user_to_id:req.user.id}]
         }
       }
       let UserFollowingOrder = null
@@ -101,6 +104,14 @@ const list = async (req, res) => {
         if(req.query.is_screen_for=="notifications"){
           query['where']['status'] = {[Op.notIn]:['Rejected']}
         }else if(req.query.is_screen_for=="slambook"){
+          query['attributes']['include'] = [
+            [
+              Sequelize.literal(`(SELECT COUNT(id) FROM public.groups_participants WHERE group_id IN(SELECT a.group_id FROM public.groups_participants AS a WHERE a.user_id="UserFollowing".user_to_id) AND user_id="UserFollowing".user_from_id)`),'groups_count'
+            ],
+            [
+              Sequelize.literal(`(SELECT COUNT(id) FROM public.activity_users WHERE activity_id IN(SELECT a.activity_id FROM public.activity_users AS a WHERE a.user_id="UserFollowing".user_to_id) AND user_id="UserFollowing".user_from_id)`),'activities_count'
+            ],
+          ]
           let date  = require('date-and-time');
           let current_date = await Helper.CurrentDate()
           let today =  date.format(current_date, 'YYYY-MM-DD');
@@ -145,6 +156,15 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['UserFollowing']
   let query={}
+  query['attributes']= {}
+  query['attributes']['include'] = [
+    [
+      Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_to_id=${req.user.id})`),'honor'
+    ],
+    [
+      Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_to_id=${req.user.id})`),'genune'
+    ],
+  ]
   query['include'] = await commonGet(req, res,{})
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
@@ -171,6 +191,9 @@ const update = async (req, res) => {
           "is_blocked": { 
             "type": "boolean",
           },
+          "is_slambook_skip":{
+            "type": "boolean",
+          }
         }
       } 
     }
@@ -191,6 +214,9 @@ const update = async (req, res) => {
     }
     if(req.body.status=="Rejected"){
       req.body["rejectedAt"] = await Helper.CurrentDate()
+    }
+    if(req.body.is_slambook_skip){
+      req.body["slam_book_skip_date"] = await Helper.CurrentDate()
     }
     return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
       records = await ThisModel.findByPk(req.params.id);

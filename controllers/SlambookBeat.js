@@ -120,10 +120,6 @@ const update = async (req, res) => {
             "type": "array",
             "description":"Ex:[{s3bucketobject},{s3bucketobject}]",
           },
-          "upload_pics": { 
-            "type": "array",
-            "description":"Ex:[{s3bucketobject},{s3bucketobject}]",
-          },
           "beatquestions": { 
             "type": "array",
             "description": "[{qid:1,answer:enter answer},{qid:2,answer:enter answer}]",
