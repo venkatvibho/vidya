@@ -116,6 +116,9 @@ const list = async (req, res) => {
           let current_date = await Helper.CurrentDate()
           let today =  date.format(current_date, 'YYYY-MM-DD');
           query['where']['status'] = 'Accepted'
+          const moment    = require('moment')
+          today = moment(today).subtract(7,'days');
+          today = await Helper.DT_Y_M_D(today)
           console.log(today)
           // query['where']['acceptedAt'] = {[Op.gte]: Sequelize.literal(`'${today}'`)}
           console.log("Where",query)

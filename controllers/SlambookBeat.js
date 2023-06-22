@@ -154,7 +154,7 @@ const update = async (req, res) => {
           },
           "beatquestions": { 
             "type": "array",
-            "description": "[{qid:1,answer:enter answer},{qid:2,answer:enter answer}]",
+            "description": "[{id:1,answer:enter answer},{id:2,answer:enter answer}]",
           }
         }
       } 
@@ -185,8 +185,8 @@ const update = async (req, res) => {
         if(beatquestions){
           for (let i = 0; i < beatquestions.length; i++) {
             try{
-              console.log(beatquestions[i].answer,beatquestions[i].qid)
-              await Model.SlambookBeatQuestion.update({answer:beatquestions[i].answer},{where:{id:beatquestions[i].qid}})
+              console.log(beatquestions[i].answer,beatquestions[i].id)
+              await Model.SlambookBeatQuestion.update({answer:beatquestions[i].answer},{where:{id:beatquestions[i].id}})
             } catch (err){
               console.log(err);
             }
@@ -198,7 +198,7 @@ const update = async (req, res) => {
         return await Helper.ErrorValidation(req,res,err,'cache')
       })
     }else{
-      return await Helper.ErrorValidation(req,res,{message:"Please enter minum 4 moments"},'cache')
+      return await Helper.ErrorValidation(req,res,{message:"Please enter minum 5 moments"},'cache')
     }
   }
 }

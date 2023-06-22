@@ -2412,7 +2412,7 @@
                 },
                 "beatquestions": {
                   "type": "array",
-                  "description": "[{qid:1,answer:enter answer},{qid:2,answer:enter answer}]"
+                  "description": "[{id:1,answer:enter answer},{id:2,answer:enter answer}]"
                 }
               }
             }
