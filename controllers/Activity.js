@@ -72,6 +72,7 @@ const create = async (req, res) => {
       await body('group_id').notEmpty().withMessage('group_id is required').run(req)
     }
   }
+  req.body['is_deleted'] = false
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     let firstError = errors.errors.map(error => error.msg)[0];
@@ -221,6 +222,7 @@ const list = async (req, res) => {
         ],
       ]
       query['where'] = {}
+      query['where']['is_deleted'] = false
       let is_Required = false
       if(req.query.created_by_user_id){
         query['where']['user_id'] = req.query.created_by_user_id
@@ -423,7 +425,8 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   // #swagger.tags = ['Activity']
   try{
-    let record = await ThisModel.destroy({where:{id:req.params.id}})
+    // let record = await ThisModel.destroy({where:{id:req.params.id}})
+    let record = ThisModel.update({'is_deleted':true},{where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
   } catch (err) {
     return await Helper.ErrorValidation(req,res,err,'cache')
@@ -437,7 +440,8 @@ const bulkremove = async (req, res) => {
     if(!Array.isArray(theArray)){theArray = theArray.split(",");}
     for (let index = 0; index < theArray.length; ++index) {
       const rowid = theArray[index];
-      await ThisModel.destroy({where:{id:rowid}}).then((response) => {}).catch((err) => {});
+      // await ThisModel.destroy({where:{id:rowid}}).then((response) => {}).catch((err) => {});
+      ThisModel.update({'is_deleted':true},{where:{id:rowid}})
     }
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
 }

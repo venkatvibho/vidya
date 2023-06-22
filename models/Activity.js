@@ -67,6 +67,10 @@ class Activity extends Sequelize.Model {
     type_of_badge: {
       type: DataTypes.STRING(15),
       allowNull: false
+    },
+    is_deleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
     }
   }, {
     sequelize,

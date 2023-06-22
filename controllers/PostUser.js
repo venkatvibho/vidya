@@ -72,6 +72,11 @@ const list = async (req, res) => {
   // #swagger.tags = ['PostUser']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
+  //  #swagger.parameters['post_id'] = {in: 'query',type:'number'}
+  //  #swagger.parameters['is_hide'] = {in: 'query',type:'boolean'}
+  //  #swagger.parameters['is_save'] = {in: 'query',type:'boolean'}
+  //  #swagger.parameters['is_viewed'] = {in: 'query',type:'boolean'}
+  //  #swagger.parameters['is_liked'] = {in: 'query',type:'boolean'}
   
 
   try{
@@ -79,6 +84,37 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      if(req.query.post_id){
+        query['where']['post_id'] = req.query.post_id 
+      }
+      if(req.query.is_hide){
+        query['where']['is_hide'] = req.query.is_hide 
+      }
+      if(req.query.is_save){
+        query['where']['is_save'] = req.query.is_save 
+      }
+      if(req.query.is_viewed){
+        query['where']['is_viewed'] = req.query.is_viewed 
+      }
+      if(req.query.is_liked){
+        query['where']['is_liked'] = req.query.is_liked 
+      }
+      if('is_hide' in req.query){
+        where['is_hide'] = req.query.is_hide 
+        reqornot = true
+      }
+      // if('is_save' in req.query){
+      //   where['is_save'] = req.query.is_save
+      //   reqornot = true 
+      // }
+      // if('is_viewed' in req.query){
+      //   where['is_viewed'] = req.query.is_viewed
+      //   reqornot = true 
+      // }
+      // if('is_liked' in req.query){
+      //   where['is_liked'] = req.query.is_liked
+      //   reqornot = true 
+      // }
       query['include'] = await commonGet(req, res,{})
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {

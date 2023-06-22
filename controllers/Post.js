@@ -94,6 +94,41 @@ const create = async (req, res) => {
 }
 
 const commonGet = async (req,res,whereInclude) => {
+  let where = {}
+  let reqornot = false
+  // if('is_hide' in req.query){
+  //   where['is_hide'] = req.query.is_hide 
+  //   reqornot = true
+  // }
+  // if('is_save' in req.query){
+  //   where['is_save'] = req.query.is_save
+  //   reqornot = true 
+  // }
+  // if('is_viewed' in req.query){
+  //   where['is_viewed'] = req.query.is_viewed
+  //   reqornot = true 
+  // }
+  // if('is_liked' in req.query){
+  //   where['is_liked'] = req.query.is_liked
+  //   reqornot = true 
+  // }
+  if(req.query.is_hide){
+    where['is_hide'] = req.query.is_hide 
+    reqornot = true
+  }
+  if(req.query.is_save){
+    where['is_save'] = req.query.is_save
+    reqornot = true 
+  }
+  if(req.query.is_viewed){
+    where['is_viewed'] = req.query.is_viewed
+    reqornot = true 
+  }
+  if(req.query.is_liked){
+    where['is_liked'] = req.query.is_liked
+    reqornot = true 
+  }
+  where['user_id'] = req.user.id
   return [
     {
       model:Model.Activity,
@@ -103,13 +138,13 @@ const commonGet = async (req,res,whereInclude) => {
       required:false
     },{
       model:Model.PostUser,
-      where : {user_id:req.user.id},
+      where : where,
       include:{
         model:Model.User,
         attributes:["id","user_id","first_name","phonenumber","photo_1"],
         required:false
       },
-      required:false
+      required:reqornot
     },{
       model:Model.User,
       attributes:["id","user_id","first_name","phonenumber","photo_1"],
@@ -123,6 +158,10 @@ const list = async (req, res) => {
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   //  #swagger.parameters['is_screen_for'] = {in: 'query',type:'string','enum':["dashboard","profile"]}
+  //  #swagger.parameters['is_hide'] = {in: 'query',type:'boolean'}
+  //  #swagger.parameters['is_save'] = {in: 'query',type:'boolean'}
+  //  #swagger.parameters['is_viewed'] = {in: 'query',type:'boolean'}
+  //  #swagger.parameters['is_liked'] = {in: 'query',type:'boolean'}
 
   try{
       let pageSize = 0;

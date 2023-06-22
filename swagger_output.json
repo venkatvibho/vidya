@@ -2567,6 +2567,26 @@
               "dashboard",
               "profile"
             ]
+          },
+          {
+            "name": "is_hide",
+            "in": "query",
+            "type": "boolean"
+          },
+          {
+            "name": "is_save",
+            "in": "query",
+            "type": "boolean"
+          },
+          {
+            "name": "is_viewed",
+            "in": "query",
+            "type": "boolean"
+          },
+          {
+            "name": "is_liked",
+            "in": "query",
+            "type": "boolean"
           }
         ],
         "responses": {
@@ -2728,6 +2748,31 @@
             "name": "page",
             "in": "query",
             "type": "number"
+          },
+          {
+            "name": "post_id",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "is_hide",
+            "in": "query",
+            "type": "boolean"
+          },
+          {
+            "name": "is_save",
+            "in": "query",
+            "type": "boolean"
+          },
+          {
+            "name": "is_viewed",
+            "in": "query",
+            "type": "boolean"
+          },
+          {
+            "name": "is_liked",
+            "in": "query",
+            "type": "boolean"
           }
         ],
         "responses": {

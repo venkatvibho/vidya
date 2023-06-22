@@ -238,6 +238,10 @@ function initModels(sequelize) {
   User.hasMany(PostUser, { foreignKey: "user_id"});
   Post.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(Post, { foreignKey: "user_id"});
+  SlambookBeat.belongsTo(User, { foreignKey: "user_from_id"});
+  User.hasMany(SlambookBeat, { foreignKey: "user_from_id"});
+  SlambookBeat.belongsTo(User, { foreignKey: "user_to_id"});
+  User.hasMany(SlambookBeat, { foreignKey: "user_to_id"});
   UserFollowing.belongsTo(User, { foreignKey: "user_from_id"});
   User.hasMany(UserFollowing, { foreignKey: "user_from_id"});
   UserFollowing.belongsTo(User, { foreignKey: "user_to_id"});
@@ -270,6 +274,8 @@ function initModels(sequelize) {
   ChatRoom.hasOne(ChatRoomParticipant, { as:"ChatRoom_Participant",foreignKey: "chatroom_id"});
   Group.hasOne(GroupsParticipant, { as:"Groups_Participant",foreignKey: "group_id"});
   Activity.hasOne(ActivityUser, { as:"IsParticipant",foreignKey: "activity_id"});
+  SlambookBeat.belongsTo(User, { as:"UserTo",foreignKey: "user_to_id"});
+  SlambookBeat.belongsTo(User, { as:"UserFrom",foreignKey: "user_from_id"});
 
   return {
     Activity,

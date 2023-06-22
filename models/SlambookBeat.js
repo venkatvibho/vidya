@@ -36,6 +36,22 @@ class SlambookBeat extends Sequelize.Model {
         key: 'id'
       },
       unique: "slambook_beats_user_following_id_cb1b33af_uniq"
+    },
+    user_from_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id'
+      }
+    },
+    user_to_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id'
+      }
     }
   }, {
     sequelize,
@@ -55,6 +71,18 @@ class SlambookBeat extends Sequelize.Model {
         unique: true,
         fields: [
           { name: "user_following_id" },
+        ]
+      },
+      {
+        name: "slambook_beats_user_from_id_4805d028",
+        fields: [
+          { name: "user_from_id" },
+        ]
+      },
+      {
+        name: "slambook_beats_user_to_id_ee495bd0",
+        fields: [
+          { name: "user_to_id" },
         ]
       },
     ]

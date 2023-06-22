@@ -31,18 +31,29 @@ const create = async (req, res) => {
     let beatquestions = req.body['beatquestions']
     delete req.body['beatquestions']
     req.body['status'] = 'Sent'
-    return await ThisModel.create(req.body).then(async(doc) => {
-      try{
-        for (let i = 0; i < beatquestions.length; i++) {
-          await Model.SlambookBeatQuestion.create({title:beatquestions[i],is_active:true,user_following_id:doc.id})
-        }
-      } catch (err){
-        await ThisModel.destroy({where:{id:doc.id}})
+    req.body['user_from_id'] = req.user.id
+    let UserId = await Model.UserFollowing.findByPk(req.body['user_following_id'])
+    if(UserId){
+      if(UserId.user_from_id && UserId.user_to_id){
+        req.body['user_to_id'] = (UserId.user_from_id==req.user.id)?UserId.user_to_id:UserId.user_from_id
+        return await ThisModel.create(req.body).then(async(doc) => {
+          try{
+            for (let i = 0; i < beatquestions.length; i++) {
+              await Model.SlambookBeatQuestion.create({title:beatquestions[i],is_active:true,user_following_id:doc.id})
+            }
+          } catch (err){
+            await ThisModel.destroy({where:{id:doc.id}})
+          }
+          await Helper.SuccessValidation(req,res,doc,'Added successfully')
+        }).catch( async (err) => {
+          return await Helper.ErrorValidation(req,res,err,'cache')
+        })
+      }else{
+        return await Helper.ErrorValidation(req,res,{message:"Invalid user_following_id provided"},'cache')
       }
-      await Helper.SuccessValidation(req,res,doc,'Added successfully')
-    }).catch( async (err) => {
-      return await Helper.ErrorValidation(req,res,err,'cache')
-    })
+    }else{
+      return await Helper.ErrorValidation(req,res,{message:"Invalid user_following_id provided"},'cache')
+    }
   }else{
     return await Helper.ErrorValidation(req,res,{message:"Minimum 5  questions allowed only"},'cache')
   }
@@ -50,20 +61,22 @@ const create = async (req, res) => {
 
 const commonGet = async (req,res,whereInclude) => {
   let where = {}
-  if(req.query.followed_by_me){
-    where['user_to_id'] = req.query.followed_by_me
-  }else if(req.query.followed_to_me){
-    where['user_from_id'] = req.query.followed_to_me
-  }else{
-    where[Op.or] = [{user_from_id:req.user.id},{user_to_id:req.user.id}]
-  }
   return [
     {
       model:Model.SlambookBeatQuestion,
       required:false
     },{
       model:Model.UserFollowing,
-      where:where,
+      required:true
+    },{
+      model:Model.User,
+      as:'UserTo',
+      attributes:["id","first_name","user_id","photo_1"],
+      required:true
+    },{
+      model:Model.User,
+      as:'UserFrom',
+      attributes:["id","first_name","user_id","photo_1"],
       required:true
     }
   ]
@@ -81,6 +94,13 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      if(req.query.followed_by_me){
+        query['where']['user_to_id'] = req.query.followed_by_me
+      }else if(req.query.followed_to_me){
+        query['where']['user_from_id'] = req.query.followed_to_me
+      }else{
+        query['where'][Op.or] = [{user_from_id:req.user.id},{user_to_id:req.user.id}]
+      }
       query['include'] = await commonGet(req, res,{})
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
