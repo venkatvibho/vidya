@@ -116,6 +116,7 @@ const list = async (req, res) => {
           let current_date = await Helper.CurrentDate()
           let today =  date.format(current_date, 'YYYY-MM-DD');
           query['where']['status'] = 'Accepted'
+          console.log(today)
           // query['where']['acceptedAt'] = {[Op.gte]: Sequelize.literal(`'${today}'`)}
           console.log("Where",query)
         }
@@ -155,14 +156,21 @@ const list = async (req, res) => {
 
 const view = async (req, res) => {
   // #swagger.tags = ['UserFollowing']
+  let check_user_id = req.user.id
+  let UserId = await Model.UserFollowing.findByPk(req.params.id)
+    if(UserId){
+    if(UserId.user_from_id && UserId.user_to_id){
+      check_user_id = (UserId.user_from_id==req.user.id)?UserId.user_to_id:UserId.user_from_id
+    }
+  }
   let query={}
   query['attributes']= {}
   query['attributes']['include'] = [
     [
-      Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_to_id=${req.user.id})`),'honor'
+      Sequelize.literal(`(SELECT SUM(honour) FROM public.activity_users WHERE status='Joined' AND user_id=${check_user_id})`),'honor'
     ],
     [
-      Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_to_id=${req.user.id})`),'genune'
+      Sequelize.literal(`(SELECT SUM(general) FROM public.activity_users WHERE status='Joined' AND user_to_id=${check_user_id})`),'genune'
     ],
   ]
   query['include'] = await commonGet(req, res,{})

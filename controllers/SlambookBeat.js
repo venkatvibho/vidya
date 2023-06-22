@@ -181,10 +181,11 @@ const update = async (req, res) => {
       delete req.body['beatquestions']
     }
     if(momentLimit){
-      return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
-        if(req.body.beatquestions){
+      await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
+        if(beatquestions){
           for (let i = 0; i < beatquestions.length; i++) {
             try{
+              console.log(beatquestions[i].answer,beatquestions[i].qid)
               await Model.SlambookBeatQuestion.update({answer:beatquestions[i].answer},{where:{id:beatquestions[i].qid}})
             } catch (err){
               console.log(err);
@@ -192,12 +193,12 @@ const update = async (req, res) => {
           }
         }
         records = await ThisModel.findByPk(req.params.id);
-        await Helper.SuccessValidation(req,res,records,'Updated successfully')
+        return await Helper.SuccessValidation(req,res,records,'Updated successfully')
       }).catch( async (err) => {
         return await Helper.ErrorValidation(req,res,err,'cache')
       })
     }else{
-      return await Helper.ErrorValidation(req,res,{message:"Minimum 4 moments allowed only"},'cache')
+      return await Helper.ErrorValidation(req,res,{message:"Please enter minum 4 moments"},'cache')
     }
   }
 }

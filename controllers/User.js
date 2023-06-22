@@ -168,10 +168,10 @@ const list = async (req, res) => {
       // FollowWhere.user_from_id = req.user.id
       query['attributes']['include'] = [
         [
-          Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_to_id=${req.user.id})`),'honor'
+          Sequelize.literal(`(SELECT SUM(honour) FROM public.activity_users WHERE status='Joined' AND user_id="User".id)`),'honor'
         ],
         [
-          Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_to_id=${req.user.id})`),'genune'
+          Sequelize.literal(`(SELECT SUM(general) FROM public.activity_users WHERE status='Joined' AND user_id="User".id)`),'genune'
         ],
         [
           Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Hide' AND user_to_id="User".id AND user_from_id=${req.user.id})`),'isHideCount'
@@ -234,10 +234,16 @@ const view = async (req, res) => {
   query['attributes']['exclude']= await commonExclude()
   query['attributes']['include'] = [
     [
-        Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_from_id=${user_id})`),'followings'
+      Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_from_id=${user_id})`),'followings'
     ],
     [
       Sequelize.literal(`(SELECT COUNT(id) FROM public.user_followings WHERE status='Accepted' AND user_to_id=${user_id})`),'followers'
+    ],
+    [
+      Sequelize.literal(`(SELECT SUM(honour) FROM public.activity_users WHERE status='Joined' AND user_id=${user_id})`),'honor'
+    ],
+    [
+      Sequelize.literal(`(SELECT SUM(general) FROM public.activity_users WHERE status='Joined' AND user_id=${user_id})`),'genune'
     ],
   ]
   query['include'] = await commonGet(req, res,{UserFollowingWhere:{user_from_id:user_id}})

@@ -252,10 +252,26 @@ const home = async (req, res) => {
       }
     }
   }
+
   records = {
-    honour_poins : 0,
-    fe_poins : 0,
-    general_poins : 0,
+    honour_poins : await Model.ActivityUser.sum("honour", {
+      where: {
+        user_id: req.user.id,
+        status:'Joined',
+      },
+    }),
+    fe_poins : await Model.ActivityUser.sum("f2", {
+      where: {
+        user_id: req.user.id,
+        status:'Joined',
+      },
+    }),
+    general_poins : await Model.ActivityUser.sum("general", {
+      where: {
+        user_id: req.user.id,
+        status:'Joined',
+      },
+    }),
     honour:{
       is_scratched_available:await (checkThisMonthStatus==0 && IslastDayOfMonth.islastDay==1)?true:false,
       points:honour
