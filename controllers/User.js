@@ -113,6 +113,21 @@ const commonGet = async (req,res,whereInclude) => {
         required:UsersLanguageBooLn
       }
     )
+  }else{
+    if(["/User/view/:id"].includes(req.route.path)){
+      includearr.push(
+        {
+          model:Model.UsersLanguage,
+          where:UsersLanguageArr,
+          include:{
+            model:Model.MasterLanguage,
+            attributes:["id","title"],
+            required:false
+          },
+          required:UsersLanguageBooLn
+        }
+      )
+    }
   }
   let titles_only = true
   if(req.query.is_screen_for){
