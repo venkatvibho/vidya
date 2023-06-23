@@ -218,7 +218,7 @@ const view = async (req, res) => {
       include:[
         {
           model:Model.User,
-          attributes:["id","first_name","user_id"],
+          attributes:["id","first_name","user_id","photo_1"],
           required:true,
         },
         {
@@ -240,7 +240,7 @@ const view = async (req, res) => {
       include:[
         {
           model:Model.User,
-          attributes:["id","first_name","user_id"],
+          attributes:["id","first_name","user_id","photo_1"],
           required:true,
         }
       ]
