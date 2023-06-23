@@ -5258,6 +5258,43 @@
         }
       }
     },
+    "/PollUser/update/{id}": {
+      "patch": {
+        "tags": [
+          "PollUser"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "poll_option_id": {
+                  "type": "id"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/PollUser/delete/{id}": {
       "delete": {
         "tags": [

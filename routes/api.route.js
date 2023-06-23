@@ -226,7 +226,7 @@ const PollUserController          =  require('../controllers/PollUser.js')
 router.post("/PollUser/create",authorization,PollUserController.create)
 router.get("/PollUser/list",authorization,PollUserController.list)
 router.get("/PollUser/view/:id",authorization,PollUserController.view)
-// router.patch("/PollUser/update/:id",authorization,PollUserController.update)
+router.patch("/PollUser/update/:id",authorization,PollUserController.update)
 router.delete("/PollUser/delete/:id",authorization,PollUserController.remove)
 router.delete("/PollUser/bulkdelete/:ids",authorization,PollUserController.bulkremove)
 
