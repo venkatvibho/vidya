@@ -276,6 +276,7 @@ function initModels(sequelize) {
   Activity.hasOne(ActivityUser, { as:"IsParticipant",foreignKey: "activity_id"});
   SlambookBeat.belongsTo(User, { as:"UserTo",foreignKey: "user_to_id"});
   SlambookBeat.belongsTo(User, { as:"UserFrom",foreignKey: "user_from_id"});
+  Poll.hasOne(PollUser, { as:"PollUserDetails",foreignKey: "poll_id"});
 
   return {
     Activity,

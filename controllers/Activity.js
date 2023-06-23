@@ -441,7 +441,7 @@ const bulkremove = async (req, res) => {
     for (let index = 0; index < theArray.length; ++index) {
       const rowid = theArray[index];
       // await ThisModel.destroy({where:{id:rowid}}).then((response) => {}).catch((err) => {});
-      ThisModel.update({'is_deleted':true},{where:{id:rowid}})
+      await ThisModel.update({'is_deleted':true},{where:{id:rowid}})
     }
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
 }

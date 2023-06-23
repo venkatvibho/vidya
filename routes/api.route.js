@@ -210,7 +210,7 @@ const PollController          =  require('../controllers/Poll.js')
 router.post("/Poll/create",authorization,PollController.create)
 router.get("/Poll/list",authorization,PollController.list)
 router.get("/Poll/view/:id",authorization,PollController.view)
-// router.patch("/Poll/update/:id",authorization,PollController.update)
+router.patch("/Poll/update/:id",authorization,PollController.update)
 router.delete("/Poll/delete/:id",authorization,PollController.remove)
 router.delete("/Poll/bulkdelete/:ids",authorization,PollController.bulkremove)
 

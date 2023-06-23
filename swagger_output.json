@@ -4883,6 +4883,43 @@
         }
       }
     },
+    "/Poll/update/{id}": {
+      "patch": {
+        "tags": [
+          "Poll"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "first_name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/Poll/delete/{id}": {
       "delete": {
         "tags": [
@@ -4958,7 +4995,8 @@
               ],
               "properties": {
                 "poll_id": {
-                  "type": "Take id from Poll"
+                  "type": "number",
+                  "description": "Take id from Poll"
                 },
                 "title": {
                   "type": "string"
@@ -5054,7 +5092,8 @@
             "schema": {
               "properties": {
                 "poll_id": {
-                  "type": "Take id from Poll"
+                  "type": "number",
+                  "description": "Take id from Poll"
                 },
                 "title": {
                   "type": "string"
@@ -5145,10 +5184,12 @@
               ],
               "properties": {
                 "poll_id": {
-                  "type": "Take id from Poll"
+                  "type": "number",
+                  "description": "Take id from Poll"
                 },
                 "poll_option_id": {
-                  "type": "Take id from PollOptions"
+                  "type": "number",
+                  "description": "Take id from PollOptions"
                 }
               }
             }

@@ -15,7 +15,7 @@ const create = async (req, res) => {
         "properties": { 
           "poll_id": { 
             "type": "number",
-            "type": "Take id from Poll",
+            "description": "Take id from Poll",
           },
           "title": { 
             "type": "string"
@@ -89,7 +89,7 @@ const update = async (req, res) => {
         "properties": { 
           "poll_id": { 
             "type": "number",
-            "type": "Take id from Poll",
+            "description": "Take id from Poll",
           },
           "title": { 
             "type": "string"

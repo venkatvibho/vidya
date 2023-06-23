@@ -15,11 +15,11 @@ const create = async (req, res) => {
         "properties": { 
           "poll_id": { 
             "type": "number",
-            "type": "Take id from Poll",
+            "description": "Take id from Poll",
           },
           "poll_option_id": { 
             "type": "number",
-            "type": "Take id from PollOptions",
+            "description": "Take id from PollOptions",
           }
         } 
       } 
@@ -95,8 +95,8 @@ const update = async (req, res) => {
       in: 'body', 
       '@schema': { 
         "properties": { 
-          "first_name": { 
-            "type": "string",
+          "poll_option_id": { 
+            "type": "id",
           },
         }
       } 

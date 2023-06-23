@@ -112,6 +112,13 @@ const commonGet = async (req,res,whereInclude) => {
   //   }
   // }
   IncAttr.push(groupPoll)
+  let PooUserDt = {
+    model:Model.PollUser,
+    as:"PollUserDetails",
+    where:{user_id:req.user.id},
+    required:false
+  }
+  IncAttr.push(PooUserDt)
   IncAttr.push(
       {
         model:Model.PollOption,
@@ -221,16 +228,20 @@ const view = async (req, res) => {
         }
       ]
     })
-    let Uids = null
+    let Uids = []
+    Uids.push(0)
     for (const vot of records['voted']) {
       if(vot.User){
-        Uids.push(vot.User[0].id)
+        Uids.push(vot.User.id)
       }
     }
-    records['not_voted'] = await Model.Group.findByPk(records.group_id,{
+    records['not_voted'] = await Model.GroupsParticipant.findAll({
+      where:{user_id:{[Op.notIn]:Uids}},
       include:[
         {
-          model:Model.User,attributes:["id","first_name","user_id"],where:{user_id:{[Op.notIn]:[Uids]}},required:true
+          model:Model.User,
+          attributes:["id","first_name","user_id"],
+          required:true,
         }
       ]
     })
@@ -263,7 +274,8 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   // #swagger.tags = ['Poll']
   try{
-    let record = await ThisModel.destroy({where:{id:req.params.id}})
+    // let record = await ThisModel.destroy({where:{id:req.params.id}})
+    let record = await ThisModel.update({'is_deleted':true},{where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
   } catch (err) {
     return await Helper.ErrorValidation(req,res,err,'cache')
@@ -277,7 +289,8 @@ const bulkremove = async (req, res) => {
     if(!Array.isArray(theArray)){theArray = theArray.split(",");}
     for (let index = 0; index < theArray.length; ++index) {
       const rowid = theArray[index];
-      await ThisModel.destroy({where:{id:rowid}}).then((response) => {}).catch((err) => {});
+      // await ThisModel.destroy({where:{id:rowid}}).then((response) => {}).catch((err) => {});
+      await ThisModel.update({'is_deleted':true},{where:{id:rowid}})
     }
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
 }
