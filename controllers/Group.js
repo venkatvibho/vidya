@@ -159,13 +159,16 @@ const medialinks = async (req, res) => {
   // #swagger.tags = ['Group']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
-
+ 
   let GroupChatModel         =      Model.GroupChat
   try{
     let pageSize = 0;
     let skip = 0;
     let query={}
     query['where'] = {}
+    if(req.params.medialinksid){
+      query['where']['group_id'] = req.params.medialinksid
+    }
     query['where']['is_image'] = true
     aquery['attributes'] = ['id', 'user_id','message','send_type']
     if(req.query.page && req.query.page_size){

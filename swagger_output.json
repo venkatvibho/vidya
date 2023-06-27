@@ -4693,6 +4693,80 @@
         }
       }
     },
+    "/GroupChat/pollVote/create": {
+      "post": {
+        "tags": [
+          "GroupChat"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "group_chat_id",
+                "poll_id",
+                "poll_option_id"
+              ],
+              "properties": {
+                "group_chat_id": {
+                  "type": "number"
+                },
+                "poll_id": {
+                  "type": "number"
+                },
+                "poll_option_id": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/GroupChat/pollVote/{groupchat_poll_vote_id}/{group_id}": {
+      "get": {
+        "tags": [
+          "GroupChat"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "groupchat_poll_vote_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/GroupChat/delete/{id}": {
       "delete": {
         "tags": [
@@ -4794,6 +4868,9 @@
                 "group_id": {
                   "type": "number",
                   "description": "Take from Group"
+                },
+                "is_for_chat": {
+                  "type": "boolean"
                 },
                 "questionoptions": {
                   "type": "array",

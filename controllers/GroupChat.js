@@ -3,6 +3,7 @@ const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
 const { body, validationResult } = require('express-validator');
 const Model             =      require("../models");
+const PollOption = require("../models/PollOption");
 const ThisModel         =      Model.GroupChat
 
 const create = async (req, res) => {
@@ -34,6 +35,37 @@ const commonGet = async (req,res,whereInclude) => {
       model:Model.User,
       attributes:["id","first_name","photo_1"],
       required:true
+    },
+    {
+      model:Model.Poll,
+      as:"PollDetails",
+      include:{
+        model:Model.PollOption,
+        attributes:{
+          include:[
+            [
+              Sequelize.literal(`(SELECT COUNT(id) FROM public.groups_participants WHERE group_id="GroupChat"."group_id")`),'allCount'
+            ],
+            [
+              Sequelize.literal(`(SELECT COUNT(id) FROM public.poll_votes WHERE poll_option_id="PollDetails->PollOptions"."id")`),'votedCount'
+            ],
+            [
+              Sequelize.literal(`(SELECT COUNT(id) FROM public.poll_votes WHERE user_id=${req.user.id} AND poll_option_id="PollDetails->PollOptions"."id")`),'is_Voted'
+            ],
+          ]
+        },
+        include:{
+          model:Model.PollVote,
+          include:{
+            model:Model.User,
+            attributes:["id","first_name","photo_1"],
+            required:false
+          },
+          required:false
+        },
+        required:false
+      },
+      required:false
     },
     {
       model:Model.Group,
@@ -100,6 +132,7 @@ const list = async (req, res) => {
 const view = async (req, res) => {
   // #swagger.tags = ['GroupChat']
   let query={}
+  query['include'] = await commonGet(req, res,{query:query})
   let records = await ThisModel.findByPk(req.params.id,query);
   if(!records){
     records = null
@@ -129,6 +162,78 @@ const update = async (req, res) => {
   })
 }
 
+const groupChatPollVoteCreate = async (req, res) => {
+  // #swagger.tags = ['GroupChat']
+  // #swagger.tags = ['GroupChat']
+  /*
+    #swagger.parameters['body'] = {
+      in: 'body', 
+      '@schema': { 
+        "required": ["group_chat_id","poll_id","poll_option_id"], 
+        "properties": { 
+          "group_chat_id": { 
+            "type": "number",
+          },
+          "poll_id": { 
+            "type": "number",
+          },
+          "poll_option_id": { 
+            "type": "number",
+          }
+        } 
+      } 
+    }
+  */
+  try{
+    req.body['user_id'] = req.user.id
+    try{
+      let checkVal = await Model.PollVote.count({where:req.body})
+      if(checkVal==0){
+        await Model.PollVote.create(req.body)
+      }else{
+        await Model.PollVote.destroy({where:req.body})
+      }
+    }catch(err){
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    }
+    await Helper.SuccessValidation(req,res,[],'Added successfully')
+  } catch (err) {
+    return await Helper.ErrorValidation(req,res,err,'cache')
+  }
+}
+
+const groupChatPollVoteView = async (req, res) => {
+  // #swagger.tags = ['GroupChat']
+  try{
+    let pollOptions = await PollOption.findAll({
+      where:{poll_id:req.params.poll_id},
+      include:{
+        model:Model.Poll,
+        required:true
+      }
+    })
+    let polls = array()
+    for (const udata of pollOptions) {  
+      let userdata = await Model.PollVote.findAll({
+        where:{poll_option_id:udata.id},
+        include:{
+          model:Model.User,
+          attributes:["id","first_name","user_id","photo_1"],
+          required:true
+        }
+      })
+      let objdt = {
+        options:udata,
+        voted: userdata
+      }
+      polls.push(objdt)
+    }
+    return await Helper.SuccessValidation(req,res,polls)
+  } catch (err) {
+    return await Helper.ErrorValidation(req,res,err,'cache')
+  }
+}
+
 const remove = async (req, res) => {
   // #swagger.tags = ['GroupChat']
   try{
@@ -152,4 +257,4 @@ const bulkremove = async (req, res) => {
 }
 
 
-module.exports = {create,list, view, update, remove, bulkremove};
+module.exports = {create,list, view, update, remove, bulkremove, groupChatPollVoteCreate, groupChatPollVoteView};

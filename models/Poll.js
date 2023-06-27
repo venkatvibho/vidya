@@ -51,6 +51,14 @@ class Poll extends Sequelize.Model {
     start_time: {
       type: DataTypes.TIME,
       allowNull: true
+    },
+    group_chat_id: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+      references: {
+        model: 'group_chat',
+        key: 'id'
+      }
     }
   }, {
     sequelize,
@@ -58,6 +66,12 @@ class Poll extends Sequelize.Model {
     schema: 'public',
     timestamps: true,
     indexes: [
+      {
+        name: "polls_group_chat_id_da1081eb",
+        fields: [
+          { name: "group_chat_id" },
+        ]
+      },
       {
         name: "polls_group_id_9aa2e4bc",
         fields: [

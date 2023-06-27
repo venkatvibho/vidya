@@ -47,6 +47,10 @@ class GroupChat extends Sequelize.Model {
     is_image: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
+    },
+    poll_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     sequelize,

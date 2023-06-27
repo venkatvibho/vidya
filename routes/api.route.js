@@ -203,6 +203,8 @@ router.post("/GroupChat/create",authorization,GroupChatController.create)
 router.get("/GroupChat/list",authorization,GroupChatController.list)
 router.get("/GroupChat/view/:id",authorization,GroupChatController.view)
 // router.patch("/GroupChat/update/:id",authorization,GroupChatController.update)
+router.post("/GroupChat/pollVote/create",authorization,GroupChatController.groupChatPollVoteCreate)
+router.get("/GroupChat/pollVote/:groupchat_poll_vote_id/:group_id",authorization,GroupChatController.groupChatPollVoteView)
 router.delete("/GroupChat/delete/:id",authorization,GroupChatController.remove)
 router.delete("/GroupChat/bulkdelete/:ids",authorization,GroupChatController.bulkremove)
 

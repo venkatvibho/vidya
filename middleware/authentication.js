@@ -4,15 +4,13 @@ const authenticationToken = async (req, res , next) => {
     if(req.headers.authorization!=undefined){
         const Token = req.headers.authorization.replace("Bearer ","");
         if(typeof Token !=='undefined'){
-            jwt.verify(Token, 'abcdefg' ,(err, user) => {
+            jwt.verify(Token, 'abcdefg' ,async (err, user) => {
                 if(!err){
                     if(user.user){
-                        // ## For Accessing All the Devices
                         req.user = user.user;
                         next();
-                        // ## If you login second device first device will be logout
                         // let Model      = require("../models");
-                        // let LastDevice = Model.UserLoginHistoryModel.findOne({attributes:['device_id'],order:[["id","DESC"]]})
+                        // let LastDevice = await Model.UserLoginHistory.findOne({attributes:['device_id'],where:{user_id:user.user.id},order:[["id","DESC"]]})
                         // if(LastDevice){
                         //     if(LastDevice.device_id){
                         //         if(LastDevice.device_id==user.device_id){
@@ -41,7 +39,7 @@ const authenticationToken = async (req, res , next) => {
         let swaggerFile   = require('../swagger_output.json')
         let defaultKey    = await (swaggerFile.host=='localhost:8000')?true:false;
         if(defaultKey){
-            req.user = {id:2};
+            req.user = {id:98};
             next();
         }else{
             let WithoutAccess = [

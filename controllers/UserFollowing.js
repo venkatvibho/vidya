@@ -120,7 +120,7 @@ const list = async (req, res) => {
           today = moment(today).subtract(7,'days');
           today = await Helper.DT_Y_M_D(today)
           console.log(today)
-          // query['where']['acceptedAt'] = {[Op.gte]: Sequelize.literal(`'${today}'`)}
+          query['where']['acceptedAt'] = {[Op.gte]: Sequelize.literal(`'${today}'`)}
           console.log("Where",query)
         }
       }

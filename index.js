@@ -18,7 +18,7 @@ app.get('/sample',async (req, res) => {
     let ChatRoomModel  =      Model.ChatRoom
     let GroupModel     =      Model.Group
     rooms  = await ChatRoomModel.findAll({})
-    groups = await GroupModel.findAll({where:{is_deleted:false}})
+    groups = await GroupModel.findAll({where:{is_deleted:true}})
     res.render(__dirname+'/views/home.ejs',{rooms:rooms,groups:groups});
 });
 const {userJoin,getCurrentUser,userLeave,getRoomUsers,getOptionsList,RoomUsersList,MessagesList } = require("./utils/users");
@@ -140,6 +140,8 @@ io.on("connection", (socket) => {
       try{
         if(!msg.is_image){
           msg['is_image'] = false
+        }else{
+          msg['is_image'] = true
         }
       }catch(err){
         msg['is_image'] = false

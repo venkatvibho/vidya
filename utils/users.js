@@ -195,6 +195,37 @@ const MessagesList = async (chattype,query,user_id)=> {
           required:false
         },
         required:false
+      },
+      {
+        model:Model.Poll,
+        as:"PollDetails",
+        include:{
+          model:Model.PollOption,
+          attributes:{
+            include:[
+              [
+                Sequelize.literal(`(SELECT COUNT(id) FROM public.groups_participants WHERE group_id="GroupChat"."group_id")`),'allCount'
+              ],
+              [
+                Sequelize.literal(`(SELECT COUNT(id) FROM public.poll_votes WHERE poll_option_id="PollDetails->PollOptions"."id")`),'votedCount'
+              ], 
+              [
+                Sequelize.literal(`(SELECT COUNT(id) FROM public.poll_votes WHERE user_id=${user_id} AND poll_option_id="PollDetails->PollOptions"."id")`),'is_Voted'
+              ]
+            ]
+          },
+          include:{
+            model:Model.PollVote,
+            include:{
+              model:Model.User,
+              attributes:["id","first_name","photo_1"],
+              required:false
+            },
+            required:false
+          },
+          required:false
+        },
+        required:false
       }
     ]
     query['order'] =[ ['id', 'ASC']]

@@ -30,6 +30,7 @@ const _PollUserReportReply = require("./PollUserReportReply");
 const _PollUserReport = require("./PollUserReport");
 const _PollUser = require("./PollUser");
 const _PollViewed = require("./PollViewed");
+const _PollVote = require("./PollVote");
 const _Poll = require("./Poll");
 const _PostCommentLike = require("./PostCommentLike");
 const _PostCommentReplayLike = require("./PostCommentReplayLike");
@@ -84,6 +85,7 @@ function initModels(sequelize) {
   const PollUserReport = _PollUserReport(sequelize, DataTypes);
   const PollUser = _PollUser(sequelize, DataTypes);
   const PollViewed = _PollViewed(sequelize, DataTypes);
+  const PollVote = _PollVote(sequelize, DataTypes);
   const Poll = _Poll(sequelize, DataTypes);
   const PostCommentLike = _PostCommentLike(sequelize, DataTypes);
   const PostCommentReplayLike = _PostCommentReplayLike(sequelize, DataTypes);
@@ -128,6 +130,10 @@ function initModels(sequelize) {
   ChatroomUserReport.hasMany(ChatroomUserReportReply, { foreignKey: "chatroomreport_id"});
   GroupChatViewed.belongsTo(GroupChat, { foreignKey: "group_chat_id"});
   GroupChat.hasMany(GroupChatViewed, { foreignKey: "group_chat_id"});
+  PollVote.belongsTo(GroupChat, { foreignKey: "group_chat_id"});
+  GroupChat.hasMany(PollVote, { foreignKey: "group_chat_id"});
+  Poll.belongsTo(GroupChat, { foreignKey: "group_chat_id"});
+  GroupChat.hasMany(Poll, { foreignKey: "group_chat_id"});
   GroupChatroomUserReportReply.belongsTo(GroupChatroomUserReport, { foreignKey: "group_chat_report_id"});
   GroupChatroomUserReport.hasMany(GroupChatroomUserReportReply, { foreignKey: "group_chat_report_id"});
   ActivityGroup.belongsTo(Group, { foreignKey: "group_id"});
@@ -162,6 +168,8 @@ function initModels(sequelize) {
   MasterProfession.hasMany(User, { foreignKey: "profession_id"});
   PollUser.belongsTo(PollOption, { foreignKey: "poll_option_id"});
   PollOption.hasMany(PollUser, { foreignKey: "poll_option_id"});
+  PollVote.belongsTo(PollOption, { foreignKey: "poll_option_id"});
+  PollOption.hasMany(PollVote, { foreignKey: "poll_option_id"});
   PollUserReportReply.belongsTo(PollUserReport, { foreignKey: "polluserreport_id"});
   PollUserReport.hasMany(PollUserReportReply, { foreignKey: "polluserreport_id"});
   PollUserReport.belongsTo(PollUser, { foreignKey: "polltuser_id"});
@@ -172,6 +180,8 @@ function initModels(sequelize) {
   Poll.hasMany(PollUser, { foreignKey: "poll_id"});
   PollViewed.belongsTo(Poll, { foreignKey: "poll_id"});
   Poll.hasMany(PollViewed, { foreignKey: "poll_id"});
+  PollVote.belongsTo(Poll, { foreignKey: "poll_id"});
+  Poll.hasMany(PollVote, { foreignKey: "poll_id"});
   PostCommentReplayLike.belongsTo(PostCommentReply, { foreignKey: "postcommentreplay_id"});
   PostCommentReply.hasMany(PostCommentReplayLike, { foreignKey: "postcommentreplay_id"});
   PostCommentLike.belongsTo(PostComment, { foreignKey: "postcomment_id"});
@@ -224,6 +234,8 @@ function initModels(sequelize) {
   User.hasMany(PollUser, { foreignKey: "user_id"});
   PollViewed.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(PollViewed, { foreignKey: "user_id"});
+  PollVote.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(PollVote, { foreignKey: "user_id"});
   Poll.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(Poll, { foreignKey: "user_id"});
   PostCommentLike.belongsTo(User, { foreignKey: "user_id"});
@@ -277,6 +289,7 @@ function initModels(sequelize) {
   SlambookBeat.belongsTo(User, { as:"UserTo",foreignKey: "user_to_id"});
   SlambookBeat.belongsTo(User, { as:"UserFrom",foreignKey: "user_from_id"});
   Poll.hasOne(PollUser, { as:"PollUserDetails",foreignKey: "poll_id"});
+  GroupChat.hasOne(Poll, { as:"PollDetails",foreignKey: "group_chat_id"});
 
   return {
     Activity,
@@ -310,6 +323,7 @@ function initModels(sequelize) {
     PollUserReport,
     PollUser,
     PollViewed,
+    PollVote,
     Poll,
     PostCommentLike,
     PostCommentReplayLike,

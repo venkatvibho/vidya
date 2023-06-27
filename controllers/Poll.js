@@ -37,6 +37,9 @@ const create = async (req, res) => {
             "type": "number",
             "description": "Take from Group",
           },
+          "is_for_chat":{
+            "type": "boolean",
+          },
           "questionoptions": { 
             "type": "array",
             "description": "Ex:[option1,option2,option3,option4]",
@@ -57,7 +60,13 @@ const create = async (req, res) => {
     req.body['start_date']    = await Helper.DT_Y_M_D(req.body.start_date)
     req.body['expairy_date']  = await Helper.DT_Y_M_D(req.body.expairy_date)
     req.body['user_id'] = req.user.id
-    req.body['is_deleted'] = false
+    if(req.body.is_for_chat){
+      if(req.body.is_for_chat==true){
+        req.body['is_deleted'] = true
+      }else{
+        req.body['is_deleted'] = false
+      }
+    }
     let questionoptions = null
     if(req.body.questionoptions){
         questionoptions = req.body.questionoptions
@@ -159,6 +168,7 @@ const list = async (req, res) => {
       ]
       query['where'] = {}
       query['where']['is_deleted'] = false
+      query['where']['group_chat_id'] = null
       if(req.query.poll_created_by_me){
         query['where']['user_id'] = req.query.poll_created_by_me 
       }
