@@ -101,7 +101,7 @@ const list = async (req, res) => {
       // }
       query['user_id'] = req.user.id
       query['order'] =[ ['id', 'DESC']]
-      const noOfRecord = await ThisModel.find(query)
+      const noOfRecord = await ThisModel.findAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)
   } catch (err) {
     return await Helper.ErrorValidation(req,res,err,'cache')
