@@ -43,6 +43,7 @@ const _PostUser = require("./PostUser");
 const _Post = require("./Post");
 const _SlambookBeatQuestion = require("./SlambookBeatQuestion");
 const _SlambookBeat = require("./SlambookBeat");
+const _UserContact = require("./UserContact");
 const _UserFollowing = require("./UserFollowing");
 const _UserGiftsReward = require("./UserGiftsReward");
 const _UserInterest = require("./UserInterest");
@@ -99,6 +100,7 @@ function initModels(sequelize) {
   const Post = _Post(sequelize, DataTypes);
   const SlambookBeatQuestion = _SlambookBeatQuestion(sequelize, DataTypes);
   const SlambookBeat = _SlambookBeat(sequelize, DataTypes);
+  const UserContact = _UserContact(sequelize, DataTypes);
   const UserFollowing = _UserFollowing(sequelize, DataTypes);
   const UserGiftsReward = _UserGiftsReward(sequelize, DataTypes);
   const UserInterest = _UserInterest(sequelize, DataTypes);
@@ -260,6 +262,8 @@ function initModels(sequelize) {
   User.hasMany(SlambookBeat, { foreignKey: "user_from_id"});
   SlambookBeat.belongsTo(User, { foreignKey: "user_to_id"});
   User.hasMany(SlambookBeat, { foreignKey: "user_to_id"});
+  UserContact.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(UserContact, { foreignKey: "user_id"});
   UserFollowing.belongsTo(User, { foreignKey: "user_from_id"});
   User.hasMany(UserFollowing, { foreignKey: "user_from_id"});
   UserFollowing.belongsTo(User, { foreignKey: "user_to_id"});
@@ -297,7 +301,7 @@ function initModels(sequelize) {
   Poll.hasOne(PollUser, { as:"PollUserDetails",foreignKey: "poll_id"});
   GroupChat.hasOne(Poll, { as:"PollDetails",foreignKey: "group_chat_id"});
   Call.belongsTo(User, { as:"CallFrom",foreignKey: "call_user_from_id"});
-	Call.belongsTo(User, { as:"CallTo",foreignKey: "call_user_to_id"});
+  Call.belongsTo(User, { as:"CallTo",foreignKey: "call_user_to_id"});
 
   return {
     Activity,
@@ -344,6 +348,7 @@ function initModels(sequelize) {
     Post,
     SlambookBeatQuestion,
     SlambookBeat,
+    UserContact,
     UserFollowing,
     UserGiftsReward,
     UserInterest,

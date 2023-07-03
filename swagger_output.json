@@ -8,8 +8,7 @@
   "host": "13.233.186.49:8000",
   "basePath": "/api",
   "schemes": [
-    "http",
-    "https"
+    "http"
   ],
   "securityDefinitions": {
     "bearerAuth": {
@@ -53,6 +52,23 @@
           "200": {
             "description": "OK"
           },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/Common/sample": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
           "401": {
             "description": "Unauthorized"
           }
@@ -789,6 +805,190 @@
       "delete": {
         "tags": [
           "Call"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "path",
+            "required": true,
+            "type": "array",
+            "description": "Enter multiple ids"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/Contactsync/create": {
+      "post": {
+        "tags": [
+          "Contactsync"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "phonenumbers"
+              ],
+              "properties": {
+                "phonenumbers": {
+                  "type": "array",
+                  "description": "Multiple users like [1,2,3]"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/Contactsync/list": {
+      "get": {
+        "tags": [
+          "Contactsync"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/Contactsync/view/{id}": {
+      "get": {
+        "tags": [
+          "Contactsync"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/Contactsync/update/{id}": {
+      "patch": {
+        "tags": [
+          "Contactsync"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "phonenumber"
+              ],
+              "properties": {
+                "phonenumber": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/Contactsync/delete/{id}": {
+      "delete": {
+        "tags": [
+          "Contactsync"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/Contactsync/bulkdelete/{ids}": {
+      "delete": {
+        "tags": [
+          "Contactsync"
         ],
         "description": "",
         "parameters": [

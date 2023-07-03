@@ -199,6 +199,7 @@ io.on("connection", (socket) => {
     // Typing for chatMessage
     socket.on("typing", (msg) => {
       let user = getCurrentUser(socket.id);
+      console.log(user)
       if(user){
         if(msg==false){
           socket.broadcast.to(user.room).emit("typing",formatMessage(user.username,msg,null,0));

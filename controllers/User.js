@@ -42,6 +42,25 @@ const create = async (req, res) => {
       // let text = 'Email: '+CreateModel.email+' and password: '+CreateModel.password+' are your login credentials.'
       // let subject = "Account created successfully"
       // await Helper.SentMail(CreateModel.email,subject,text)
+      try{
+        await Model.UserPrivacySetting.create({
+          "user_id":doc.id,
+          "tag": "Allow from anyone",
+          "connect": "Allow from anyone",
+          "profile_lock": "No",
+          "block_user": "No",
+          "message": "Allow from anyone",
+          "group_request": "Allow from anyone",
+          "schedules": "Allow from anyone",
+          "location": "No",
+          "post_comments": "Allow from anyone",
+          "reaction_pref": "No",
+          "profile_info": "No",
+          "review_taggings": "No"
+        })
+     }catch(err){
+        console.log(err)
+     }
       let Is_Otp_Enabled = true
       if(Is_Otp_Enabled){
         let SmsDet = {}
@@ -157,15 +176,36 @@ const commonGet = async (req,res,whereInclude) => {
     )
   }
   if(req.query.privacy_settings){
-    let privacy_settings = 
+    let sett_required = false
+    let sett_where = {}
+    let column = 'tag'
+    let privacy_settings = {}
+    if(req.query.privacy_settings=="Tag"){
+      column = 'tag'
+    }else if(req.query.privacy_settings=="Connect"){
+      column = 'tag'
+    }else if(req.query.privacy_settings=="Message"){
+      column = 'tag'
+    }else if(req.query.privacy_settings=="Group_Request"){
+      column = 'tag'
+    }else if(req.query.privacy_settings=="Schedules"){
+      column = 'tag'
+    }else if(req.query.privacy_settings=="Posts_Comment"){
+      column = 'tag'
+    }else{
+      sett_required = false
+      sett_where = {}
+    }
+    sett_where = Sequelize.literal(`(${column} !='No one' OR (SELECT COUNT(*) FROM public.user_followings WHERE (user_from_id+user_to_id)="User"."id"+${req.user.id})>1)`)
+    privacy_settings = 
     {
       model:Model.UserPrivacySetting,
-      attributes:["id"],
-      required:false
-    }
+      where:sett_where,
+      required:true
+    } 
     includearr.push(privacy_settings)
-
   }
+
   return includearr
 }
 
@@ -243,7 +283,17 @@ const list = async (req, res) => {
       query['order'] =[ ['id', 'DESC']]
       // query['having']= { isHideCount: 0 }
       // query['subQuery']= false
-      const noOfRecord = await ThisModel.findAndCountAll(query)
+      let noOfRecord = await ThisModel.findAndCountAll(query)
+      // if(req.query.privacy_settings){
+      //   if(noOfRecord.count>0){
+      //     rows = []
+      //     count = 0
+      //     await noOfRecord.rows.forEach(async element => {
+      //       count++;
+      //     });
+      //     noOfRecord = {"count":count,rows:rows}
+      //   }
+      // }
       return await Helper.SuccessValidation(req,res,noOfRecord)
   } catch (err) {
     return await Helper.ErrorValidation(req,res,err,'cache')

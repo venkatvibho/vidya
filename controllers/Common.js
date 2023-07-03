@@ -5,6 +5,7 @@ const { body, validationResult } = require('express-validator');
 const expres            =      require('express')
 const router            =      expres.Router()
 const AWS               =       require('aws-sdk');
+const Model             =      require("../models");
 
 const Upload = async (req, res) => {
   // #swagger.tags = ['Common']
@@ -89,4 +90,29 @@ const uploadFile = async (filePath, keyName) => {
     })
 }
 
-module.exports = {Upload,Indicators};
+const privacysettings = async (req, res) => {
+  let udata = await Model.User.findAll({})
+  await udata.forEach(async element => {
+    try{
+      await Model.UserPrivacySetting.create({
+      "user_id":element.id,
+      "tag": "Allow from anyone",
+      "connect": "Allow from anyone",
+      "profile_lock": "No",
+      "block_user": "No",
+      "message": "Allow from anyone",
+      "group_request": "Allow from anyone",
+      "schedules": "Allow from anyone",
+      "location": "No",
+      "post_comments": "Allow from anyone",
+      "reaction_pref": "No",
+      "profile_info": "No",
+      "review_taggings": "No"
+      })
+    }catch(err){
+      console.log(err)
+    }
+  });
+  return await Helper.SuccessValidation(req,res,[])
+}
+module.exports = {Upload,Indicators,privacysettings};
