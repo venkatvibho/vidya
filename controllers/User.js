@@ -156,13 +156,16 @@ const commonGet = async (req,res,whereInclude) => {
       },
     )
   }
-  // includearr.push(
-  //   {
-  //     model:Model.UserFollowing,
-  //     attributes:["id"],
-  //     required:false
-  //   }
-  // )
+  if(req.query.privacy_settings){
+    let privacy_settings = 
+    {
+      model:Model.UserPrivacySetting,
+      attributes:["id"],
+      required:false
+    }
+    includearr.push(privacy_settings)
+
+  }
   return includearr
 }
 
@@ -179,6 +182,7 @@ const list = async (req, res) => {
   //  #swagger.parameters['region'] = {in: 'query',type:'array'}
   //  #swagger.parameters['interest_id'] = {in: 'query',type:'array','description':'Take ids from MasterInterest'}
   //  #swagger.parameters['is_screen_for'] = {in: 'query',type:'string','enum':['titles_only']}
+  //  #swagger.parameters['privacy_settings'] = {in: 'query',type:'string','enum':['Tag','Connect','Message','Group_Request','Schedules','Posts_Comment']}
 
   try{
       let pageSize = 0;
