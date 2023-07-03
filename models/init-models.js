@@ -2,6 +2,7 @@ const DataTypes = require("sequelize").DataTypes;
 const _Activity = require("./Activity");
 const _ActivityGroup = require("./ActivityGroup");
 const _ActivityUser = require("./ActivityUser");
+const _Call = require("./Call");
 const _ChatRoom = require("./ChatRoom");
 const _ChatRoomHistory = require("./ChatRoomHistory");
 const _ChatRoomHistoryViewed = require("./ChatRoomHistoryViewed");
@@ -57,6 +58,7 @@ function initModels(sequelize) {
   const Activity = _Activity(sequelize, DataTypes);
   const ActivityGroup = _ActivityGroup(sequelize, DataTypes);
   const ActivityUser = _ActivityUser(sequelize, DataTypes);
+  const Call = _Call(sequelize, DataTypes);
   const ChatRoom = _ChatRoom(sequelize, DataTypes);
   const ChatRoomHistory = _ChatRoomHistory(sequelize, DataTypes);
   const ChatRoomHistoryViewed = _ChatRoomHistoryViewed(sequelize, DataTypes);
@@ -208,6 +210,10 @@ function initModels(sequelize) {
   User.hasMany(Activity, { foreignKey: "user_id"});
   ActivityUser.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(ActivityUser, { foreignKey: "user_id"});
+  Call.belongsTo(User, { foreignKey: "call_user_from_id"});
+  User.hasMany(Call, { foreignKey: "call_user_from_id"});
+  Call.belongsTo(User, { foreignKey: "call_user_to_id"});
+  User.hasMany(Call, { foreignKey: "call_user_to_id"});
   ChatRoom.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(ChatRoom, { foreignKey: "user_id"});
   ChatRoomHistory.belongsTo(User, { foreignKey: "user_id"});
@@ -290,11 +296,14 @@ function initModels(sequelize) {
   SlambookBeat.belongsTo(User, { as:"UserFrom",foreignKey: "user_from_id"});
   Poll.hasOne(PollUser, { as:"PollUserDetails",foreignKey: "poll_id"});
   GroupChat.hasOne(Poll, { as:"PollDetails",foreignKey: "group_chat_id"});
+  Call.belongsTo(User, { as:"CallFrom",foreignKey: "call_user_from_id"});
+	Call.belongsTo(User, { as:"CallTo",foreignKey: "call_user_to_id"});
 
   return {
     Activity,
     ActivityGroup,
     ActivityUser,
+    Call,
     ChatRoom,
     ChatRoomHistory,
     ChatRoomHistoryViewed,

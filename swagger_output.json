@@ -428,6 +428,9 @@
                 },
                 "device_id": {
                   "type": "string"
+                },
+                "fcm_token": {
+                  "type": "string"
                 }
               }
             }
@@ -582,6 +585,211 @@
                 }
               }
             }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/Call/create": {
+      "post": {
+        "tags": [
+          "Call"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "is_missed_call",
+                "call_user_from_id",
+                "call_user_to_id"
+              ],
+              "properties": {
+                "is_missed_call": {
+                  "type": "boolean"
+                },
+                "call_user_from_id": {
+                  "type": "number"
+                },
+                "call_user_to_id": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/Call/list": {
+      "get": {
+        "tags": [
+          "Call"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "call_user_from_id",
+            "in": "query",
+            "type": "number"
+          },
+          {
+            "name": "call_user_to_id",
+            "in": "query",
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/Call/view/{id}": {
+      "get": {
+        "tags": [
+          "Call"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/Call/update/{id}": {
+      "patch": {
+        "tags": [
+          "Call"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "properties": {
+                "is_missed_call": {
+                  "type": "boolean"
+                },
+                "startDateTime": {
+                  "type": "string",
+                  "description": "Accepts Date Time Format"
+                },
+                "endDateTime": {
+                  "description": "Accepts Date Time Format"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/Call/delete/{id}": {
+      "delete": {
+        "tags": [
+          "Call"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/Call/bulkdelete/{ids}": {
+      "delete": {
+        "tags": [
+          "Call"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "path",
+            "required": true,
+            "type": "array",
+            "description": "Enter multiple ids"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
           }
         ],
         "responses": {

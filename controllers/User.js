@@ -156,6 +156,13 @@ const commonGet = async (req,res,whereInclude) => {
       },
     )
   }
+  // includearr.push(
+  //   {
+  //     model:Model.UserFollowing,
+  //     attributes:["id"],
+  //     required:false
+  //   }
+  // )
   return includearr
 }
 
@@ -606,12 +613,19 @@ const loginwithotp = async (req, res) => {
           },
           "device_id": { 
             "type": "string",
+          },
+          "fcm_token": { 
+            "type": "string",
           }
         } 
       } 
     }
   */
   try{
+    let fcm_token = null
+    if(req.body.fcm_token){
+      fcm_token = req.body.fcm_token
+    }
     let records = await ThisModel.findOne({where:{phonenumber:req.body.phonenumber,otp:req.query.otp}});
     if(records){
       let device_id = null
@@ -643,7 +657,7 @@ const loginwithotp = async (req, res) => {
             }
           }
           let refreshToken = randtoken.generate(256)+records.id
-          await ThisModel.update({refreshToken:refreshToken,otp:null},{where:{id:records.id}})
+          await ThisModel.update({refreshToken:refreshToken,otp:null,fcm_token:fcm_token},{where:{id:records.id}})
           records = {results:records,Token:token,refreshToken:refreshToken}
           await Helper.SuccessValidation(req,res,records)
         }else{

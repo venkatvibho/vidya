@@ -145,6 +145,10 @@ class User extends Sequelize.Model {
     hibernate_content: {
       type: DataTypes.TEXT,
       allowNull: true
+    },
+    fcm_token: {
+      type: DataTypes.TEXT,
+      allowNull: true
     }
   }, {
     sequelize,
