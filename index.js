@@ -53,7 +53,7 @@ let GroupsParticipantModel      =      Model.GroupsParticipant
 let GroupChatViewedModel        =      Model.GroupChatViewed
 io.on("connection", (socket) => {
     socket.on("joinRoom", async ({ username, room ,chattype,user_id}) => {
-      //console.log("#######refrshRemaining",username)
+      console.log("#######refrshRemaining",username)
       console.log( username, room ,chattype)
       const user = userJoin(socket.id, username, room,chattype,user_id);
       socket.join(user.room);
@@ -84,7 +84,7 @@ io.on("connection", (socket) => {
           console.log(err)
         }
         let History = await MessagesList(chattype,query,user_id)
-        // console.log(History)
+        console.log(History)
         for (let i = 0; i < History.length; i++) {
           socket.emit("message", formatMessage(History[i].User.first_name,History[i],null,0));
         }
@@ -100,7 +100,7 @@ io.on("connection", (socket) => {
 
     // Typing for refresh chatMessage
     socket.on("refrshRemaining", async (udetails) => {
-      //console.log("#######refrshRemaining",udetails)
+      console.log("#######refrshRemaining",udetails)
       let username    = await udetails.username
       let room = await udetails.room
       let user_id = await udetails.user_id
@@ -136,7 +136,7 @@ io.on("connection", (socket) => {
 
     // Listen for chatMessage
     socket.on("chatMessage", async (msg) => {
-      //console.log("#######chatMessage",msg)
+      console.log("#######chatMessage",msg)
       try{
         if(!msg.is_image){
           msg['is_image'] = false
