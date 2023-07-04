@@ -36,6 +36,7 @@ const create = async (req, res) => {
   }else{
     req.body['is_slambook_skip'] = false
     req.body['user_from_id'] = req.user.id
+    req.body['is_blocked'] = false
     if(req.query.status=="Hide"){
       req.body["is_hide_at"] = await Helper.CurrentDate()
     }else{
@@ -50,6 +51,14 @@ const create = async (req, res) => {
 }
 
 const commonGet = async (req,res,whereInclude) => {
+  let sett_where = Sequelize.literal(`(message !='No one' OR (SELECT COUNT(*) FROM public.user_followings WHERE (user_from_id+user_to_id)="FollowingFrom"."id"+${req.user.id})>1)`)
+  // query['where'][Op.or]=sett_where
+  // privacy_settings = 
+  // {
+  //   model:Model.UserPrivacySetting,
+  //   where:sett_where,
+  //   required:true
+  // }
   let WhereInc = [
     {
       model:Model.User,
@@ -75,20 +84,34 @@ const list = async (req, res) => {
   //  #swagger.parameters['followed_by_me'] = {in: 'query',type:'number',"description":"Select id From Users"}
   //  #swagger.parameters['followed_to_me'] = {in: 'query',type:'number',"description":"Select id From Users"}
   //  #swagger.parameters['is_sort_by'] = {in: 'query',type:'string','enum':["newest","older","alphabet"]}
+  //  #swagger.parameters['is_blocked'] = {in: 'query',type:'boolean'}
+  //  #swagger.parameters['privacy_settings'] = {in: 'query',type:'string','enum':['Message']}
 
   try{
+      let privacy_settings = []
       let pageSize = 0;
       let skip = 0;
       let query={}
       query['where'] = {}
       query['attributes']= {}
       let addparticipant = false
+      if(req.query.is_blocked){
+        query['where']['is_blocked'] = req.query.is_blocked
+      }
       if(req.query.followed_by_me){
         query['where']['user_to_id'] = req.query.followed_by_me
       }else if(req.query.followed_to_me){
         query['where']['user_from_id'] = req.query.followed_to_me
       }else{
         query['where'][Op.or] = [{user_from_id:req.user.id},{user_to_id:req.user.id}]
+        // let sett_where = Sequelize.literal(`WHERE (message !='No one' OR (SELECT COUNT(*) FROM public.user_followings WHERE (user_from_id+user_to_id)="User"."id"+${req.user.id})>1)`)
+        // // query['where'][Op.or]=sett_where
+        // privacy_settings = 
+        // {
+        //   model:Model.UserPrivacySetting,
+        //   where:sett_where,
+        //   required:true
+        // }
       }
       if(req.query.is_screen_for=="addparticipant"){
         if(req.user){
@@ -124,7 +147,7 @@ const list = async (req, res) => {
           console.log("Where",query)
         }
       }
-      query['include'] = await commonGet(req, res,{UserFollowingOrder:UserFollowingOrder,UserFollwerOrder:UserFollwerOrder})
+      query['include'] = await commonGet(req, res,{UserFollowingOrder:UserFollowingOrder,UserFollwerOrder:UserFollwerOrder,privacy_settings:privacy_settings})
       console.log(query)
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {

@@ -39,7 +39,7 @@ const authenticationToken = async (req, res , next) => {
         let swaggerFile   = require('../swagger_output.json')
         let defaultKey    = await (swaggerFile.host=='localhost:8000')?true:false;
         if(defaultKey){
-            req.user = {id:98};
+            req.user = {id:98,dob:'1991-01-01'};
             next();
         }else{
             let WithoutAccess = [

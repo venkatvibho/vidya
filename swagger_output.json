@@ -2540,6 +2540,19 @@
               "older",
               "alphabet"
             ]
+          },
+          {
+            "name": "is_blocked",
+            "in": "query",
+            "type": "boolean"
+          },
+          {
+            "name": "privacy_settings",
+            "in": "query",
+            "type": "string",
+            "enum": [
+              "Message"
+            ]
           }
         ],
         "responses": {

@@ -252,7 +252,14 @@ const home = async (req, res) => {
       }
     }
   }
-
+  if(req.user.id==101){
+    try{
+      checkThisMonthStatus = 0
+      IslastDayOfMonth['islastDay']=1
+    }catch(err){
+      console.log(err)
+    }
+  }
   records = {
     honour_poins : await Model.ActivityUser.sum("honour", {
       where: {

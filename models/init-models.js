@@ -302,6 +302,7 @@ function initModels(sequelize) {
   GroupChat.hasOne(Poll, { as:"PollDetails",foreignKey: "group_chat_id"});
   Call.belongsTo(User, { as:"CallFrom",foreignKey: "call_user_from_id"});
   Call.belongsTo(User, { as:"CallTo",foreignKey: "call_user_to_id"});
+  User.hasOne(UserPrivacySetting, { as:"ProfileLockCheck",foreignKey: "user_id"});
 
   return {
     Activity,
