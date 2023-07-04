@@ -200,21 +200,16 @@ const commonGet = async (req,res,whereInclude) => {
       sett_where = {}
     }
     sett_where = Sequelize.literal(`(${column} !='No one' OR (SELECT COUNT(*) FROM public.user_followings WHERE (user_from_id+user_to_id)="User"."id"+${req.user.id})>1)`)
-    if(req.query.privacy_settings=="Connect"){
-      dob = await req.user.dob
-      if(dob){
-        from_db = moment(dob).add(1825,'days')
-        from_db = await Helper.DT_Y_M_D(from_db)
-        to_db   = moment(dob).subtract(1825,'days')
-        to_db   = await Helper.DT_Y_M_D(to_db)
-        console.log(from_db,"--------",to_db)
-      }
-      sett_where = Sequelize.literal(`(
-        ${column} !='No one'
-        OR (SELECT COUNT(*) FROM public.user_followings WHERE (user_from_id+user_to_id)="User"."id"+${req.user.id})>1
-        OR (SELECT COUNT(*) FROM public.users WHERE id="UserPrivacySetting"."user_id" AND dob BETWEEN DATE('${from_db}') AND DATE('${to_db}'))>1
-      )`)
-    }
+    // if(req.query.privacy_settings=="Connect"){
+    //   dob = await req.user.dob
+    //   if(dob){
+    //     from_db = moment(dob).add(1825,'days')
+    //     from_db = await Helper.DT_Y_M_D(from_db)
+    //     to_db   = moment(dob).subtract(1825,'days')
+    //     to_db   = await Helper.DT_Y_M_D(to_db)
+    //     console.log(from_db,"--------",to_db)
+    //   }
+    // }
     privacy_settings = 
     {
       model:Model.UserPrivacySetting,
