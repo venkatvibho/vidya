@@ -299,7 +299,7 @@ function initModels(sequelize) {
   SlambookBeat.belongsTo(User, { as:"UserTo",foreignKey: "user_to_id"});
   SlambookBeat.belongsTo(User, { as:"UserFrom",foreignKey: "user_from_id"});
   Poll.hasOne(PollUser, { as:"PollUserDetails",foreignKey: "poll_id"});
-  GroupChat.hasOne(Poll, { as:"PollDetails",foreignKey: "group_chat_id"});
+  GroupChat.belongsTo(Poll, { as:"PollDetails",foreignKey: "poll_id"});
   Call.belongsTo(User, { as:"CallFrom",foreignKey: "call_user_from_id"});
   Call.belongsTo(User, { as:"CallTo",foreignKey: "call_user_to_id"});
   User.hasOne(UserPrivacySetting, { as:"ProfileLockCheck",foreignKey: "user_id"});
