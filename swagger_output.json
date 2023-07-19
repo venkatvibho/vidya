@@ -2364,7 +2364,9 @@
                     "Sent",
                     "Accepted",
                     "Rejected",
-                    "Joined"
+                    "Joined",
+                    "Compleated",
+                    "Cancelled"
                   ],
                   "default": "Sent"
                 }

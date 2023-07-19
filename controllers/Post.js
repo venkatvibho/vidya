@@ -52,6 +52,19 @@ const create = async (req, res) => {
     req.body['user_id'] = req.user.id
     req.body['is_deleted'] = false
     return await ThisModel.create(req.body).then(async(doc) => {
+      if(req.body.activity_id){
+        try{
+          let cntGroupCheck = await Model.ActivityUser.count({where:{activity_id:req.body.activity_id,user_id:req.user.id}})
+          if(cntGroupCheck == 0){ 
+            let getMsterPoints = await Model.MasterActivity.findByPk(getPoints.activity_id)
+            let UpActiData = {status:'Compleated',f2:getMsterPoints.f2_points,honour:getMsterPoints.honor_points,general:getMsterPoints.general_points}
+            let WhActiData = {activity_id:req.body.activity_id,user_id:req.user.id}
+            await Model.ActivityUser.update(WhActiData,UpActiData)
+          }
+        }catch(err){
+          console.log(err)
+        }
+      }
       if(req.body.type_of_activity == "Private"){
         if(req.body.group_id){
           let participants = await Model.GroupsParticipant.findAll({where:{group_id:req.body.group_id}})

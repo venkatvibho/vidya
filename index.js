@@ -68,7 +68,7 @@ io.on("connection", (socket) => {
       if(chattype=="Individual"){
         query['where']['chatroom_id'] = chatroom[0]
         try{
-          await ChatRoomHistoryViewedModel.update({is_viewed:true},{where:{is_viewed:false,user_id:user_id}})
+          await ChatRoomHistoryViewedModel.update({is_viewed:true},{where:{chatroom_id:chatroom[0],is_viewed:false,user_id:user_id}})
         }catch(err){
           console.log(err)
         }
@@ -79,7 +79,7 @@ io.on("connection", (socket) => {
       }else{
         query['where']['group_id'] = chatroom[0]
         try{
-          await GroupChatViewedModel.update({is_viewed:true},{where:{is_viewed:false,user_id:user_id}})
+          await GroupChatViewedModel.update({is_viewed:true},{where:{group_id:chatroom[0],is_viewed:false,user_id:user_id}})
         }catch(err){
           console.log(err)
         }
@@ -165,7 +165,7 @@ io.on("connection", (socket) => {
                 }else{
                   is_viewed = false 
                 }
-                await ChatRoomHistoryViewedModel.create({is_viewed:is_viewed,chatroom_id:msg.chatroom_id,chat_room_history_id:resResp.id,user_id:Paricipants[i].user_id})
+                await ChatRoomHistoryViewedModel.create({is_viewed:is_viewed,chatroom_id:msg.chatroom_id,chat_room_history_id:resResp.id,user_id:user.user_id})
               }catch(err){
                 console.log(err)
               }
@@ -183,7 +183,7 @@ io.on("connection", (socket) => {
                 }else{
                   is_viewed = false 
                 }
-                await GroupChatViewedModel.create({is_viewed:is_viewed,group_id:msg.group_id,group_chat_id:resResp.id,user_id:Paricipants[i].user_id})
+                await GroupChatViewedModel.create({is_viewed:is_viewed,group_id:msg.group_id,group_chat_id:resResp.id,user_id:user.user_id})
               }catch(err){
                 console.log(err)
               }

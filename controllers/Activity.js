@@ -220,6 +220,12 @@ const list = async (req, res) => {
         [
             Sequelize.literal(`(SELECT COUNT(id) FROM public.users WHERE id!=${req.user.id})`),'totalPublicCount'
         ],
+        [
+          Sequelize.literal(`(SELECT COUNT(id) FROM public.activity_users WHERE status='Compleated' AND  activity_id ="Activity"."id")`),'CompleatedCount'
+        ],
+        [
+          Sequelize.literal(`(SELECT COUNT(id) FROM public.activity_users WHERE status='Cancelled' AND  activity_id ="Activity"."id")`),'CancelledCount'
+        ],
       ]
       query['where'] = {}
       query['where']['is_deleted'] = false
@@ -372,9 +378,9 @@ const update = async (req, res) => {
     if(req.body.type_of_activity){
       if(req.body.type_of_activity == "Private"){
         if(Groupdata){
-          await Model.ActivityUser.destroy({where:{activity_id:doc.id,group_id:Groupdata}})
+          await Model.ActivityUser.destroy({where:{activity_id:req.params.id,group_id:Groupdata}})
           try{
-            await Model.ActivityGroup.create({group_id:Groupdata,activity_id:doc.id})
+            await Model.ActivityGroup.create({group_id:Groupdata,activity_id:req.params.id})
           } catch (err){
             console.log(err);
           }
@@ -382,9 +388,9 @@ const update = async (req, res) => {
           if(participants){
             for (let i = 0; i < participants.length; i++) {
               try{
-                let cntGroupCheck = await Model.ActivityUser.count({where:{activity_id:doc.id,user_id:participants[i].user_id}})
+                let cntGroupCheck = await Model.ActivityUser.count({where:{activity_id:req.params.id,user_id:participants[i].user_id}})
                 if(cntGroupCheck == 0){ 
-                  let GroupUserData = {activity_id:doc.id,user_id:participants[i].user_id,status:'Sent',group_id:Groupdata}
+                  let GroupUserData = {activity_id:req.params.id,user_id:participants[i].user_id,status:'Sent',group_id:Groupdata}
                   await Model.ActivityUser.create(GroupUserData)
                 }
               } catch (err){
@@ -393,21 +399,23 @@ const update = async (req, res) => {
             }
           }
         }
-        if(req.body.user_ids){
-          let SelectedUsers = req.body.user_ids
-          await Model.ActivityUser.destroy({where:{activity_id:doc.id,group_id:{[Op.eq]:null}}})
-          if(SelectedUsers){
-            SelectedUsers.splice(SelectedUsers.indexOf(req.user.id),1);
-            for (let i = 0; i < SelectedUsers.length; i++) {
-              try{
-                let cntSingUserCheck = await Model.ActivityUser.count({where:{activity_id:doc.id,user_id:SelectedUsers[i]}})
-                if(cntSingUserCheck == 0){ 
-                  let SingUsersData = {activity_id : doc.id,user_id:SelectedUsers[i],status:'Sent'}
-                  await Model.ActivityUser.create(SingUsersData)
-                }
-              } catch (err){
-                console.log(err);
+      }else{
+        await Model.ActivityUser.destroy({where:{activity_id:req.params.id}})
+      }
+      if(req.body.user_ids){
+        let SelectedUsers = req.body.user_ids
+        await Model.ActivityUser.destroy({where:{activity_id:req.params.id,group_id:{[Op.eq]:null}}})
+        if(SelectedUsers){
+          SelectedUsers.splice(SelectedUsers.indexOf(req.user.id),1);
+          for (let i = 0; i < SelectedUsers.length; i++) {
+            try{
+              let cntSingUserCheck = await Model.ActivityUser.count({where:{activity_id:req.params.id,user_id:SelectedUsers[i]}})
+              if(cntSingUserCheck == 0){ 
+                let SingUsersData = {activity_id :req.params.id,user_id:SelectedUsers[i],status:'Sent'}
+                await Model.ActivityUser.create(SingUsersData)
               }
+            } catch (err){
+              console.log(err);
             }
           }
         }

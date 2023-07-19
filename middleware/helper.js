@@ -30,55 +30,6 @@ const SentMail = async (email,subject,text) => {
     }
 }
 
-const UploadImage = async (image) => {
-    try{
-        var img = await GetUuid(1)
-        var profile_pic = img + ".png";
-        let profile_pic2 = "public/files/" + profile_pic;
-        var fs = require("fs");
-        var base64Data = image.replace(
-        /^data:image\/\w+;base64,/,
-        ""
-        );
-        require("fs").writeFile(
-            imgpath,
-            base64Data,
-            "base64",
-            function (err) {
-                if(err) {
-                    return null
-                } else {
-                    return imgpath
-                }
-            }
-        );
-    } catch (err) {
-        return null
-    }
-}
-
-const JsonImageConversion = async (bodydata) => {
-    try{
-        var image = await bodydata.image
-    } catch (err) {
-        var image = null
-    }
-    if(image){
-        try{
-            let convetImg = await UploadImage(image,profile_pic2)
-            if(convetImg){
-                bodydata['image'] = convetImg
-            }
-        } catch (err) {
-            console.log("No image",err)
-        }
-    }else{
-        console.log("No image")
-        bodydata = await bodydata
-    }
-    return bodydata
-}
-
 const SuccessValidation = async (req,res,doc,cont='') => {
     let code;
     switch (req.method) {
@@ -310,15 +261,6 @@ const IncrementSeconds = async ()=> {
     return currentDate;
 }
 
-const Signzy_Api_Url = async ()=> {
-    let signzy = null
-    // For Live
-    signzy = "signzy.tech"
-    // For Staging
-    // signzy = "preproduction.signzy.tech"
-    return signzy
-}
-
 const Signzy_Api_Uname_Pwd = async ()=> {
     let username = null
     let password = null
@@ -384,14 +326,12 @@ helper.DT_Y_M_D             =   DT_Y_M_D
 helper.CurrentDate          =   CurrentDate
 helper.Otp                  =   Otp
 helper.Roles                =   Roles
-helper.JsonImageConversion  =   JsonImageConversion
 helper.RadiusCalculation    =   RadiusCalculation
 helper.InbetweenDates       =   InbetweenDates
 helper.BookingId            =   BookingId
 helper.TransactionId        =   TransactionId
 helper.GetUuid              =   GetUuid
 helper.SentMail             =   SentMail 
-helper.Signzy_Api_Url       =   Signzy_Api_Url
 helper.Signzy_Api_Uname_Pwd =   Signzy_Api_Uname_Pwd
 helper.GenerateUid          =   GenerateUid
 helper.IncrementSeconds     =   IncrementSeconds

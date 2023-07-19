@@ -36,34 +36,50 @@ const create = async (req, res) => {
   if(req.body.status){
     await body('status').isIn(["Sent","Accepted","Rejected"]).withMessage('Status must be Sent | Accepted | Rejected').run(req)
   }
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    let firstError = errors.errors.map(error => error.msg)[0];
-    return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
-  }else{
-    if(req.body['user_id']){
-      req.body['user_id'] = req.body['user_id']
-    }else{
-      req.body['user_id'] = req.user.id
-    }
-    let uid = req.body['user_id']
-    if(req.query.status=="Sent"){
-      req.body["sentBy"] = uid
-    }
-    if(req.body.status=="Accepted"){
-      req.body["acceptedAt"] = await Helper.CurrentDate()
-      req.body["acceptedBy"] = uid
-    }
-    if(req.body.status=="Rejected"){
-      req.body["rejectedAt"] = await Helper.CurrentDate()
-      req.body["rejectedBy"] = uid
-    }
-    return await ThisModel.create(req.body).then(async(doc) => {
-      await Helper.SuccessValidation(req,res,doc,'Added successfully')
-    }).catch( async (err) => {
-      return await Helper.ErrorValidation(req,res,err,'cache')
-    })
+  masteractivityquery = {}
+  masteractivityquery['include'] = {
+    model:Model.MasterActivity,
+    attributes:["id","max_participants"],
+    required:false
   }
+  try{
+    let TotalLimit = await Model.Activity.findByPk(req.body.activity_id,masteractivityquery)
+    let Alreadyreached = await ThisModel.count({where:{activity_id:req.body.activity_id}})
+    if(Alreadyreached>=TotalLimit.MasterActivity.max_participants){
+      return await Helper.ErrorValidation(req,res,{message:"Limit reached"},'cache')
+    }else{
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        let firstError = errors.errors.map(error => error.msg)[0];
+        return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
+      }else{
+        if(req.body['user_id']){
+          req.body['user_id'] = req.body['user_id']
+        }else{
+          req.body['user_id'] = req.user.id
+        }
+        let uid = req.body['user_id']
+        if(req.query.status=="Sent"){
+          req.body["sentBy"] = uid
+        }
+        if(req.body.status=="Accepted"){
+          req.body["acceptedAt"] = await Helper.CurrentDate()
+          req.body["acceptedBy"] = uid
+        }
+        if(req.body.status=="Rejected"){
+          req.body["rejectedAt"] = await Helper.CurrentDate()
+          req.body["rejectedBy"] = uid
+        }
+        return await ThisModel.create(req.body).then(async(doc) => {
+          await Helper.SuccessValidation(req,res,doc,'Added successfully')
+        }).catch( async (err) => {
+          return await Helper.ErrorValidation(req,res,err,'cache')
+        })
+      }
+      }
+    }catch(err){
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    }
 }
 
 const commonGet = async (req,res,whereInclude) => {
@@ -146,7 +162,7 @@ const update = async (req, res) => {
         "properties": { 
           "status": { 
             "type": "string",
-            "enum":["Sent","Accepted","Rejected","Joined"],
+            "enum":["Sent","Accepted","Rejected","Joined","Compleated","Cancelled"],
             "default":"Sent"
           },
         }
@@ -154,22 +170,13 @@ const update = async (req, res) => {
     }
   */
   if(req.body.status){
-    await body('status').isIn(["Sent","Accepted","Rejected","Joined"]).withMessage('Status must be Sent | Accepted | Rejected | Joined').run(req)
+    await body('status').isIn(["Sent","Accepted","Rejected","Joined","Compleated","Cancelled"]).withMessage('Status must be Sent | Accepted | Rejected | Joined| Compleated | Cancelled').run(req)
   }
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     let firstError = errors.errors.map(error => error.msg)[0];
     return await Helper.ErrorValidation(req,res,{message:firstError},'cache')
   }else{
-    try{
-      let getPoints = await Model.Activity.findByPk(req.params.id,"activity_id")
-      let getMsterPoints = await Model.MasterActivity.findByPk(getPoints.activity_id)
-      req.body['f2'] = getMsterPoints.f2_points
-      req.body['honour'] = getMsterPoints.honor_points
-      req.body['general'] = getMsterPoints.general_points
-    }catch(err){
-      console.log(err)
-    }
     if(req.query.status=="Sent"){
       req.body["sentBy"] = req.user.id
     }
@@ -183,6 +190,12 @@ const update = async (req, res) => {
     }
     if(req.query.status=="Joined"){
       req.body["joineddAt"] = await Helper.CurrentDate()
+    }
+    if(req.query.status=="Compleated"){
+      req.body["compleatedAt"] = await Helper.CurrentDate()
+    }
+    if(req.query.status=="Cancelled"){
+      req.body["cancelledAt"] = await Helper.CurrentDate()
     }
     return await ThisModel.update(req.body,{where:{id:req.params.id}}).then(async(records) => {
       records = await ThisModel.findByPk(req.params.id);

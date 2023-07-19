@@ -75,7 +75,7 @@ const create = async (req, res) => {
           for (let i=1; i <= 1; i++) {
             gift_value = GiftAlogrytm['r'+i+'_gift_value']
             users_count = GiftAlogrytm['r'+i+'_users_count']
-            query['user_id'] = {[Op.gt]:0}
+            // query['user_id'] = {[Op.gt]:0}
             query['category'] = 'R'+i
             let usedcnt =  await ThisModel.count(query)
             // console.log("$$$$$$$","usedcnt",usedcnt,"users_count",users_count)
@@ -214,45 +214,44 @@ const home = async (req, res) => {
   query['where'] = {}
   query['where']['user_id'] = req.user.id
   let IslastDayOfMonth = await Helper.IslastAndFirstDayOfMonth()
-  console.log(IslastDayOfMonth)
-  // let CurrentDate = await Helper.CurrentDate()
-  // CurrentDate     = await Helper.DT_Y_M_D(CurrentDate)
-  // CurrentDate     = await new Date(CurrentDate)
-  // let CalcDate     = await Helper.DT_Y_M_D(IslastDayOfMonth.last)
-  // CalcDate     = await new Date(CalcDate)
-  query['where']['createdAt']  = {
-    [Op.gte]:IslastDayOfMonth.first,
-    [Op.lt]:IslastDayOfMonth.last
-  }
-  let checkThisMonthStatus = await ThisModel.count(query)
-  console.log("111111",query,checkThisMonthStatus)
-  query['where']['status'] = 'Joined'
-  query['include'] = {
-    model:Model.Activity,
-    attributes:['id','type_of_badge'],
-    where : {type_of_badge:'General'},
-    required:true
-  }
-  let checkGenerralStatus = await Model.ActivityUser.count(query)
-  console.log("2222222",query,checkGenerralStatus)
-  query['include'] ={
-    model:Model.Activity,
-    attributes:['id','type_of_badge'],
-    where : {type_of_badge:'Honour'},
-    required:true
-  }
-  let checkHonorStatus = await Model.ActivityUser.count(query)
-  console.log("3333333",query,checkHonorStatus)
-  query['attributes'] = ["id","honour"]
-  honourData = await Model.ActivityUser.findAll(query)
-  if(honourData){
-    for (let i = 0; i < honourData.length; i++) {
-      if(honourData[i]['honour']){
-        honour += parseInt(honourData[i]['honour'])
+  let checkThisMonthStatus = 0
+  if(IslastDayOfMonth.islastDay==1){
+    query['where']['createdAt']  = {
+      [Op.gte]:IslastDayOfMonth.first,
+      [Op.lt]:IslastDayOfMonth.last
+    }
+    checkThisMonthStatus = await ThisModel.count(query)
+    console.log("111111",query,checkThisMonthStatus)
+    query['where']['status'] = 'Compleated'
+    query['include'] = {
+      model:Model.Activity,
+      attributes:['id','type_of_badge'],
+      where : {type_of_badge:'General'},
+      required:true
+    }
+    let checkGenerralStatus = await Model.ActivityUser.count(query)
+    console.log("2222222",query,checkGenerralStatus)
+    query['include'] ={
+      model:Model.Activity,
+      attributes:['id','type_of_badge'],
+      where : {type_of_badge:'Honour'},
+      required:true
+    }
+    let checkHonorStatus = await Model.ActivityUser.count(query)
+    console.log("3333333",query,checkHonorStatus)
+    query['attributes'] = ["id","honour"]
+    honourData = await Model.ActivityUser.findAll(query)
+    if(honourData){
+      for (let i = 0; i < honourData.length; i++) {
+        if(honourData[i]['honour']){
+          honour += parseInt(honourData[i]['honour'])
+        }
       }
     }
+  }else{
+    checkThisMonthStatus=0
   }
-  if(req.user.id==101){
+  if(req.user.phonenumber==7981157546){
     try{
       checkThisMonthStatus = 0
       IslastDayOfMonth['islastDay']=1
@@ -264,19 +263,19 @@ const home = async (req, res) => {
     honour_poins : await Model.ActivityUser.sum("honour", {
       where: {
         user_id: req.user.id,
-        status:'Joined',
+        status:'Compleated',
       },
     }),
     fe_poins : await Model.ActivityUser.sum("f2", {
       where: {
         user_id: req.user.id,
-        status:'Joined',
+        status:'Compleated',
       },
     }),
     general_poins : await Model.ActivityUser.sum("general", {
       where: {
         user_id: req.user.id,
-        status:'Joined',
+        status:'Compleated',
       },
     }),
     honour:{

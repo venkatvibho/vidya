@@ -264,8 +264,45 @@ const remove = async (req, res) => {
     // Model.GroupChatViewed.destroy({group_id:req.params.id})
     // Model.GroupChatInvited.destroy({group_id:req.params.id})
     // Model.GroupChatRoomReport.destroy({group_id:req.params.id})
-
     // let record = await ThisModel.destroy({where:{id:req.params.id}})
+    try{
+      let AllUsers = await Model.GroupsParticipant.findAll({where:{group_id:req.params.id},attributes:["user_id"],raw:true}).then(accounts => accounts.map(account => account.user_id));
+      for(let i = 0; i < AllUsers.length; i++){
+        //Ger All the fututre activities of particular user and delete it
+        let query = {}
+        query['where'] = {}
+        query['where']['user_id'] = await AllUsers[i]
+        let SubWh = {}
+        let current_date    = await Helper.CurrentDate()
+        let today           = await Helper.DT_Y_M_D(current_date)
+        SubWh['start_date'] = {[Op.gte]: Sequelize.literal(`'${today}'`)}
+        // SubWh['start_time'] = {[Op.gte]: Sequelize.literal(`'${current_date.toTimeString()}'`)} 
+        let start_time = await current_date.toTimeString()
+        query['include'] = {
+          model:Model.Activity,
+          where:SubWh,
+          required:true
+        }
+        query['raw'] = true
+        let ActVts = await Model.ActivityUser.findAll(query)
+        if(ActVts){
+          for (let act_key = 0; act_key < ActVts.length; act_key++){
+            let ActivityDetails = await ActVts[act_key].Activity
+            let timeCondition = true
+            if(today == ActivityDetails.start_date){
+              if(start_time > ActivityDetails.start_time){
+                timeCondition = false
+              }
+            }
+            if(timeCondition==true){
+              await Model.ActivityUser.destroy({where:{id:ActVts[act_key].id}})
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.log(err)
+    }
     await ThisModel.update({is_deleted:false},{where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
   } catch (err) {
