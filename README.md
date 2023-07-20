@@ -39,14 +39,13 @@
 <!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
 
 Sociobeats is a mobile application that serves as a social networking platform for people to connect with one another and engage in physical and socio activities. The app aims to bring individual and groups together by facilitating social interactions and providing opportunities to participate in various games, physical and social activities, and aims to improve health, foster new friendships, promote social responsibility and awareness.  To further enhance user engagement, the app rewards its top users with exciting perks, creating a rewarding experience and motivating continued participation.
+This is backend repository of Sociobeats app
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
 ### Built With
-
-Backend repository of Sociobeats app
 
 * NodeJS
 
@@ -63,7 +62,6 @@ Instructions to set up your project locally.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
 * Install nvm
 * Install node and npm latest using nvm
  
