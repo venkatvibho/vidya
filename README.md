@@ -9,6 +9,7 @@
   </a> -->
 
   <h3 align="center">Sociobeats backend</h3>
+</div>
 
 <!-- TABLE OF CONTENTS -->
 <details>
