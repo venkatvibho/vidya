@@ -114,7 +114,6 @@ const remove = async (req, res) => {
   // #swagger.tags = ['GroupsParticipant']
   try{
     let UserDetails = await ThisModel.findByPk(req.params.id)
-    let record = await ThisModel.destroy({where:{id:req.params.id}})
     try{
      //Ger All the fututre activities of particular user and delete it
      let query = {}
@@ -150,6 +149,29 @@ const remove = async (req, res) => {
     }catch(err){
       console.log(err)
     }
+    // Deleting the posts
+    try{
+      let postquery = {}
+      let postwhere = {}
+      postwhere['where'] = {}
+      postwhere['where']['group_id']  = {[Op.gt]:0}
+      postwhere['where']['user_id']   = {[Op.ne]:UserDetails.user_id}
+      postquery['include'] = {
+        model:Model.Post,
+        where:postwhere,
+        attributes:["id"],
+        required:true
+      }
+      let PostUser   = await Model.PostUser.findAll({where:{user_id:UserDetails.user_id},attributes:["id"],postquery,raw:true}).then(accounts => accounts.map(account => account.id));
+      let PostUserReport = await Model.PostUserReport.findAll({where:{postuser_id:{[Op.In]:PostUser}},attributes:["id"],raw:true}).then(accounts => accounts.map(account => account.id));
+      let PostUserReportReplay = await Model.PostUserReportReplay.findAll({where:{postuserreport_id:{[Op.In]:PostUserReport}},attributes:["id"],raw:true}).then(accounts => accounts.map(account => account.id));
+      await Model.PostUserReportReplay.destroy({where:{id:PostUserReportReplay}})
+      await Model.PostUserReport.destroy({where:{id:PostUserReport}})
+      await Model.PostUser.destroy({where:{id:PostUser}})
+    }catch(err){
+      console.log(err)
+    }
+    let record = await ThisModel.destroy({where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
   } catch (err) {
     return await Helper.ErrorValidation(req,res,err,'cache')

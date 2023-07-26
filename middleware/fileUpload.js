@@ -1,9 +1,5 @@
 const multer = require('multer');
 function fileFilter (req, file, cb) {
-  if(file.mimetype !=='image/jpeg' || file.mimetype !=='image/jpg'  || file.mimetype !=='image/png'){
-    // cb('Invalid format', false)
-    cb(null, true)
-  }
   cb(null, true)
 }
 var storage = multer.diskStorage({

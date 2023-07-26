@@ -164,6 +164,17 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   // #swagger.tags = ['PostComment']
   try{
+    try{
+      let PostComment = [req.params.id]
+      let PostCommentLike = await Model.PostCommentLike.findAll({where:{postcomment_id:{[Op.In]:PostComment}},attributes:["id"],raw:true}).then(accounts => accounts.map(account => account.id));
+      let PostCommentReplay = await Model.PostCommentReplay.findAll({where:{postcomment_id:{[Op.In]:PostComment}},attributes:["id"],raw:true}).then(accounts => accounts.map(account => account.id));
+      let PostCommentReplayLike = await Model.PostCommentReplayLike.findAll({where:{postcommentreplay_id:{[Op.In]:PostCommentReplay}},attributes:["id"],raw:true}).then(accounts => accounts.map(account => account.id));
+      await Model.PostCommentReplayLike.destroy({where:{id:PostCommentReplayLike}})
+      await Model.PostCommentLike.destroy({where:{id:PostCommentLike}})
+      await Model.PostCommentReplay.destroy({where:{id:PostCommentReplay}})
+    }catch(err){
+      console.log(err)
+    }
     let record = await ThisModel.destroy({where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
   } catch (err) {
