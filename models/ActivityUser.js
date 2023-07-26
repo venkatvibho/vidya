@@ -81,6 +81,14 @@ class ActivityUser extends Sequelize.Model {
     general: {
       type: DataTypes.BIGINT,
       allowNull: true
+    },
+    cancelledAt: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    compleatedAt: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
   }, {
     sequelize,

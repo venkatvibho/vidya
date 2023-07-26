@@ -378,6 +378,7 @@ const update = async (req, res) => {
     if(req.body.type_of_activity){
       if(req.body.type_of_activity == "Private"){
         if(Groupdata){
+          // Need Add FLag
           await Model.ActivityUser.destroy({where:{activity_id:req.params.id,group_id:Groupdata}})
           try{
             await Model.ActivityGroup.create({group_id:Groupdata,activity_id:req.params.id})
@@ -400,23 +401,24 @@ const update = async (req, res) => {
           }
         }
       }else{
-        await Model.ActivityUser.destroy({where:{activity_id:req.params.id}})
+        //Send push notifications to all private participants (Preveiously it is private case only)
       }
-      if(req.body.user_ids){
-        let SelectedUsers = req.body.user_ids
-        await Model.ActivityUser.destroy({where:{activity_id:req.params.id,group_id:{[Op.eq]:null}}})
-        if(SelectedUsers){
-          SelectedUsers.splice(SelectedUsers.indexOf(req.user.id),1);
-          for (let i = 0; i < SelectedUsers.length; i++) {
-            try{
-              let cntSingUserCheck = await Model.ActivityUser.count({where:{activity_id:req.params.id,user_id:SelectedUsers[i]}})
-              if(cntSingUserCheck == 0){ 
-                let SingUsersData = {activity_id :req.params.id,user_id:SelectedUsers[i],status:'Sent'}
-                await Model.ActivityUser.create(SingUsersData)
-              }
-            } catch (err){
-              console.log(err);
+    }
+    if(req.body.user_ids){
+      let SelectedUsers = req.body.user_ids
+      // Limit Condition
+      await Model.ActivityUser.destroy({where:{activity_id:req.params.id,group_id:{[Op.eq]:null}}})
+      if(SelectedUsers){
+        SelectedUsers.splice(SelectedUsers.indexOf(req.user.id),1);
+        for (let i = 0; i < SelectedUsers.length; i++) {
+          try{
+            let cntSingUserCheck = await Model.ActivityUser.count({where:{activity_id:req.params.id,user_id:SelectedUsers[i]}})
+            if(cntSingUserCheck == 0){ 
+              let SingUsersData = {activity_id :req.params.id,user_id:SelectedUsers[i],status:'Sent'}
+              await Model.ActivityUser.create(SingUsersData)
             }
+          } catch (err){
+            console.log(err);
           }
         }
       }

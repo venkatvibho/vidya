@@ -553,6 +553,8 @@ const remove = async (req, res) => {
 const logout = async (req, res) => {
   // #swagger.tags = ['User']
   try{
+    let created_at = await Helper.CurrentDate()
+    await Model.UserLogoutHistory.create({user_id:records.id,created_at:created_at})
     let record = await ThisModel.update({status:'Logout'},{where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,{message:"Logout successfully"},[])
   } catch (err) {

@@ -2469,6 +2469,9 @@
                     "Sent",
                     "Hide"
                   ]
+                },
+                "is_blocked": {
+                  "type": "boolean"
                 }
               }
             }
@@ -2961,6 +2964,15 @@
                 "group_id": {
                   "type": "number",
                   "description": "Take id From Group"
+                },
+                "latitude": {
+                  "type": "number"
+                },
+                "longitude": {
+                  "type": "number"
+                },
+                "location": {
+                  "type": "string"
                 }
               }
             }
@@ -3820,6 +3832,32 @@
         "parameters": [
           {
             "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/PostComment/checkPostCommentAccess/{post_id}": {
+      "get": {
+        "tags": [
+          "PostComment"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "post_id",
             "in": "path",
             "required": true,
             "type": "string"

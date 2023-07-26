@@ -51,6 +51,18 @@ class Post extends Sequelize.Model {
     images: {
       type: DataTypes.ARRAY(DataTypes.TEXT),
       allowNull: false
+    },
+    latitude: {
+      type: DataTypes.STRING(20),
+      allowNull: true
+    },
+    location: {
+      type: DataTypes.STRING(250),
+      allowNull: true
+    },
+    longitude: {
+      type: DataTypes.STRING(20),
+      allowNull: true
     }
   }, {
     sequelize,

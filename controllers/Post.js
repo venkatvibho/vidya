@@ -36,6 +36,15 @@ const create = async (req, res) => {
             "type": "number",
             "description":"Take id From Group"
           },
+          "latitude": { 
+            "type": "number",
+          },
+          "longitude": { 
+            "type": "number",
+          },
+           "location": { 
+            "type": "string",
+          },
         } 
       } 
     }
@@ -142,12 +151,16 @@ const commonGet = async (req,res,whereInclude) => {
     reqornot = true 
   }
   where['user_id'] = req.user.id
-  return [
+  let IncludeData = [
     {
       model:Model.Activity,
       required:false
     },{
       model:Model.Group,
+      required:false
+    },{
+      model:Model.User,
+      attributes:["id","user_id","first_name","phonenumber","photo_1"],
       required:false
     },{
       model:Model.PostUser,
@@ -158,12 +171,9 @@ const commonGet = async (req,res,whereInclude) => {
         required:false
       },
       required:reqornot
-    },{
-      model:Model.User,
-      attributes:["id","user_id","first_name","phonenumber","photo_1"],
-      required:false
-    },
+    }
   ]
+  return IncludeData
 }
 
 const list = async (req, res) => {
@@ -182,6 +192,8 @@ const list = async (req, res) => {
       let query={}
       query['where'] = {}
       query['attributes']= {}
+      let sett_where = Sequelize.literal(`("Post"."type_of_activity"='Public' OR (SELECT COUNT(*) FROM public.post_users WHERE post_id="Post"."id" AND user_id=${req.user.id})>1 OR (SELECT COUNT(*) FROM public.posts WHERE id="Post"."id" AND user_id=${req.user.id})>1)`)
+      query['where'] = sett_where
       query['attributes']['include'] = [
         [
           Sequelize.literal(`(SELECT COUNT(id) FROM public.post_users WHERE is_viewed=true AND post_id="Post"."id")`),'viewed_counts'
@@ -266,7 +278,29 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   // #swagger.tags = ['Post']
   try{
-    let record = await ThisModel.destroy({where:{id:req.params.id}})
+    try{
+      let PostUser   = await Model.PostUser.findAll({where:{post_id:req.params.id},attributes:["id"],raw:true}).then(accounts => accounts.map(account => account.id));
+      let PostUserReport = await Model.PostUserReport.findAll({where:{postuser_id:{[Op.In]:PostUser}},attributes:["id"],raw:true}).then(accounts => accounts.map(account => account.id));
+      let PostUserReportReplay = await Model.PostUserReportReplay.findAll({where:{postuserreport_id:{[Op.In]:PostUserReport}},attributes:["id"],raw:true}).then(accounts => accounts.map(account => account.id));
+      await Model.PostUserReportReplay.destroy({where:{id:PostUserReportReplay}})
+      await Model.PostUserReport.destroy({where:{id:PostUserReport}})
+      await Model.PostUser.destroy({where:{id:PostUser}})
+    }catch(err){
+      console.log(err)
+    }
+    try{
+      let PostComment = await Model.PostComment.findAll({where:{post_id:req.params.id},attributes:["id"],raw:true}).then(accounts => accounts.map(account => account.id));
+      let PostCommentLike = await Model.PostCommentLike.findAll({where:{postcomment_id:{[Op.In]:PostComment}},attributes:["id"],raw:true}).then(accounts => accounts.map(account => account.id));
+      let PostCommentReplay = await Model.PostCommentReplay.findAll({where:{postcomment_id:{[Op.In]:PostComment}},attributes:["id"],raw:true}).then(accounts => accounts.map(account => account.id));
+      let PostCommentReplayLike = await Model.PostCommentReplayLike.findAll({where:{postcommentreplay_id:{[Op.In]:PostCommentReplay}},attributes:["id"],raw:true}).then(accounts => accounts.map(account => account.id));
+      await Model.PostCommentReplayLike.destroy({where:{id:PostCommentReplayLike}})
+      await Model.PostCommentLike.destroy({where:{id:PostCommentLike}})
+      await Model.PostCommentReplay.destroy({where:{id:PostCommentReplay}})
+      await Model.PostComment.destroy({where:{id:PostComment}})
+    }catch(err){
+      console.log(err)
+    }
+    let record = await Model.PostUser.destroy({where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
   } catch (err) {
     return await Helper.ErrorValidation(req,res,err,'cache')

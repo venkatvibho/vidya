@@ -48,6 +48,7 @@ const _UserFollowing = require("./UserFollowing");
 const _UserGiftsReward = require("./UserGiftsReward");
 const _UserInterest = require("./UserInterest");
 const _UserLoginHistory = require("./UserLoginHistory");
+const _UserLogoutHistory = require("./UserLogoutHistory");
 const _UserNotificationSetting = require("./UserNotificationSetting");
 const _UserPrivacySetting = require("./UserPrivacySetting");
 const _UserReportReply = require("./UserReportReply");
@@ -105,6 +106,7 @@ function initModels(sequelize) {
   const UserGiftsReward = _UserGiftsReward(sequelize, DataTypes);
   const UserInterest = _UserInterest(sequelize, DataTypes);
   const UserLoginHistory = _UserLoginHistory(sequelize, DataTypes);
+  const UserLogoutHistory = _UserLogoutHistory(sequelize, DataTypes);
   const UserNotificationSetting = _UserNotificationSetting(sequelize, DataTypes);
   const UserPrivacySetting = _UserPrivacySetting(sequelize, DataTypes);
   const UserReportReply = _UserReportReply(sequelize, DataTypes);
@@ -274,6 +276,8 @@ function initModels(sequelize) {
   User.hasMany(UserInterest, { foreignKey: "user_id"});
   UserLoginHistory.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(UserLoginHistory, { foreignKey: "user_id"});
+  UserLogoutHistory.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(UserLogoutHistory, { foreignKey: "user_id"});
   UserNotificationSetting.belongsTo(User, { foreignKey: "user_id"});
   User.hasOne(UserNotificationSetting, { foreignKey: "user_id"});
   UserPrivacySetting.belongsTo(User, { foreignKey: "user_id"});
@@ -354,6 +358,7 @@ function initModels(sequelize) {
     UserGiftsReward,
     UserInterest,
     UserLoginHistory,
+    UserLogoutHistory,
     UserNotificationSetting,
     UserPrivacySetting,
     UserReportReply,

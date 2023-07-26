@@ -123,6 +123,12 @@ const update = async (req, res) => {
 const remove = async (req, res) => {
   // #swagger.tags = ['PostCommentReply']
   try{
+    try{
+      let PostCommentReplayLike = await Model.PostCommentReplayLike.findAll({where:{postcommentreplay_id:req.params.id},attributes:["id"],raw:true}).then(accounts => accounts.map(account => account.id));
+      await Model.PostCommentReplayLike.destroy({where:{id:PostCommentReplayLike}})
+    }catch(err){
+      console.log(err)
+    }
     let record = await ThisModel.destroy({where:{id:req.params.id}})
     return await Helper.SuccessValidation(req,res,[],"Deleted successfully")
   } catch (err) {
