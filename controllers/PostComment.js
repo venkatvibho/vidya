@@ -3,6 +3,7 @@ const Op                =      Sequelize.Op;
 const Helper            =      require("../middleware/helper");
 const { body, validationResult } = require('express-validator');
 const Model             =      require("../models");
+const UserPrivacySetting = require("../models/UserPrivacySetting");
 const ThisModel         =      Model.PostComment
 
 const create = async (req, res) => {
@@ -33,24 +34,46 @@ const create = async (req, res) => {
     }
   */
   // const opts = { runValidators: false , upsert: true };
-  if(req.body.is_post==true){
-    let checkPost = await Model.Post.count({id:req.body.post_id})
-    if(checkPost>0){
-      try{
-        let NewPostUser = await Model.PostUser.create({post_id:req.body.postuser_id,user_id:req.user.id,status:'Sent'})
-        req.body['postuser_id'] = NewPostUser.id
-        req.body['post_id'] = NewPostUser.id
-      }catch(error){
-        console.log(error)
+  let postCreatedUser = await Model.Post.findByPk(req.body.post_id)
+  let postCreatedUserSetting = await Model.UserPrivacySetting.findOne({where:{user_id:postCreatedUser.user_id}})
+  let commentSccess = true
+  if(postCreatedUserSetting){
+    if(postCreatedUserSetting.post_comments=="No one"){
+      commentSccess = false
+    }else  if(postCreatedUserSetting.post_comments=="People you follow"){
+      let checkFollowing = await Model.UserFollowing.count({where:{user_to_id:req.user.id,user_from_id:postCreatedUser.user_id}})
+      let checkFollow = await Model.UserFollowing.count({where:{user_from_id:req.user.id,user_to_id:postCreatedUser.user_id}})
+      if(checkFollowing>0 || checkFollow>0){
+        commentSccess = true
+      }else{
+        commentSccess = false
       }
+    }else{
+      commentSccess = true
     }
   }
-  delete req.body['is_post']
-  return await ThisModel.create(req.body).then(async(doc) => {
-    await Helper.SuccessValidation(req,res,doc,'Added successfully')
-  }).catch( async (err) => {
-    return await Helper.ErrorValidation(req,res,err,'cache')
-  })
+  if(commentSccess == true){
+    if(req.body.is_post==true){
+      let checkPost = await Model.Post.count({id:req.body.post_id})
+      if(checkPost>0){
+        try{
+          let NewPostUser = await Model.PostUser.create({post_id:req.body.postuser_id,user_id:req.user.id,status:'Sent'})
+          req.body['postuser_id'] = NewPostUser.id
+          req.body['post_id'] = NewPostUser.id
+        }catch(error){
+          console.log(error)
+        }
+      }
+    }
+    delete req.body['is_post']
+    return await ThisModel.create(req.body).then(async(doc) => {
+      await Helper.SuccessValidation(req,res,doc,'Added successfully')
+    }).catch( async (err) => {
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    })
+  }else{
+    return await Helper.ErrorValidation(req,res,{message:"You dont have access to add comment"},'cache')
+  }
 }
 
 const commonGet = async (req,res,whereInclude) => {
@@ -65,8 +88,8 @@ const commonGet = async (req,res,whereInclude) => {
 
 const list = async (req, res) => {
   // #swagger.tags = ['PostComment']
-  //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
-  //  #swagger.parameters['page'] = {in: 'query',type:'number'}
+  // #swagger.parameters['page_size'] = {in: 'query',type:'number'}
+  // #swagger.parameters['page'] = {in: 'query',type:'number'}
   
   try{
       let pageSize = 0;
@@ -139,6 +162,34 @@ const view = async (req, res) => {
   return await Helper.SuccessValidation(req,res,records)
 }
 
+const checkPostCommentAccess = async (req, res) => {
+  // #swagger.tags = ['PostComment']
+  let postCreatedUser = await Model.Post.findByPk(req.params.post_id)
+  let postCreatedUserSetting = await Model.UserPrivacySetting.findOne({where:{user_id:postCreatedUser.user_id}})
+  let commentSccess = true
+  if(postCreatedUserSetting){
+    if(postCreatedUserSetting.post_comments=="No one"){
+      commentSccess = false
+    }else  if(postCreatedUserSetting.post_comments=="People you follow"){
+      let checkFollowing = await Model.UserFollowing.count({where:{user_to_id:req.user.id,user_from_id:postCreatedUser.user_id}})
+      let checkFollow = await Model.UserFollowing.count({where:{user_from_id:req.user.id,user_to_id:postCreatedUser.user_id}})
+      if(checkFollowing>0 || checkFollow>0){
+        commentSccess = true
+      }else{
+        commentSccess = false
+      }
+    }else{
+      commentSccess = true
+    }
+  }
+  if(commentSccess==true){
+    return await Helper.SuccessValidation(req,res,{message:"Accessed"})
+  }else{
+    return await Helper.ErrorValidation(req,res,{message:"You dont have access to add comment"},'cache')
+  }
+}
+
+
 const update = async (req, res) => {
   // #swagger.tags = ['PostComment']
   /*
@@ -195,4 +246,4 @@ const bulkremove = async (req, res) => {
 }
 
 
-module.exports = {create,list, view, update, remove, bulkremove};
+module.exports = {create,list, view, update, remove, bulkremove,checkPostCommentAccess};

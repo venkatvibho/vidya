@@ -20,7 +20,10 @@ const create = async (req, res) => {
           "status": { 
             "type": "string",
             "enum":["Sent","Hide"]
-          }
+          },
+          "is_blocked": { 
+            "type": "boolean",
+          },
         } 
       } 
     }
@@ -36,7 +39,11 @@ const create = async (req, res) => {
   }else{
     req.body['is_slambook_skip'] = false
     req.body['user_from_id'] = req.user.id
-    req.body['is_blocked'] = false
+    if(req.body.is_blocked){
+      req.body['is_blocked'] = req.body.is_blocked
+    }else{
+      req.body['is_blocked'] = false
+    }
     if(req.query.status=="Hide"){
       req.body["is_hide_at"] = await Helper.CurrentDate()
     }else{
