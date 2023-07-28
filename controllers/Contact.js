@@ -24,22 +24,35 @@ const create = async (req, res) => {
   // const opts = { runValidators: false , upsert: true };
   let participants = req.body['phonenumbers']
   delete req.body['phonenumbers']
-  return await ThisModel.create(req.body).then(async(doc) => {
-    try{
-      for (const part of participants){  
-        try{
-          await ThisModel.create({user_id:req.user.id,phonenumber:part})
-        }catch(err){
-          console.log(err)
-        }
+  doc = []
+  try{
+    for (const part of participants){  
+      try{
+        let respresult = await ThisModel.create({user_id:req.user.id,phonenumber:part})
+        doc.push(respresult)
+      }catch(err){
+        console.log(err)
       }
-    }catch(err){
-      console.log(err)
     }
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
-  }).catch( async (err) => {
+  }catch(err){
     return await Helper.ErrorValidation(req,res,err,'cache')
-  })
+  }
+}
+
+const checkPhoneNumberExistedORnot = async (req, res) => {
+   // #swagger.tags = ['Contactsync']
+   try{
+      let countCheck = await ThisModel.count({where:{user_id:req.user.id,phonenumber:req.params.phonenumber}})
+      if(countCheck>0){
+        countCheck = true
+      }else{
+        countCheck = false
+      }
+      await Helper.SuccessValidation(req,res,{existedOrNot:countCheck})
+    }catch(err){
+      return await Helper.ErrorValidation(req,res,err,'cache')
+    }
 }
 
 const list = async (req, res) => {
@@ -52,6 +65,12 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
+      query['attributes']= {}
+      query['attributes']['include'] = [
+        [
+          Sequelize.literal(`(SELECT COUNT(id) FROM public.users WHERE phonenumber="UserContact"."phonenumber" )`),'isRegistered'
+        ]
+      ]
       if(req.query.page && req.query.page_size){
         if (req.query.page >= 0 && req.query.page_size > 0) {
           pageSize = req.query.page_size;
@@ -132,4 +151,4 @@ const bulkremove = async (req, res) => {
 }
 
 
-module.exports = {create,list, view, update, remove, bulkremove};
+module.exports = {create,list, view, update, remove, bulkremove,checkPhoneNumberExistedORnot};

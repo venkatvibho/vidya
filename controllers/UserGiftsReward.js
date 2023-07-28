@@ -291,6 +291,21 @@ const home = async (req, res) => {
       points:honour
     }
   }
+  let cdate = await Helper.CurrentDate()
+  cdate     = await Helper.DT_Y_M_D(cdate)
+  let actquery = {}
+  actquery['where'] = {}
+  actquery['where']['start_date'] = {[Op.gte]:cdate}
+  actquery['include'] ={
+    model:Model.ActivityUser,
+    where:{user_id:{[Op.ne]:req.user.id}},
+    required:false
+  }
+  records.public_activity = await Model.Activity.count(actquery)
+  let slambookquery = {}
+  slambookquery['where'] ={}
+  slambookquery['where'][Op.or] = [{user_from_id:req.user.id},{user_to_id:req.user.id}]
+  records.slambook = await Model.SlambookBeat.count(slambookquery)
   return await Helper.SuccessValidation(req,res,records)
 }
 

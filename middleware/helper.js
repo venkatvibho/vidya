@@ -314,8 +314,17 @@ const IslastAndFirstDayOfMonth = async (givenDate='')=> {
         islastDay : await (lastDate==day)?1:0
     }
 }
+
+const getJwtEncCode = async ()=> {
+    return {
+        code:'abcdefg',
+        expiresIn:'10d'
+    }
+}
+
 const helper = {};
 helper.IslastAndFirstDayOfMonth =   IslastAndFirstDayOfMonth
+helper.getJwtEncCode        =   getJwtEncCode 
 helper.SuccessValidation    =   SuccessValidation 
 helper.Sms_Otp_Details      =   Sms_Otp_Details
 helper.ExpairyDate          =   ExpairyDate

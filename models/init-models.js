@@ -18,6 +18,7 @@ const _GroupChatroomUserReportReply = require("./GroupChatroomUserReportReply");
 const _GroupChatroomUserReport = require("./GroupChatroomUserReport");
 const _Group = require("./Group");
 const _GroupsParticipant = require("./GroupsParticipant");
+const _InviteFriend = require("./InviteFriend");
 const _MasterActivity = require("./MasterActivity");
 const _MasterBeatQuestion = require("./MasterBeatQuestion");
 const _MasterGiftsReward = require("./MasterGiftsReward");
@@ -76,6 +77,7 @@ function initModels(sequelize) {
   const GroupChatroomUserReport = _GroupChatroomUserReport(sequelize, DataTypes);
   const Group = _Group(sequelize, DataTypes);
   const GroupsParticipant = _GroupsParticipant(sequelize, DataTypes);
+  const InviteFriend = _InviteFriend(sequelize, DataTypes);
   const MasterActivity = _MasterActivity(sequelize, DataTypes);
   const MasterBeatQuestion = _MasterBeatQuestion(sequelize, DataTypes);
   const MasterGiftsReward = _MasterGiftsReward(sequelize, DataTypes);
@@ -240,6 +242,8 @@ function initModels(sequelize) {
   User.hasMany(Group, { foreignKey: "user_id"});
   GroupsParticipant.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(GroupsParticipant, { foreignKey: "user_id"});
+  InviteFriend.belongsTo(User, { foreignKey: "user_id"});
+  User.hasMany(InviteFriend, { foreignKey: "user_id"});
   PollUser.belongsTo(User, { foreignKey: "user_id"});
   User.hasMany(PollUser, { foreignKey: "user_id"});
   PollViewed.belongsTo(User, { foreignKey: "user_id"});
@@ -303,7 +307,7 @@ function initModels(sequelize) {
   SlambookBeat.belongsTo(User, { as:"UserTo",foreignKey: "user_to_id"});
   SlambookBeat.belongsTo(User, { as:"UserFrom",foreignKey: "user_from_id"});
   Poll.hasOne(PollUser, { as:"PollUserDetails",foreignKey: "poll_id"});
-  GroupChat.belongsTo(Poll, { as:"PollDetails",foreignKey: "poll_id"});
+  GroupChat.hasOne(Poll, { as:"PollDetails",foreignKey: "group_chat_id"});
   Call.belongsTo(User, { as:"CallFrom",foreignKey: "call_user_from_id"});
   Call.belongsTo(User, { as:"CallTo",foreignKey: "call_user_to_id"});
   User.hasOne(UserPrivacySetting, { as:"ProfileLockCheck",foreignKey: "user_id"});
@@ -328,6 +332,7 @@ function initModels(sequelize) {
     GroupChatroomUserReport,
     Group,
     GroupsParticipant,
+    InviteFriend,
     MasterActivity,
     MasterBeatQuestion,
     MasterGiftsReward,

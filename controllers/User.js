@@ -75,7 +75,8 @@ const create = async (req, res) => {
         doc = await ThisModel.findByPk(doc.id,query);
         await Helper.SuccessValidation(req,res,doc,'Added successfully')
       }else{
-        return jwt.sign({user:doc}, 'abcdefg', {expiresIn:'10d'}, async (err,token) => {
+        let getJwtEncCode = await Helper.getJwtEncCode()
+        return jwt.sign({user:doc},getJwtEncCode.code,{expiresIn:getJwtEncCode.expiresIn}, async (err,token) => {
           if(!err){
             let refreshToken = randtoken.generate(256)+records.id
             await ThisModel.updateOne({_id:records.id},{ $set:{refreshToken:refreshToken}})
@@ -631,7 +632,8 @@ const login = async (req, res) => {
             PwdStatus = await bcrypt.compare(req.body.password, records.password);
           }
           if(PwdStatus){
-            return jwt.sign({user:records}, 'abcdefg', {expiresIn:'10d'}, async (err,token) => {
+            let getJwtEncCode = await Helper.getJwtEncCode()
+            return jwt.sign({user:records},getJwtEncCode.code,{expiresIn:getJwtEncCode.expiresIn}, async (err,token) => {
               if(!err){
                 let refreshToken = randtoken.generate(256)+records.id
                 await ThisModel.update({refreshToken:refreshToken},{where:{id:records.id}})
@@ -712,7 +714,8 @@ const loginwithotp = async (req, res) => {
         let UserLoginHistoryModel = await Model.UserLoginHistory
         await UserLoginHistoryModel.create({user_id:records.id,device_id:device_id})
       }
-      return jwt.sign({user:records,device_id:device_id}, 'abcdefg', {expiresIn:'10d'}, async (err,token) => {
+      let getJwtEncCode = await Helper.getJwtEncCode()
+      return jwt.sign({user:records,device_id:device_id},getJwtEncCode.code,{expiresIn:getJwtEncCode.expiresIn}, async (err,token) => {
         if(!err){
           let CheckGroupCHatInvite = await Model.GroupChatInvited.findOne({where:{phonenumber:req.body.phonenumber,is_deleted:false}})
           if(CheckGroupCHatInvite){
@@ -831,7 +834,8 @@ const refreshToken = async (req, res) => {
   try{
     let records = await ThisModel.findOne({where:{refreshToken:req.params.refreshToken}});
     if(records){
-      return jwt.sign({user:records}, 'abcdefg', {expiresIn:'10d'}, async (err,token) => {
+      let getJwtEncCode = await Helper.getJwtEncCode()
+      return jwt.sign({user:records},getJwtEncCode.code,{expiresIn:getJwtEncCode.expiresIn}, async (err,token) => {
         if(!err){
           records = {results:records,Token:token}
           await Helper.SuccessValidation(req,res,records)
@@ -902,4 +906,30 @@ const forgotpassword = async (req, res) => {
   }
 }
 
-module.exports = {create,list, view, update, remove, bulkremove, login, resetpassword, CheckUserId, GenerateUserId, forgotpassword, refreshToken, changePassword, loginwithotp, hibernate, logout};
+const Home = async (req, res) => {
+  // #swagger.tags = ['User']
+
+  let cdate = await Helper.CurrentDate()
+  cdate     = await Helper.DT_Y_M_D(cdate)
+  let actquery = {}
+  actquery['where'] = {}
+  actquery['where']['start_date'] = {[Op.gte]:cdate}
+  actquery['include'] ={
+    model:Model.ActivityUser,
+    where:{user_id:{[Op.ne]:req.user.id}},
+    required:false
+  }
+  let PublicAct = await Model.Activity.count(actquery)
+  let slambookquery = {}
+  slambookquery['where'][Op.or] = [{user_from_id:req.user.id},{user_to_id:req.user.id}]
+  letSlam_BookCnt = await Model.SlambookBeat.count(slambookquery)
+  let giftsCnt = {}
+  let records = {
+    public_activities:PublicAct,
+    gifts:giftsCnt,
+    slam_book:letSlam_BookCnt,
+  }
+  return await Helper.SuccessValidation(req,res,records)
+}
+
+module.exports = {Home,create,list, view, update, remove, bulkremove, login, resetpassword, CheckUserId, GenerateUserId, forgotpassword, refreshToken, changePassword, loginwithotp, hibernate, logout};
