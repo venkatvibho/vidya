@@ -115,4 +115,61 @@ const privacysettings = async (req, res) => {
   });
   return await Helper.SuccessValidation(req,res,[])
 }
-module.exports = {Upload,Indicators,privacysettings};
+
+
+const BirthDayCron = async (req, res) => {
+  // #swagger.tags = ['Common']
+  // #swagger.description = "For Every night 1 PM Only once"
+  let todaydate = await Helper.CurrentDate()
+  todaydate     = await Helper.DT_Y_M_D(todaydate)
+  let query = {}
+  query['include'] = [
+    {
+      model:Model.User,
+      as: "FollowingFrom",
+      attributes:["id","first_name","user_id","dob"],
+      required:true
+    },
+    {
+      model:Model.User,
+      foreignKey: 'user_to_id',
+      attributes:["id","first_name","user_id","dob"],
+      required:true
+    }
+  ] 
+  query['where'] = Sequelize.literal(`((SELECT COUNT(*) FROM public.users WHERE id="UserFollowing"."user_from_id" AND dob='${todaydate}')>1) OR (SELECT COUNT(*) FROM public.users WHERE id="UserFollowing"."user_to_id" AND dob='${todaydate}')>1)`)
+  let FriendsDetails = await Model.UserFollowing.findAll(query)
+  if(FriendsDetails){
+    for(let i = 0; i < FriendsDetails.length; i++){
+      let from = null
+      let to = null
+      let friend = FriendsDetails[i]
+      if(friend.FollowingFrom.dob==todaydate){
+        from = friend.FollowingFrom
+        to   = friend.User
+      }else{
+        to = friend.FollowingFrom
+        from   = friend.User
+      }
+      let msg = {
+        from:from,
+        to:to
+      }
+      let loadPushnotification = await require("../utils/notification")
+      await loadPushnotification.sendPushnotification(req,res,10,0,msg);
+    }
+  }
+  return await Helper.SuccessValidation(req,res,{})
+}
+
+
+const ActivityCron = async (req, res) => {
+  // #swagger.tags = ['Common']
+  // #swagger.description = "For Every 5 minutes
+
+  let loadPushnotification = await require("../utils/notification")
+  await loadPushnotification.sendPushnotification(req,res,4,part,{});
+  return await Helper.SuccessValidation(req,res,{})
+}
+
+module.exports = {BirthDayCron,ActivityCron,Upload,Indicators,privacysettings};

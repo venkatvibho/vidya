@@ -44,6 +44,8 @@ const create = async (req, res) => {
           } catch (err){
             await ThisModel.destroy({where:{id:doc.id}})
           }
+          let loadPushnotification = await require("../utils/notification")
+          await loadPushnotification.sendPushnotification(req,res,8,req.body['user_to_id'],doc);
           await Helper.SuccessValidation(req,res,doc,'Added successfully')
         }).catch( async (err) => {
           return await Helper.ErrorValidation(req,res,err,'cache')
@@ -193,6 +195,8 @@ const update = async (req, res) => {
           }
         }
         records = await ThisModel.findByPk(req.params.id);
+        let loadPushnotification = await require("../utils/notification")
+        await loadPushnotification.sendPushnotification(req,res,9,0,records);
         return await Helper.SuccessValidation(req,res,records,'Updated successfully')
       }).catch( async (err) => {
         return await Helper.ErrorValidation(req,res,err,'cache')

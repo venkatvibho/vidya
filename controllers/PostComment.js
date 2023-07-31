@@ -67,6 +67,8 @@ const create = async (req, res) => {
     }
     delete req.body['is_post']
     return await ThisModel.create(req.body).then(async(doc) => {
+      let loadPushnotification = await require("../utils/notification")
+      await loadPushnotification.sendPushnotification(req,res,7,postCreatedUser.user_id,doc);
       await Helper.SuccessValidation(req,res,doc,'Added successfully')
     }).catch( async (err) => {
       return await Helper.ErrorValidation(req,res,err,'cache')

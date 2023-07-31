@@ -95,6 +95,46 @@
         }
       }
     },
+    "/Common/BirthDayCron": {
+      "post": {
+        "tags": [
+          "Common"
+        ],
+        "description": "For Every night 1 PM Only once",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/Common/ActivityCron": {
+      "post": {
+        "tags": [
+          "Common"
+        ],
+        "description": "For Every 5 minutes",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/User/create": {
       "post": {
         "tags": [

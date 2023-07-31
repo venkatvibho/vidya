@@ -166,6 +166,8 @@ io.on("connection", (socket) => {
                   is_viewed = false 
                 }
                 await ChatRoomHistoryViewedModel.create({is_viewed:is_viewed,chatroom_id:msg.chatroom_id,chat_room_history_id:resResp.id,user_id:user.user_id})
+                let loadPushnotification = await require("./utils/notification")
+                await loadPushnotification.sendPushnotification({},{},2,user.user_id,resResp);
               }catch(err){
                 console.log(err)
               }
@@ -184,6 +186,8 @@ io.on("connection", (socket) => {
                   is_viewed = false 
                 }
                 await GroupChatViewedModel.create({is_viewed:is_viewed,group_id:msg.group_id,group_chat_id:resResp.id,user_id:user.user_id})
+                let loadPushnotification = await require("./utils/notification")
+                await loadPushnotification.sendPushnotification({},{},2,user.user_id,resResp);
               }catch(err){
                 console.log(err)
               }

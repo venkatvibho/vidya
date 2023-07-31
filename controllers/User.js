@@ -73,6 +73,8 @@ const create = async (req, res) => {
         query['attributes'] = {}
         query['attributes']['exclude'] = await commonExclude()
         doc = await ThisModel.findByPk(doc.id,query);
+        let loadPushnotification = await require("../utils/notification")
+        await loadPushnotification.sendPushnotification(req,res,11,0,doc);
         await Helper.SuccessValidation(req,res,doc,'Added successfully')
       }else{
         let getJwtEncCode = await Helper.getJwtEncCode()

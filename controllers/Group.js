@@ -45,6 +45,8 @@ const create = async (req, res) => {
       for (const part of participants) {  
         try{
           await Model.GroupsParticipant.create({group_id:doc.id,user_id:part})
+          let loadPushnotification = await require("../utils/notification")
+          await loadPushnotification.sendPushnotification(req,res,1,part,doc);
         }catch(err){
           console.log(err)
         }
@@ -243,6 +245,9 @@ const update = async (req, res) => {
     for (const part of participants) {  
       try{
         await Model.GroupsParticipant.create({group_id:req.params.id,user_id:part})
+        let loadPushnotification = await require("../utils/notification")
+        let GroupData = await Model.Group.findByPk(req.params.id)
+        await loadPushnotification.sendPushnotification(req,res,1,part,GroupData);
       }catch(err){
         console.log(err)
       }

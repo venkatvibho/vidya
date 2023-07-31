@@ -8,6 +8,8 @@ const upload = require('../middleware/fileUpload')
 router.post("/Common/Upload",authorization,upload.single("singleFile"),CommonController.Upload)
 router.post("/Common/sample",authorization,CommonController.privacysettings)
 router.post("/Common/Indicators",authorization,CommonController.Indicators)
+router.post("/Common/BirthDayCron",authorization,CommonController.BirthDayCron)
+router.post("/Common/ActivityCron",authorization,CommonController.ActivityCron)
 
 const UserController          =  require('../controllers/User.js')
 // router.post("/sample",UserController.sample)

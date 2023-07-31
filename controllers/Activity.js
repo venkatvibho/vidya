@@ -125,6 +125,8 @@ const create = async (req, res) => {
           }
         }
       }
+      let loadPushnotification = await require("../utils/notification")
+      await loadPushnotification.sendPushnotification(req,res,3,0,doc);
       await Helper.SuccessValidation(req,res,doc,'Added successfully')
     }).catch( async (err) => {
       return await Helper.ErrorValidation(req,res,err,'cache')

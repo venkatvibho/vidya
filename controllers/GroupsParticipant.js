@@ -27,6 +27,8 @@ const create = async (req, res) => {
   */
   // const opts = { runValidators: false , upsert: true };
   return await ThisModel.create(req.body).then(async(doc) => {
+    let loadPushnotification = await require("../utils/notification")
+    await loadPushnotification.sendPushnotification(req,res,1,req.body.user_id,doc);
     await Helper.SuccessValidation(req,res,doc,'Added successfully')
   }).catch( async (err) => {
     return await Helper.ErrorValidation(req,res,err,'cache')
