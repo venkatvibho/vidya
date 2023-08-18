@@ -43,25 +43,41 @@ const create = async (req, res) => {
       // let text = 'Email: '+CreateModel.email+' and password: '+CreateModel.password+' are your login credentials.'
       // let subject = "Account created successfully"
       // await Helper.SentMail(CreateModel.email,subject,text)
+        try{
+          await Model.UserPrivacySetting.create({
+            "user_id":doc.id,
+            "tag": "Allow from anyone",
+            "connect": "Allow from anyone",
+            "profile_lock": "No",
+            "block_user": "No",
+            "message": "Allow from anyone",
+            "group_request": "Allow from anyone",
+            "schedules": "Allow from anyone",
+            "location": "No",
+            "post_comments": "Allow from anyone",
+            "reaction_pref": "No",
+            "profile_info": "No",
+            "review_taggings": "No"
+          })
+      }catch(err){
+          console.log(err)
+      }
       try{
         await Model.UserPrivacySetting.create({
           "user_id":doc.id,
-          "tag": "Allow from anyone",
-          "connect": "Allow from anyone",
-          "profile_lock": "No",
-          "block_user": "No",
-          "message": "Allow from anyone",
-          "group_request": "Allow from anyone",
-          "schedules": "Allow from anyone",
-          "location": "No",
-          "post_comments": "Allow from anyone",
-          "reaction_pref": "No",
-          "profile_info": "No",
-          "review_taggings": "No"
+          "is_comments_on":true,
+          "is_share_on":true,
+          "is_tag_on":true,
+          "is_reminders_on":true,
+          "is_connect_request_on":true,
+          "is_group_form_request_on":true,
+          "is_activities_on":true,
+          "is_events_on":true,
+          "is_updates_from_friends_on":true
         })
-     }catch(err){
-        console.log(err)
-     }
+      }catch(err){
+          console.log(err)
+      }
       let Is_Otp_Enabled = true
       if(Is_Otp_Enabled){
         let SmsDet = {}
@@ -235,7 +251,7 @@ const commonGet = async (req,res,whereInclude) => {
 }
 
 const list = async (req, res) => {
-  // #swagger.tags = ['User']
+  //  #swagger.tags = ['User']
   //  #swagger.parameters['page_size'] = {in: 'query',type:'number'}
   //  #swagger.parameters['page'] = {in: 'query',type:'number'}
   //  #swagger.parameters['username'] = {in: 'query',type:'string'}
