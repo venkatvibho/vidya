@@ -28,8 +28,8 @@ const authenticationToken = async (req, res , next) => {
         }else{
             let WithoutAccess = [
                 // "/User/view/:id",
-                "/User/GenerateUserId",
                 "/Common/Upload",
+                "/Donation/create",
             ]
             if(WithoutAccess.includes(req.route.path)){
                 next();

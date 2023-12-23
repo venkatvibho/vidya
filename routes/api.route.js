@@ -9,7 +9,8 @@ router.post("/Common/Upload",authorization,upload.single("singleFile"),CommonCon
 
 const UserController          =  require('../controllers/User.js')
 router.post("/User/login",UserController.login)
-router.post("/User/changePassword",UserController.changePassword)
+router.post("/User/changePassword",authorization,UserController.changePassword)
+router.post("/User/profile",authorization,UserController.profile)
 // router.get("/User/forgotpassword/:email",UserController.forgotpassword)
 
 

@@ -77,10 +77,10 @@ const changePassword = async (req, res) => {
   */
   try{
     if(req.body.confirm_new_password == req.body.new_password){
-      let records = await ThisModel.findByPk(req.user.id);
+      let records = await ThisModel.findOne({where:{id:req.user.id,pwd:md5(req.body.old_password)}});
       if(records){
         let pwd = await Helper.Otp()
-        let updatestatus = await ThisModel.update({pwd:md5(req.body.new_password)},{where:{id:req.user._id}})
+        let updatestatus = await ThisModel.update({pwd:md5(req.body.new_password)},{where:{id:req.user.id}})
         if(updatestatus){
           CheckRecord = await ThisModel.findByPk(req.user.id);
           return await Helper.SuccessValidation(req,res,CheckRecord)
@@ -88,7 +88,7 @@ const changePassword = async (req, res) => {
           return await Helper.ErrorValidation(req,res,updatestatus,'cache')
         }
       }else{
-        return await Helper.ErrorValidation(req,res,{message:"Invalid authentication"},'cache')
+        return await Helper.ErrorValidation(req,res,{message:"Invalid credentials"},'cache')
       }
     }else{
       return await Helper.ErrorValidation(req,res,{message:"New and confirmed passwords are not the same"},'cache')
@@ -119,6 +119,7 @@ const forgotpassword = async (req, res) => {
 
 const profile = async (req, res) => {
   // #swagger.tags = ['User']
+  return await Helper.SuccessValidation(req,res,req.user)
 }
 
 module.exports = {login,forgotpassword,changePassword,profile};

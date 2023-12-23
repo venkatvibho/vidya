@@ -14,47 +14,47 @@ const create = async (req, res) => {
         "required": ["name","phonenumber","amount","amount_in_words"],
         "properties": { 
           "name": { 
-            "type": "straing",
+            "type": "string",
           },
           "surname": { 
-            "type": "straing",
+            "type": "string",
           },
           "phonenumber": { 
             "type": "number",
           },
           "whatsupnumber": { 
-            "type": "straing",
+            "type": "string",
           },
           "photo": { 
-            "type": "straing",
+            "type": "string",
           },
           "id_proof_photo": { 
-            "type": "straing",
+            "type": "string",
           },
           "donation_date": { 
-            "type": "straing",
+            "type": "string",
             "description":"YY-MM-DD Format Accepts only"
           },
           "adhar": { 
-            "type": "straing",
+            "type": "string",
           },
           "email": { 
-            "type": "straing",
+            "type": "string",
           },
           "address": { 
-            "type": "straing",
+            "type": "string",
           },
           "reffered_by": { 
-            "type": "straing",
+            "type": "string",
           },
           "reffered_person_number": { 
-            "type": "straing",
+            "type": "string",
           },
           "gothram": { 
-            "type": "straing",
+            "type": "string",
           },
           "donation_type": { 
-            "type": "straing",
+            "type": "string",
             "enum":['UPI','DD','CASH','CHEQUE','ONLINE'],
             "default":"UPI"
           },
@@ -62,7 +62,7 @@ const create = async (req, res) => {
             "type": "number",
           },
           "amount_in_words": { 
-            "type": "straing",
+            "type": "string",
           }
         } 
       } 
@@ -186,47 +186,47 @@ const update = async (req, res) => {
       '@schema': { 
         "properties": { 
           "name": { 
-            "type": "straing",
+            "type": "string",
           },
           "surname": { 
-            "type": "straing",
+            "type": "string",
           },
           "phonenumber": { 
             "type": "number",
           },
           "whatsupnumber": { 
-            "type": "straing",
+            "type": "string",
           },
           "photo": { 
-            "type": "straing",
+            "type": "string",
           },
           "id_proof_photo": { 
-            "type": "straing",
+            "type": "string",
           },
           "donation_date": { 
-            "type": "straing",
+            "type": "string",
             "description":"YY-MM-DD Format Accepts only"
           },
           "adhar": { 
-            "type": "straing",
+            "type": "string",
           },
           "email": { 
-            "type": "straing",
+            "type": "string",
           },
           "address": { 
-            "type": "straing",
+            "type": "string",
           },
           "reffered_by": { 
-            "type": "straing",
+            "type": "string",
           },
           "reffered_person_number": { 
-            "type": "straing",
+            "type": "string",
           },
           "gothram": { 
-            "type": "straing",
+            "type": "string",
           },
           "donation_type": { 
-            "type": "straing",
+            "type": "string",
             "enum":['UPI','DD','CASH','CHEQUE','ONLINE'],
             "default":"UPI"
           },
@@ -234,7 +234,7 @@ const update = async (req, res) => {
             "type": "number",
           },
           "amount_in_words": { 
-            "type": "straing",
+            "type": "string",
           }
         } 
       } 

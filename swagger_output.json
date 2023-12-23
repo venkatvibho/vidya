@@ -46,12 +46,14 @@
             "type": "file",
             "required": true,
             "description": "Upload file..."
+          },
+          {
+            "name": "host",
+            "in": "header",
+            "type": "string"
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "401": {
             "description": "Unauthorized"
           }
@@ -95,6 +97,11 @@
         "description": "",
         "parameters": [
           {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
             "name": "data",
             "in": "body",
             "schema": {
@@ -117,7 +124,31 @@
             }
           }
         ],
-        "responses": {}
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/User/profile": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
       }
     },
     "/Donation/create": {
@@ -144,47 +175,47 @@
               ],
               "properties": {
                 "name": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "surname": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "phonenumber": {
                   "type": "number"
                 },
                 "whatsupnumber": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "photo": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "id_proof_photo": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "donation_date": {
-                  "type": "straing",
+                  "type": "string",
                   "description": "YY-MM-DD Format Accepts only"
                 },
                 "adhar": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "email": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "address": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "reffered_by": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "reffered_person_number": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "gothram": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "donation_type": {
-                  "type": "straing",
+                  "type": "string",
                   "enum": [
                     "UPI",
                     "DD",
@@ -198,7 +229,7 @@
                   "type": "number"
                 },
                 "amount_in_words": {
-                  "type": "straing"
+                  "type": "string"
                 }
               }
             }
@@ -357,47 +388,47 @@
             "schema": {
               "properties": {
                 "name": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "surname": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "phonenumber": {
                   "type": "number"
                 },
                 "whatsupnumber": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "photo": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "id_proof_photo": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "donation_date": {
-                  "type": "straing",
+                  "type": "string",
                   "description": "YY-MM-DD Format Accepts only"
                 },
                 "adhar": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "email": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "address": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "reffered_by": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "reffered_person_number": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "gothram": {
-                  "type": "straing"
+                  "type": "string"
                 },
                 "donation_type": {
-                  "type": "straing",
+                  "type": "string",
                   "enum": [
                     "UPI",
                     "DD",
@@ -411,7 +442,7 @@
                   "type": "number"
                 },
                 "amount_in_words": {
-                  "type": "straing"
+                  "type": "string"
                 }
               }
             }
