@@ -204,7 +204,6 @@ const Otp = async () => {
     for (let i = 0; i < 6; i++ ) {
         OTP += digits[Math.floor(Math.random() * 10)];
     }
-    return 1234
 }
 
 const RoundVal = (avg) => {
@@ -266,7 +265,7 @@ const Signzy_Api_Uname_Pwd = async ()=> {
     let password = null
     // For Live
     username    =   'score10_prod'
-    password    =   '2J5VGkGHS12AAWPXxngl'
+    password    =   '1'
     // For Staging
     // username    =   'test'
     // password    =   'test'
@@ -277,8 +276,8 @@ const Signzy_Api_Uname_Pwd = async ()=> {
 }
 
 const Sms_Otp_Details = async ()=> {
-    let username = 'lakshmi.veeru11@gmail.com'
-    let apikey = 'a920a4516b3f83894e63c30e1c6ada22920fc80a2c6ffb9c568e905f1136f754'
+    let username = '1111'
+    let apikey = '1'
     let senderid = 'SCORTN'
     return {
         username    : username,

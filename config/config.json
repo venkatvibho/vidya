@@ -1,26 +1,26 @@
 {
   "development": {
-    "username": "postgres",
-    "password": "Venkat@99$$",
-    "database": "sociobeats",
-    "host": "ec2-13-233-186-49.ap-south-1.compute.amazonaws.com",
-    "port": 5432,
-    "dialect": "postgres"
+    "username"  : "root",
+    "password"  : "",
+    "database"  : "vidyalayam",
+    "host"      : "localhost",
+    "port"      : 3306,
+    "dialect"   : "mysql"
   },
   "test": {
-    "username": "postgres",
-    "password": "Venkat@99$$",
-    "database": "sociobeats",
-    "host": "ec2-13-233-186-49.ap-south-1.compute.amazonaws.com",
-    "port": 5432,
-    "dialect": "postgres"
+    "username"  : "root",
+    "password"  : "",
+    "database"  : "vidyalayam",
+    "host"      : "localhost",
+    "port"      : 3306,
+    "dialect"   : "mysql"
   },
   "production": {
-    "username": "postgres",
-    "password": "Venkat@99$$",
-    "database": "sociobeats",
-    "host": "ec2-13-233-186-49.ap-south-1.compute.amazonaws.com",
-    "port": 5432,
-    "dialect": "postgres"
+    "username"  : "root",
+    "password"  : "",
+    "database"  : "vidyalayam",
+    "host"      : "localhost",
+    "port"      : 3306,
+    "dialect"   : "mysql"
   }
 }

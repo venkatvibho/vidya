@@ -9,22 +9,6 @@ const authenticationToken = async (req, res , next) => {
                     if(user.user){
                         req.user = user.user;
                         next();
-                        // let Model      = require("../models");
-                        // let LastDevice = await Model.UserLoginHistory.findOne({attributes:['device_id'],where:{user_id:user.user.id},order:[["id","DESC"]]})
-                        // if(LastDevice){
-                        //     if(LastDevice.device_id){
-                        //         if(LastDevice.device_id==user.device_id){
-                        //             req.user = user.user;
-                        //             next();
-                        //         }else{
-                        //             res.status(401).send({ message:"Invalid mobile used"},{});
-                        //         }
-                        //     }else{
-                        //         res.status(401).send({ message:"Invalid mobile used"},{});
-                        //     }
-                        // }else{
-                        //     res.status(401).send({ message:"Unauthorized" , err});
-                        // }
                     }else{
                         res.status(401).send({ message:"Unauthorized" , err});
                     }
@@ -39,7 +23,7 @@ const authenticationToken = async (req, res , next) => {
         let swaggerFile   = require('../swagger_output.json')
         let defaultKey    = await (swaggerFile.host=='localhost:8000')?true:false;
         if(defaultKey){
-            req.user = {id:98,dob:'1991-01-01'};
+            req.user = {id:1,dob:'1991-01-01'};
             next();
         }else{
             let WithoutAccess = [
