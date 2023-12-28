@@ -14,6 +14,9 @@ app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 const path = require('path');
 app.use(express.static(path.resolve(__dirname, 'client')));
 app.set('view engine', 'ejs')
+if(swaggerFile.host == 'localhost:8005'){
+    process.env.NODE_ENV = 'test'
+}
 const server = app.listen(port, () => {
     console.log(`Server is running on http://${swaggerFile.host}/swagger`);
 });
