@@ -4,7 +4,7 @@ const bodyParser    = require('body-parser');
 const app           = express();
 const swaggerUi     = require('swagger-ui-express')
 const swaggerFile   = require('./swagger_output.json')
-const port          = 8000;
+const port          = 8005;
 app.use(cors({ origin: '*' }));
 app.use(bodyParser.json({limit: '50mb'}));
 app.use('/uploads',express.static(__dirname + '/uploads'));

@@ -76,8 +76,8 @@ Instructions to set up your project locally.
    ```sh
    npm install
    ```
-4. Make sure the swagger_output.json file at root of the project has "host": "localhost:8000",
-5. Make sure the swagger.js file at root of the project has "host": "localhost:8000",
+4. Make sure the swagger_output.json file at root of the project has "host": "localhost:8005",
+5. Make sure the swagger.js file at root of the project has "host": "localhost:8005",
 6. To start the server on your local host , run, "npm run start" 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
