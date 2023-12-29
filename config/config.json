@@ -3,7 +3,7 @@
     "username"  : "vidyalayalam",
     "password"  : "VidYaLaYam@136",
     "database"  : "vidyalayam",
-    "host"      : "localhost",
+    "host"      : "16.171.120.76",
     "port"      : 3306,
     "dialect"   : "mysql"
   },
@@ -19,7 +19,7 @@
     "username"  : "vidyalayalam",
     "password"  : "VidYaLaYam@136",
     "database"  : "vidyalayam",
-    "host"      : "localhost",
+    "host"      : "16.171.120.76",
     "port"      : 3306,
     "dialect"   : "mysql"
   }
