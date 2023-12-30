@@ -16,10 +16,10 @@
     "dialect"   : "mysql"
   },
   "production": {
-    "username"  : "vidyalayalam",
-    "password"  : "VidYaLaYam@136",
+    "username"  : "root",
+    "password"  : "1234",
     "database"  : "vidyalayam",
-    "host"      : "16.171.120.76",
+    "host"      : "localhost",
     "port"      : 3306,
     "dialect"   : "mysql"
   }
