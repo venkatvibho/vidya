@@ -3,14 +3,14 @@
     "username"  : "vidyalayalam",
     "password"  : "VidYaLaYam@136",
     "database"  : "vidyalayam",
-    "host"      : "16.171.120.76",
+    "host"      : "localhost",
     "port"      : 3306,
     "dialect"   : "mysql"
   },
   "test": {
     "username"  : "root",
     "password"  : "",
-    "database"  : "ee",
+    "database"  : "vidyalayam",
     "host"      : "localhost",
     "port"      : 3306,
     "dialect"   : "mysql"

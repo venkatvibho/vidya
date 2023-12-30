@@ -116,35 +116,35 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
-      if(req.params.donation_from_date){
-        query['where']['donation_date'] = {[Op.gte]:req.params.donation_from_date}
+      if(req.query.donation_from_date){
+        query['where']['donation_date'] = {[Op.gte]:req.query.donation_from_date}
       }
-      if(req.params.donation_to_date){
-        query['where']['donation_date'] = {[Op.lte]:req.params.donation_to_date}
+      if(req.query.donation_to_date){
+        query['where']['donation_date'] = {[Op.lte]:req.query.donation_to_date}
       }
-      if(req.params.donation_type){
-        query['where']['donation_type'] = req.params.donation_type
+      if(req.query.donation_type){
+        query['where']['donation_type'] = req.query.donation_type
       }
-      if(req.params.name){
-        query['where']['name'] = {[Op.substring]:req.params.name}
+      if(req.query.name){
+        query['where']['name'] = {[Op.substring]:req.query.name}
       }
-      if(req.params.surname){
-        query['where']['surname'] = {[Op.substring]:req.params.surname}
+      if(req.query.surname){
+        query['where']['surname'] = {[Op.substring]:req.query.surname}
       }
-      if(req.params.phonenumber){
-        query['where']['phonenumber'] = {[Op.substring]:req.params.phonenumber}
+      if(req.query.phonenumber){
+        query['where']['phonenumber'] = {[Op.substring]:req.query.phonenumber}
       }
-      if(req.params.adhar){
-        query['where']['adhar'] = {[Op.substring]:req.params.adhar}
+      if(req.query.adhar){
+        query['where']['adhar'] = {[Op.substring]:req.query.adhar}
       }
-      if(req.params.email){
-        query['where']['email'] = {[Op.substring]:req.params.email}
+      if(req.query.email){
+        query['where']['email'] = {[Op.substring]:req.query.email}
       }
-      if(req.params.created_from_date){
-        query['where'][$and] = {[Op.gte]:req.params.created_from_date}
+      if(req.query.created_from_date){
+        query['where'][$and] = {[Op.gte]:req.query.created_from_date}
       }
-      if(req.params.created_to_date){
-        query['where'][$and] = {[Op.lte]:req.params.created_to_date}
+      if(req.query.created_to_date){
+        query['where'][$and] = {[Op.lte]:req.query.created_to_date}
       }
       // query['where'] = {
       //   "is_active":1,
@@ -159,8 +159,9 @@ const list = async (req, res) => {
         query['offset'] = skip
         query['limit'] = pageSize
       }
-      query['distinct'] = true
+      // query['distinct'] = true
       query['order'] =[ ['id', 'DESC']]
+      console.log(query)
       const noOfRecord = await ThisModel.findAndCountAll(query)
       return await Helper.SuccessValidation(req,res,noOfRecord)
   } catch (err) {
