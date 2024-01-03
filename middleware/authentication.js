@@ -13,7 +13,7 @@ const authenticationToken = async (req, res , next) => {
                         res.status(401).send({ message:"Unauthorized" , err});
                     }
                 }else{
-                    res.status(401).send({ message:"Invalid mobile used"},{});
+                    res.status(401).send({ message:"Invalid login"},err);
                 }
             });
         }else{
