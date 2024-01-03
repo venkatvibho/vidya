@@ -10,10 +10,10 @@ const authenticationToken = async (req, res , next) => {
                         req.user = user.user;
                         next();
                     }else{
-                        res.status(401).send({ message:"Unauthorized" , err});
+                        res.status(401).send({message:"Unauthorized"});
                     }
                 }else{
-                    res.status(401).send({ message:"Invalid login"},err);
+                    res.status(401).send({message:"Unauthorized"});
                 }
             });
         }else{
