@@ -116,11 +116,14 @@ const list = async (req, res) => {
       let skip = 0;
       let query={}
       query['where'] = {}
-      if(req.query.donation_from_date){
-        query['where']['donation_date'] = {[Op.gte]:req.query.donation_from_date}
-      }
-      if(req.query.donation_to_date){
+      if(req.query.donation_from_date && req.query.donation_to_date){
+        query['where']['donation_date'] = {[Op.gte]:req.query.donation_from_date,[Op.lte]:req.query.donation_to_date}
+      }else if(req.query.donation_to_date){
         query['where']['donation_date'] = {[Op.lte]:req.query.donation_to_date}
+      }else{
+        if(req.query.donation_from_date){
+          query['where']['donation_date'] = {[Op.gte]:req.query.donation_to_date}
+        }
       }
       if(req.query.donation_type){
         query['where']['donation_type'] = req.query.donation_type
@@ -140,11 +143,21 @@ const list = async (req, res) => {
       if(req.query.email){
         query['where']['email'] = {[Op.substring]:req.query.email}
       }
-      if(req.query.created_from_date){
-        query['where'][$and] = {[Op.gte]:req.query.created_from_date}
-      }
-      if(req.query.created_to_date){
-        query['where'][$and] = {[Op.lte]:req.query.created_to_date}
+      if(req.query.created_from_date && req.query.created_to_date){
+        query['where'][Op.and] = [
+          Sequelize.where(Sequelize.fn('DATE', Sequelize.col('created_at')), '>=', req.query.created_from_date),
+          Sequelize.where(Sequelize.fn('DATE', Sequelize.col('created_at')), '<=', req.query.created_to_date)
+        ]
+      }else if(req.query.created_from_date){
+        query['where'][Op.and] = [
+          Sequelize.where(Sequelize.fn('DATE', Sequelize.col('created_at')), '>=', req.query.created_from_date)
+        ]
+      }else{
+        if(req.query.created_to_date){
+          query['where'][Op.and] = [
+            Sequelize.where(Sequelize.fn('DATE', Sequelize.col('created_at')), '<=', req.query.created_to_date)
+          ]
+        }
       }
       // query['where'] = {
       //   "is_active":1,
