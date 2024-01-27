@@ -20,6 +20,14 @@ class Donation extends Sequelize.Model {
       type: DataTypes.STRING(100),
       allowNull: true
     },
+    ReferenceNo: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    PurposeofDonation: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
     phonenumber: {
       type: DataTypes.STRING(25),
       allowNull: true

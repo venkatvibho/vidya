@@ -226,6 +226,12 @@
                 },
                 "amount_in_words": {
                   "type": "string"
+                },
+                "ReferenceNo": {
+                  "type": "string"
+                },
+                "PurposeofDonation": {
+                  "type": "string"
                 }
               }
             }
@@ -325,6 +331,16 @@
               "CHEQUE",
               "ONLINE"
             ]
+          },
+          {
+            "name": "ReferenceNo",
+            "in": "query",
+            "type": "staing"
+          },
+          {
+            "name": "PurposeofDonation",
+            "in": "query",
+            "type": "staing"
           }
         ],
         "responses": {

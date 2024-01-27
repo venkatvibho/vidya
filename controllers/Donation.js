@@ -63,6 +63,12 @@ const create = async (req, res) => {
           },
           "amount_in_words": { 
             "type": "string",
+          },
+          "ReferenceNo": { 
+            "type": "string",
+          },
+          "PurposeofDonation": { 
+            "type": "string",
           }
         } 
       } 
@@ -110,6 +116,8 @@ const list = async (req, res) => {
   //  #swagger.parameters['adhar']   = {in: 'query',type:'staing'}
   //  #swagger.parameters['email']   = {in: 'query',type:'staing'}
   //  #swagger.parameters['donation_type'] = {in: 'query',type:'string','enum':['UPI','DD','CASH','CHEQUE','ONLINE']}
+  //  #swagger.parameters['ReferenceNo']   = {in: 'query',type:'staing'}
+  //  #swagger.parameters['PurposeofDonation']   = {in: 'query',type:'staing'}
   
   try{
       let pageSize = 0;
@@ -158,6 +166,12 @@ const list = async (req, res) => {
             Sequelize.where(Sequelize.fn('DATE', Sequelize.col('created_at')), '<=', req.query.created_to_date)
           ]
         }
+      }
+      if(req.query.ReferenceNo){
+        query['where']['ReferenceNo'] = {[Op.substring]:req.query.ReferenceNo}
+      }
+      if(req.query.PurposeofDonation){
+        query['where']['PurposeofDonation'] = {[Op.substring]:req.query.PurposeofDonation}
       }
       // query['where'] = {
       //   "is_active":1,
