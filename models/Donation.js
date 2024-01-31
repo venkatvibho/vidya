@@ -24,6 +24,10 @@ class Donation extends Sequelize.Model {
       type: DataTypes.STRING(100),
       allowNull: true
     },
+    pan:{
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
     PurposeofDonation: {
       type: DataTypes.STRING(100),
       allowNull: true
