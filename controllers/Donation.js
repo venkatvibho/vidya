@@ -69,6 +69,9 @@ const create = async (req, res) => {
           },
           "PurposeofDonation": { 
             "type": "string",
+          },
+          "pan": { 
+            "type": "string",
           }
         } 
       } 
@@ -118,6 +121,7 @@ const list = async (req, res) => {
   //  #swagger.parameters['donation_type'] = {in: 'query',type:'string','enum':['UPI','DD','CASH','CHEQUE','ONLINE']}
   //  #swagger.parameters['ReferenceNo']   = {in: 'query',type:'staing'}
   //  #swagger.parameters['PurposeofDonation']   = {in: 'query',type:'staing'}
+  //  #swagger.parameters['pan']   = {in: 'query',type:'staing'}
   
   try{
       let pageSize = 0;
@@ -138,6 +142,9 @@ const list = async (req, res) => {
       }
       if(req.query.name){
         query['where']['name'] = {[Op.substring]:req.query.name}
+      }
+      if(req.query.pan){
+        query['where']['pan'] = {[Op.substring]:req.query.pan}
       }
       if(req.query.surname){
         query['where']['surname'] = {[Op.substring]:req.query.surname}

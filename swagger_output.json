@@ -232,6 +232,9 @@
                 },
                 "PurposeofDonation": {
                   "type": "string"
+                },
+                "pan": {
+                  "type": "string"
                 }
               }
             }
@@ -339,6 +342,11 @@
           },
           {
             "name": "PurposeofDonation",
+            "in": "query",
+            "type": "staing"
+          },
+          {
+            "name": "pan",
             "in": "query",
             "type": "staing"
           }
